@@ -1,69 +1,228 @@
+"use client"
 
-export default function Home() {
+import type React from "react"
+
+import { useState } from "react"
+import { Play, Camera, Upload, RotateCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+export default function SusFitPage() {
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+  const [isCapturing, setIsCapturing] = useState(false)
+
+  const handlePhotoCapture = () => {
+    setIsCapturing(true)
+    // Simulate photo capture
+    setTimeout(() => {
+      setIsCapturing(false)
+      // In a real app, this would capture from camera
+      setSelectedPhoto("/placeholder.svg?height=300&width=300")
+    }, 2000)
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setSelectedPhoto(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const resetPhoto = () => {
+    setSelectedPhoto(null)
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
+    <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
+      {/* Header */}
+      <header className="px-8 py-6">
+        <div className="max-w-6xl mx-auto">
+          <h1
+            className="title"
+          >
+            The Sus Fit
+          </h1>
+          <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
+          <p className="text-sm text-[#000000]">© THE PRODUCT GROUP</p>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-[#1e1e1e] py-4 overflow-x-auto">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="flex space-x-8 text-white whitespace-nowrap">
+            {[
+              "Posin'",
+              "Just for the gram",
+              "Actin' brand new",
+              "Cappin'",
+              "Glow Up Suspiciously",
+              "Fake it 'til you make it",
+            ].map((item) => (
+              <button key={item} className="cursor-pointer hover:opacity-80 transition-opacity">
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-8 py-12">
+        <div className="flex flex-col lg:flex-row justify-center items-center relative space-y-8 lg:space-y-0">
+          {/* Left Photo Frame */}
+          <div className="relative -rotate-3 lg:-rotate-12 lg:mr-8">
+            {/* <Card className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
+              <span className="absolute -top-6 left-4 text-sm text-[#000000] rotate-3 lg:rotate-12">My angle</span>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-8 h-8 bg-[#000000] rounded-full absolute top-4 left-4"></div>
+                  <div
+                    className="w-32 h-24 bg-[#000000] rounded-3xl mt-12 transition-transform hover:scale-105"
+                    style={{
+                      borderRadius: "50% 20% 50% 20%",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </Card> */}
+          </div>
+
+          {/* Camera Device */}
+  
+
+          {/* Right Photo Frame */}
+          <div className="relative rotate-3 lg:rotate-12 lg:ml-8">
+            {/* <Card className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
+              <span className="absolute -top-6 right-4 text-sm text-[#000000] -rotate-3 lg:-rotate-12">My fit</span>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-8 h-8 bg-[#000000] rounded-full absolute top-4 right-4"></div>
+                  <div
+                    className="w-32 h-24 bg-[#000000] rounded-3xl mt-12 transition-transform hover:scale-105"
+                    style={{
+                      borderRadius: "20% 50% 20% 50%",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </Card> */}
+          </div>
+        </div>
+
+        {/* Side Elements */}
+        <div className="flex flex-col md:flex-row justify-between items-center mt-8 space-y-4 md:space-y-0">
+          {/* Left Side - Video Button */}
+          <div className="flex flex-col items-center">
+            <button className="w-16 h-16 bg-[#f9f8f8] border-2 border-[#000000] rounded-lg flex items-center justify-center mb-2 hover:bg-[#000000] hover:text-[#f9f8f8] transition-colors group">
+              <Play className="w-8 h-8 text-[#000000] group-hover:text-[#f9f8f8] fill-current" />
+            </button>
+            <span className="text-sm text-[#000000]">How you do this?</span>
+          </div>
+
+          {/* Right Side - Snap Button */}
+          <div className="flex space-x-4">
+            <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="file-upload" />
+            <label htmlFor="file-upload">
+              <Button
+                className="bg-[#f9f8f8] text-[#000000] border-2 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8] cursor-pointer"
+                variant="outline"
+                asChild
+              >
+                <span className="flex items-center space-x-2">
+                  <Upload className="w-4 h-4" />
+                  <span>Upload</span>
+                </span>
+              </Button>
+            </label>
+            <Button
+              className="bg-[#f9f8f8] text-[#000000] border-2 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8]"
+              variant="outline"
+              onClick={handlePhotoCapture}
+              disabled={isCapturing}
+            >
+              {isCapturing ? "Capturing..." : "Snap-a-Stunt"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Bottom Photo Frame */}
+        <div className="flex justify-center mt-12">
+          {/* <Card className="w-96 h-96 bg-[#f9f8f8] border-2 border-[#000000] p-8 relative">
+            {selectedPhoto ? (
+              <div className="w-full h-full relative">
+                <img
+                  src={selectedPhoto || "/placeholder.svg"}
+                  alt="Captured photo"
+                  className="w-full h-full object-cover rounded"
+                />
+                <button
+                  onClick={resetPhoto}
+                  className="absolute top-2 right-2 w-8 h-8 bg-[#000000] text-[#f9f8f8] rounded-full flex items-center justify-center hover:bg-[#f9f8f8] hover:text-[#000000] border-2 border-[#000000] transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-[#000000] rounded-full absolute -top-8 left-16"></div>
+                  <div
+                    className="w-48 h-32 bg-[#000000] rounded-3xl transition-transform hover:scale-105"
+                    style={{
+                      borderRadius: "50% 30% 50% 30%",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
+          </Card> */}
+        </div>
+      </main>
+
+      {/* Social Media Footer */}
+      <footer className="flex justify-center py-8">
+        <div className="flex space-x-4 bg-[#f9f8f8] border-2 border-[#000000] rounded-full px-6 py-3">
+          {/* <a
+            href="#"
+            className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <Instagram className="w-6 h-6 text-white" />
+          </a>
+          <a
+            href="#"
+            className="w-12 h-12 bg-[#4460a0] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <Facebook className="w-6 h-6 text-white" />
+          </a> */}
+          <a
+            href="#"
+            className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <span className="text-white font-bold text-lg">t</span>
+          </a>
+          <a
+            href="#"
+            className="w-12 h-12 bg-[#f9f8f8] border-2 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <div className="w-6 h-6 border-2 border-[#000000] rounded-full"></div>
+          </a>
+          <a
+            href="#"
+            className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <span className="text-white font-bold text-lg">P</span>
+          </a>
+        </div>
+      </footer>
+
+      {/* Bottom Copyright */}
+      <div className="text-center pb-8">
+        <p className="text-sm text-[#000000]">© THE PRODUCT GROUP</p>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <h1 className="text-6xl font-bold text-center">
-          My Shifu
-        </h1>
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Claude API{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Powerful AI conversations with Claude API integration
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Pinecone{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Vector database for context storage and retrieval
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            LangChain{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            AI workflow orchestration and prompt engineering
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Testing{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Comprehensive testing with Jest, RTL, and Playwright
-          </p>
-        </div>
-      </div>
-    </main>
+    </div>
   )
 }
