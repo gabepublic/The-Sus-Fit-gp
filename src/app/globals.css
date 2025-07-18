@@ -48,7 +48,7 @@
   --color-susfit-yellow-200: #FEE9B3;
   --color-susfit-yellow-500: #F9B801;
   --color-susfit-yellow-800: #C79301;
-  --color-susfit-yellow-900: #8A6601;
+  --color-susfit-yellow-900: #8B6801;
 
   /* SusFit Green Variations */
   --color-susfit-green-100: #E9FDF3;
@@ -97,6 +97,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Yellow Gradient Background (extracted from image) */
+  --gradient-yellow-warm: linear-gradient(180deg, #F4C430 0%, #DAA520 100%);
+  --gradient-yellow-warm-radial: radial-gradient(ellipse at center, #F4C430 0%, #E6B800 50%, #DAA520 100%);
 }
 
 :root {
@@ -186,17 +190,18 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: var(--font-sans);
+    background-image: var(--gradient-yellow-warm-radial);
   }
-  
+
   h1, h2, h3 {
     font-family: var(--font-secondary);
   }
   .accent-text {
     font-family: var(--font-tertiary);
   }
-  
+
   code, pre {
     font-family: var(--font-mono);
   }
@@ -205,19 +210,43 @@
 @layer components {
   /* Site title */
   .title {
-    display: flex;
-    flex-direction: column;
-    font-family: var(--font-secondary);
-    font-size: 100px;
-    font-weight: 400;
-    line-height: 216.76px;
-    filter: hue-rotate(285deg) saturate(320%) brightness(0.9);
-    text-shadow:   -8px -8px 0 #7561be,
-                   8px -8px 0 #7561be,
-                   -8px 8px 0 #7561be,
-                   8px 8px 0 #7561be;
-    /* background: var(--color-susfit-pink-500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent; */
-  }
+        display: flex;
+        flex-direction: column;
+        font-family: var(--font-secondary);
+        font-size: 100px;
+        font-weight: 400;
+        line-height: 216.76px;
+        filter: hue-rotate(285deg) saturate(320%) brightness(0.9);
+        text-shadow:   -8px -8px 0 #7561be,
+                       8px -8px 0 #7561be,
+                       -8px 8px 0 #7561be,
+                       8px 8px 0 #7561be;
+        /* background: var(--color-susfit-pink-500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; */
+      }
+
+    .ticker-container {
+        background-color: var(--color-susfit-black) ;
+        color: var(--color-susfit-pink-800) ;
+        padding: 12px 0;
+        font-family: Arial, sans-serif;
+        border-top: 2px solid var(--color-susfit-teal-500);
+        border-bottom: 2px solid var(--color-susfit-teal-500);
+    }
+
+    .ticker-item {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-right: 30px;
+        white-space: nowrap;
+    }
+
+    .separator {
+        color: var(--color-susfit-teal-500);
+        font-weight: bold;
+        margin: 0 15px;
+    }
 }

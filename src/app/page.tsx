@@ -5,6 +5,9 @@ import type React from "react"
 import { useState } from "react"
 import { Play, Camera, Upload, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {SaucyTicker} from  "@/components/ui/saucy-ticker"
+import { HeroImage } from "@/components/ui/hero-image"
+import { BrutalismCard } from "@/components/ui/brutalism-card"
 
 export default function SusFitPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
@@ -46,36 +49,22 @@ export default function SusFitPage() {
             The Sus Fit
           </h1>
           <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
-          <p className="text-sm text-[#000000]">© THE PRODUCT GROUP</p>
+          <p className="text-sm text-[#000000]"> THE PRODUCT GROUP</p>
         </div>
       </header>
 
-      {/* Navigation */}
-      <nav className="bg-[#1e1e1e] py-4 overflow-x-auto">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="flex space-x-8 text-white whitespace-nowrap">
-            {[
-              "Posin'",
-              "Just for the gram",
-              "Actin' brand new",
-              "Cappin'",
-              "Glow Up Suspiciously",
-              "Fake it 'til you make it",
-            ].map((item) => (
-              <button key={item} className="cursor-pointer hover:opacity-80 transition-opacity">
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-
+      {/* ticker */}
+      <SaucyTicker/>
+      
+      {/* Hero Image Section */}
+      <HeroImage src="/images/PolaroidCamera.png" alt="Hero Image" />
+      
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 py-12">
+      <main className="max-w-6xl mx-auto px-8 py-12 relative">
         <div className="flex flex-col lg:flex-row justify-center items-center relative space-y-8 lg:space-y-0">
           {/* Left Photo Frame */}
           <div className="relative -rotate-3 lg:-rotate-12 lg:mr-8">
-            {/* <Card className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
+            <BrutalismCard className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
               <span className="absolute -top-6 left-4 text-sm text-[#000000] rotate-3 lg:rotate-12">My angle</span>
               <div className="w-full h-full flex items-center justify-center">
                 <div className="relative">
@@ -88,11 +77,11 @@ export default function SusFitPage() {
                   ></div>
                 </div>
               </div>
-            </Card> */}
+            </BrutalismCard>
           </div>
 
           {/* Camera Device */}
-  
+
 
           {/* Right Photo Frame */}
           <div className="relative rotate-3 lg:rotate-12 lg:ml-8">
@@ -221,7 +210,7 @@ export default function SusFitPage() {
 
       {/* Bottom Copyright */}
       <div className="text-center pb-8">
-        <p className="text-sm text-[#000000]">© THE PRODUCT GROUP</p>
+        <p className="text-sm text-[#000000]"> THE PRODUCT GROUP</p>
       </div>
     </div>
   )
