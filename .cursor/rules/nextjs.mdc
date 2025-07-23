@@ -1,0 +1,120 @@
+---
+description: Next.js with TypeScript and Tailwind UI best practices
+globs: **/*.tsx, **/*.ts, src/**/*.ts, src/**/*.tsx
+alwaysApply: false
+---
+# Next.js Best Practices
+
+## Project Structure
+- Use the App Router directory structure
+- Place components in `src/app` directory for route-specific components
+- Place shared components in `src/components` directory
+  - `src/components/ui/` - shadcn/ui base components
+  - `src/components/` - Custom React components
+- Place react context providers in the `src/context` directory
+- Place custom react hooks in the `src/hooks` directory
+- Place utilities and API integrations in `src/lib` directory
+- Place Typescript type definitions in the `src/types` directory
+- Place tests in the `src/test` directory
+- Place helper functions and constants in the `src/utils` directory
+- Use lowercase with dashes for directories (e.g., `components/auth-wizard`)
+- Follow Next.js naming conventions for special files
+- Use environment variables for configuration
+
+### Testing directory structure
+- `src/test/` - Test utilities and setup
+- `src/test/mocks/` - MSW mock handlers
+- `src/test/utils.tsx` - Testing utilities with context providers
+- `__tests__/` - Unit and integration tests
+- `e2e/` - Playwright E2E tests
+
+### Examples Directory
+- `examples/components/` - Component pattern examples
+- `examples/hooks/` - Custom hook examples
+- `examples/context/` - Context provider examples
+- `examples/pages/` - Next.js page examples
+- `examples/api/` - API route examples
+- `examples/types/` - TypeScript interface examples
+
+## 📎 Style & Conventions
+- **Next.js 15+ App Router** - no Pages Router
+- **TypeScript everywhere** - no JavaScript files except config
+- **TypeScript strict mode** - no any/unknown types
+- **Consistent imports** - absolute imports with @ paths, relative for same directory
+- **Tailwind CSS** for all styling
+- **shadcn/ui** for base components
+- **Prettier + ESLint** configured and followed
+
+## 🧱 Components & Modularity
+- Use Server Components by default
+- Implement client components only when necessary
+- Mark client components explicitly with 'use client'
+- Wrap client components in Suspense with fallback
+- Use dynamic loading for non-critical components
+- Use CSS Modules or Tailwind CSS for styling
+- Implement proper error boundaries
+- Place static content and interfaces at file end
+- **Component files max 200 lines** - split into smaller components if longer
+- **Custom hooks in separate files** - one hook per file in "hooks" folder
+
+## Performance
+- Utilize Next.js Image component for optimized images
+- Optimize images: Use WebP format, size data, lazy loading
+- Minimize use of 'useEffect' and 'setState'
+- Favor Server Components (RSC) where possible
+- Use dynamic loading for non-critical components
+- Implement proper caching strategies
+
+## Data Fetching
+- Use Server Components for data fetching when possible
+- Implement proper error handling for data fetching
+- Use appropriate caching strategies
+- Handle loading and error states appropriately
+
+## Routing
+- Utilize the file-based routing system
+- Use the App Router conventions
+- Implement proper loading and error states for routes
+- Use dynamic routes appropriately
+- Handle parallel routes when needed
+- Utilize route handlers for API routes
+
+## Forms and Validation
+- Use Zod for form validation
+- Implement proper server-side validation
+- Handle form errors appropriately
+- Show loading states during form submission
+
+## State Management
+- Minimize client-side state
+- Use React Context sparingly
+- Prefer server state when possible
+- Implement proper loading states 
+
+## 🧪 Testing & Reliability
+- **Jest + React Testing Library** for component tests
+- **Playwright** for E2E tests
+- **MSW** for API mocking
+- **Test every component** with at least happy path, error state, loading state
+
+### Testing
+- Unit tests for all components and hooks
+- Integration tests for API integrations
+- E2E tests for complete user workflows
+- Mock service worker for API testing
+- Test utilities for context providers
+- Accessibility testing with @testing-library/jest-dom
+
+
+## Development Workflow
+- ESLint and Prettier for code quality
+- TypeScript strict mode with no any/unknown types
+- Pre-commit hooks for code quality
+- ✅ Task Completion
+  - **Run validation commands** after each implementation including the Environment variable validation.
+  - **Fix all TypeScript errors** before proceeding
+  - **Ensure accessibility** (ARIA labels, keyboard navigation)
+
+
+@typescript.mdc
+@tailwind.mdc
