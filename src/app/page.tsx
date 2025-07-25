@@ -12,6 +12,8 @@ import { BrutalismCard } from "@/components/ui/brutalism-card"
 export default function SusFitPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
   const [isCapturing, setIsCapturing] = useState(false)
+  const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
+  const [rightCardImage, setRightCardImage] = useState<string | null>(null)
 
   const handlePhotoCapture = () => {
     setIsCapturing(true)
@@ -38,6 +40,14 @@ export default function SusFitPage() {
     setSelectedPhoto(null)
   }
 
+  const handleLeftCardImageUpload = (imageUrl: string) => {
+    setLeftCardImage(imageUrl)
+  }
+
+  const handleRightCardImageUpload = (imageUrl: string) => {
+    setRightCardImage(imageUrl)
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
       {/* Header */}
@@ -55,126 +65,121 @@ export default function SusFitPage() {
 
       {/* ticker */}
       <SaucyTicker/>
-      
-      {/* Hero Image Section */}
-      <HeroImage src="/images/PolaroidCamera.png" alt="Hero Image" />
-      
+
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 py-12 relative">
-        <div className="flex flex-col lg:flex-row justify-center items-center relative space-y-8 lg:space-y-0">
-          {/* Left Photo Frame */}
-          <div className="relative -rotate-3 lg:-rotate-12 lg:mr-8">
-            <BrutalismCard className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
-              <span className="absolute -top-6 left-4 text-sm text-[#000000] rotate-3 lg:rotate-12">My angle</span>
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="relative">
-                  <div className="w-8 h-8 bg-[#000000] rounded-full absolute top-4 left-4"></div>
-                  <div
-                    className="w-32 h-24 bg-[#000000] rounded-3xl mt-12 transition-transform hover:scale-105"
-                    style={{
-                      borderRadius: "50% 20% 50% 20%",
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </BrutalismCard>
-          </div>
+      <main className="max-w-8xl mx-auto px-8 py-12 relative">
+        <div className="flex flex-col  justify-center items-center relative space-y-8 lg:space-y-0">
 
-          {/* Camera Device */}
-
-
-          {/* Right Photo Frame */}
-          <div className="relative rotate-3 lg:rotate-12 lg:ml-8">
-            {/* <Card className="w-64 h-64 bg-[#f9f8f8] border-2 border-[#000000] p-4 relative">
-              <span className="absolute -top-6 right-4 text-sm text-[#000000] -rotate-3 lg:-rotate-12">My fit</span>
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="relative">
-                  <div className="w-8 h-8 bg-[#000000] rounded-full absolute top-4 right-4"></div>
-                  <div
-                    className="w-32 h-24 bg-[#000000] rounded-3xl mt-12 transition-transform hover:scale-105"
-                    style={{
-                      borderRadius: "20% 50% 20% 50%",
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </Card> */}
-          </div>
-        </div>
-
-        {/* Side Elements */}
-        <div className="flex flex-col md:flex-row justify-between items-center mt-8 space-y-4 md:space-y-0">
-          {/* Left Side - Video Button */}
-          <div className="flex flex-col items-center">
-            <button className="w-16 h-16 bg-[#f9f8f8] border-2 border-[#000000] rounded-lg flex items-center justify-center mb-2 hover:bg-[#000000] hover:text-[#f9f8f8] transition-colors group">
-              <Play className="w-8 h-8 text-[#000000] group-hover:text-[#f9f8f8] fill-current" />
-            </button>
-            <span className="text-sm text-[#000000]">How you do this?</span>
-          </div>
-
-          {/* Right Side - Snap Button */}
-          <div className="flex space-x-4">
-            <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="file-upload" />
-            <label htmlFor="file-upload">
-              <Button
-                className="bg-[#f9f8f8] text-[#000000] border-2 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8] cursor-pointer"
-                variant="outline"
-                asChild
-              >
-                <span className="flex items-center space-x-2">
-                  <Upload className="w-4 h-4" />
-                  <span>Upload</span>
-                </span>
-              </Button>
-            </label>
-            <Button
-              className="bg-[#f9f8f8] text-[#000000] border-2 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8]"
-              variant="outline"
-              onClick={handlePhotoCapture}
-              disabled={isCapturing}
-            >
-              {isCapturing ? "Capturing..." : "Snap-a-Stunt"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Bottom Photo Frame */}
-        <div className="flex justify-center mt-12">
-          {/* <Card className="w-96 h-96 bg-[#f9f8f8] border-2 border-[#000000] p-8 relative">
-            {selectedPhoto ? (
-              <div className="w-full h-full relative">
-                <img
-                  src={selectedPhoto || "/placeholder.svg"}
-                  alt="Captured photo"
-                  className="w-full h-full object-cover rounded"
+            {/* Hero Image as background */}
+            <div className="absolute inset-0 flex justify-center items-center overflow-hidden z-0">
+                <HeroImage
+                    src="/images/PolaroidCamera.png"
+                    alt="Hero Image"
+                    className="w-[210%] max-w-none object-contain transform-gpu scale-150"
                 />
-                <button
-                  onClick={resetPhoto}
-                  className="absolute top-2 right-2 w-8 h-8 bg-[#000000] text-[#f9f8f8] rounded-full flex items-center justify-center hover:bg-[#f9f8f8] hover:text-[#000000] border-2 border-[#000000] transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-[#000000] rounded-full absolute -top-8 left-16"></div>
-                  <div
-                    className="w-48 h-32 bg-[#000000] rounded-3xl transition-transform hover:scale-105"
-                    style={{
-                      borderRadius: "50% 30% 50% 30%",
-                    }}
-                  ></div>
+            </div>
+
+            <div className="flex flex-col   relative z-10 w-[100%]  h-[100%] max-w-6xl">
+                {/* Content container with z-index to float above background */}
+                <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
+                            {/* Left Photo Frame */}
+                          <div className="relative -rotate-2 lg:-rotate-16">
+                            <BrutalismCard
+                              className="w-80 h-120 p-4 relative"
+                              title="Upload Your Angle"
+                              onImageUpload={handleLeftCardImageUpload}
+                            />
+                          </div>
+
+
+                          {/* Right Upload Frame */}
+                          <div className="relative rotate-2 lg:rotate-16">
+                            <BrutalismCard
+                              className="w-80 h-120 p-4 relative"
+                              buttonPosition="right"
+                              backgroundImage="/images/ScoredGarment.jpg"
+                              title="Select your Fit"
+                              shadowRotation="rotate-0"
+                              onImageUpload={handleRightCardImageUpload}
+                           />
+                          </div>
                 </div>
-              </div>
-            )}
-          </Card> */}
-        </div>
+
+                {/* Side Elements */}
+                <div className="flex flex-col md:flex-row justify-between items-center mt-8 space-y-4 md:space-y-0">
+                  {/* Left Side - Video Button */}
+                  <div className="flex flex-col items-center">
+                    <button className="w-16 h-16 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center mb-2 hover:bg-[#000000] hover:text-[#f9f8f8] transition-colors group">
+                      <Play className="w-8 h-8 text-[#000000] group-hover:text-[#f9f8f8] fill-current" />
+                    </button>
+                    <span className="text-sm text-[#000000]">How you do this?</span>
+                  </div>
+
+                  {/* Right Side - Snap Button */}
+                  <div className="flex space-x-4">
+                    <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="file-upload" />
+                    <label htmlFor="file-upload">
+                      <Button
+                        className="bg-[#f9f8f8] text-[#000000] border-1 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8] cursor-pointer"
+                        variant="outline"
+                        asChild
+                      >
+                        <span className="flex items-center space-x-2">
+                          <Upload className="w-4 h-4" />
+                          <span>Upload</span>
+                        </span>
+                      </Button>
+                    </label>
+                    <Button
+                      className="bg-[#f9f8f8] text-[#000000] border-1 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8]"
+                      variant="outline"
+                      onClick={handlePhotoCapture}
+                      disabled={isCapturing}
+                    >
+                      {isCapturing ? "Capturing..." : "Snap-a-Stunt"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom Photo Frame */}
+                <div className="flex justify-center mt-12">
+                  {/* <Card className="w-96 h-96 bg-[#f9f8f8] border-2 border-[#000000] p-8 relative">
+                    {selectedPhoto ? (
+                      <div className="w-full h-full relative">
+                        <img
+                          src={selectedPhoto || "/placeholder.svg"}
+                          alt="Captured photo"
+                          className="w-full h-full object-cover rounded"
+                        />
+                        <button
+                          onClick={resetPhoto}
+                          className="absolute top-2 right-2 w-8 h-8 bg-[#000000] text-[#f9f8f8] rounded-full flex items-center justify-center hover:bg-[#f9f8f8] hover:text-[#000000] border-2 border-[#000000] transition-colors"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="relative">
+                          <div className="w-12 h-12 bg-[#000000] rounded-full absolute -top-8 left-16"></div>
+                          <div
+                            className="w-48 h-32 bg-[#000000] rounded-3xl transition-transform hover:scale-105"
+                            style={{
+                              borderRadius: "50% 30% 50% 30%",
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </Card> */}
+                </div>
+            </div>
+         </div>
       </main>
 
       {/* Social Media Footer */}
       <footer className="flex justify-center py-8">
-        <div className="flex space-x-4 bg-[#f9f8f8] border-2 border-[#000000] rounded-full px-6 py-3">
+        <div className="flex space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-6 py-3">
           {/* <a
             href="#"
             className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
@@ -195,9 +200,9 @@ export default function SusFitPage() {
           </a>
           <a
             href="#"
-            className="w-12 h-12 bg-[#f9f8f8] border-2 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+            className="w-12 h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
           >
-            <div className="w-6 h-6 border-2 border-[#000000] rounded-full"></div>
+            <div className="w-6 h-6 border-1 border-[#000000] rounded-full"></div>
           </a>
           <a
             href="#"
