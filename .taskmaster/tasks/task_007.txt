@@ -1,0 +1,70 @@
+# Task ID: 7
+# Title: Build Global Responsive Layout Shell
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Create Header, Mobile Nav, Content container, and Footer using Tailwind & shadcn.
+# Details:
+• Implement layout in `app/layout.tsx` with semantic HTML
+• Header: brand logo + hamburger menu (mobile) or inline nav (desktop)
+• Apply `min-h-screen flex flex-col` to root
+• Use CSS grid/flex for responsiveness; test breakpoints 640px & 1024px
+
+# Test Strategy:
+• Resize browser & use Chrome DevTools – layout adapts without horizontal scroll
+• Keyboard navigation cycles through interactive elements correctly
+
+# Subtasks:
+## 1. Scaffold Root Layout File [pending]
+### Dependencies: None
+### Description: Create `app/layout.tsx` that wraps every page with a semantic HTML skeleton and baseline Tailwind classes.
+### Details:
+• Generate `app/layout.tsx` with `<html>`, `<body class="min-h-screen flex flex-col antialiased">`, `<header />`, `<main className="flex-1" />`, and `<footer />`.
+• Import global CSS and `Inter`/`Poppins` fonts (from Task 5) via Next.js `<link>` or `next/font`.
+• Expose `{children}` inside `<main>`.
+• Include basic metadata (`<title>`, viewport) using Next.js metadata export.
+• Add Tailwind `container` class to `<main>` so content is centered with fixed paddings.
+• Commit file with placeholder components to unblock downstream work.
+
+## 2. Build Header Component Shell [pending]
+### Dependencies: 7.1
+### Description: Create a responsive `components/Header.tsx` with brand logo, nav container, and hamburger trigger placeholder.
+### Details:
+• Create `components/Header.tsx` exporting `<header className="w-full border-b">` that contains a flex row: brand link left, nav area right.
+• Use Tailwind classes `flex items-center justify-between h-16 px-4 md:px-6`.
+• Import logo SVG or text, wrapped in Next.js `<Link href="/">`.
+• Add `<Navigation />` placeholder component and `<MobileMenuButton />` that is `md:hidden`.
+• Export and insert `<Header />` into `app/layout.tsx` replacing placeholder header.
+• Ensure `role="banner"` and proper ARIA labels on buttons.
+
+## 3. Implement Mobile Navigation Drawer [pending]
+### Dependencies: 7.2
+### Description: Create accessible off-canvas menu using shadcn/ui Sheet component, wired to hamburger button.
+### Details:
+• Run `npx shadcn-ui@latest add sheet` to scaffold Sheet.
+• Build `components/MobileNav.tsx` that wraps `<Sheet>` with list of `<Link>` items (`Home`, `Docs`, `Blog`, `Contact`).
+• Hook state by lifting `useState` to `Header` or using shadcn’s `SheetTrigger` on the hamburger button created in Subtask 2.
+• Apply `md:hidden` on trigger and drawer content to ensure it only shows on small screens.
+• Add Tailwind classes `space-y-2 text-lg font-medium` inside drawer.
+• Ensure focus trap, ESC close, and aria-labels per shadcn guidelines.
+
+## 4. Implement Desktop Inline Navigation [pending]
+### Dependencies: 7.2
+### Description: Add horizontal nav list visible ≥ md breakpoint and hide hamburger button.
+### Details:
+• Create `components/DesktopNav.tsx` returning `<nav className="hidden md:flex gap-6" aria-label="Main">` with same link set as mobile.
+• Style active link state with Tailwind `data-[active]:font-semibold` or `aria-current="page"`.
+• Insert `<DesktopNav />` alongside logo in `Header`, wrapped in `md:flex` while existing `MobileMenuButton` remains `md:hidden`.
+• Optionally use shadcn `Button` variant `link` for each nav item for consistent theming.
+
+## 5. Create Footer and Final Responsive Polish [pending]
+### Dependencies: 7.1, 7.2, 7.3, 7.4
+### Description: Add semantic footer, finalize spacing, and verify responsiveness across breakpoints.
+### Details:
+• Build `components/Footer.tsx` with `<footer className="w-full border-t py-6 text-sm text-center">© {new Date().getFullYear()} Acme Inc.</footer>`.
+• Insert into `app/layout.tsx` replacing placeholder footer.
+• Audit spacing: ensure `<main>` has `pb-12` so content doesn’t butt against footer on long pages.
+• Use Tailwind container queries or utility classes to fix any wrap issues at 640 px & 1024 px.
+• Run `npm run lint` to pass eslint / formatting.
+• Commit and push for PR review.
+

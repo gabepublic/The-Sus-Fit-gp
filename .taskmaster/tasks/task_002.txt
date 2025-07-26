@@ -1,0 +1,65 @@
+# Task ID: 2
+# Title: Upgrade & Configure Next.js + TypeScript Baseline
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Bring scaffold to Next.js 15+, TypeScript 5+, Node 22 LTS, and enable strict settings.
+# Details:
+• Bump Next.js, React, React-DOM, and TypeScript in package.json
+• Add `engines` field for Node 22
+• Enable `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` in tsconfig
+• Verify `app/` directory structure with App Router
+• Remove example boilerplate pages/components
+
+# Test Strategy:
+• `npm run build` completes with 0 TS errors
+• Visit localhost:3000 → starter page renders
+• Run `node -v` check in CI to assert 22.x
+
+# Subtasks:
+## 1. Upgrade core dependencies to Next.js 15+, React 18+, TypeScript 5+ [pending]
+### Dependencies: None
+### Description: Bring all framework and language dependencies to the required major versions in package.json.
+### Details:
+• Update package.json versions: "next": "^15.0.0", "react": "^18.0.0", "react-dom": "^18.0.0", "typescript": "^5.0.0".
+• Run `npm install` and resolve peer-dependency warnings.
+• Remove lock-file references to outdated packages (delete package-lock.json/yarn.lock before install if necessary).
+• Commit the modified package.json and lock file once install succeeds.
+
+## 2. Enable strict TypeScript compiler options [pending]
+### Dependencies: 2.1
+### Description: Turn on strict mode and additional safety flags to tighten type checking.
+### Details:
+• Open tsconfig.json; ensure `compilerOptions.strict` is true.
+• Add/enable `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`.
+• Remove deprecated or redundant tsconfig flags.
+• Run `npx tsc --noEmit` to surface new type errors; create TODO comments or temporary `@ts-expect-error` where migration will follow.
+
+## 3. Adopt App Router structure and prune boilerplate [pending]
+### Dependencies: 2.1, 2.2
+### Description: Migrate pages/ directory to app/ router paradigm and delete example components.
+### Details:
+• Create `app/` at project root with layout.tsx, page.tsx, globals.css import.
+• Move any existing meaningful pages into `app/` hierarchy, updating `link` and import paths.
+• Delete legacy `pages/` directory and example boilerplate components/pages.
+• Update route imports to use React Server Components where appropriate (e.g., async page).
+• Fix resulting type/import errors.
+
+## 4. Specify Node 22 LTS engine and align scripts [pending]
+### Dependencies: 2.1
+### Description: Lock runtime to Node.js 22 and ensure local & CI scripts respect it.
+### Details:
+• Add `"engines": { "node": ">=22.0.0 <23" }` to package.json.
+• Introduce `"engine-strict": true` in `.npmrc` to enforce.
+• Update README and `.nvmrc` / `.tool-versions` (if used) to `22`.
+• Adjust any CI config (e.g., `.github/workflows`) to use `actions/setup-node@v4` with `node-version: 22.x`.
+
+## 5. Full build, type-check, and runtime verification [pending]
+### Dependencies: 2.1, 2.2, 2.3, 2.4
+### Description: Ensure the upgraded scaffold builds and runs cleanly in production mode.
+### Details:
+• Execute `npm run build` → expect zero TypeScript errors and successful Next.js compilation.
+• Run `npm start` (or `next start`) and hit `http://localhost:3000` to confirm runtime health.
+• Inspect server logs for warnings.
+• Tag release `v0.1.0-upgrade` once all checks pass.
+

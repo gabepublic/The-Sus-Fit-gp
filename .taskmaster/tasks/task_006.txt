@@ -1,0 +1,88 @@
+# Task ID: 6
+# Title: Integrate Lucide React Icons & Custom SVG Pipeline
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Provide scalable iconography using Lucide and easy ingestion of custom SVGs.
+# Details:
+• `npm i lucide-react`
+• Create `Icon.tsx` wrapper for size/color props with default styling
+• Configure SVGR in `next.config.js` to import custom SVGs as React components
+• Document usage in `README.md`
+
+# Test Strategy:
+• Render `<LucideSearch />` and custom logo icon on page, ensure no console warnings
+• Verify bundle analyzer shows single instance tree-shaken
+
+# Subtasks:
+## 1. Install and Pin Lucide React Dependency [pending]
+### Dependencies: None
+### Description: Add the Lucide React icon package to the project and lock its version for reproducible builds.
+### Details:
+1. Run `npm i lucide-react@^0` (or the latest major).
+2. Commit the updated `package.json` and `package-lock.json`/`pnpm-lock.yaml`.
+3. Optionally add a `resolutions`/`overrides` block if using Yarn/Pnpm to avoid transitive duplicates.
+4. Verify installation by importing `import { Search } from "lucide-react";` in any test file and running `npm run build`.
+
+## 2. Create Re-usable Icon.tsx Wrapper Component [pending]
+### Dependencies: 6.1
+### Description: Abstract Lucide icons behind a single component that normalises size, colour, className and accessibility props.
+### Details:
+1. Inside `components/ui` (or preferred folder) add `Icon.tsx`.
+2. Accept props: `name: LucideIcon`, `size?: number`, `color?: string`, `className?: string`, `ariaLabel?: string`.
+3. Apply defaults: `size=24`, `color="currentColor"`, spread `...rest` to allow inline props.
+4. Render with: `<IconComponent size={size} color={color} className={clsx('inline', className)} aria-label={ariaLabel} />`.
+5. Export helper type `type LucideIcon = (props: LucideProps) => JSX.Element` to enforce strict typing.
+6. Add Storybook/preview example for quick visual regression (optional).
+
+## 3. Configure SVGR in next.config.js for Custom SVG Imports [pending]
+### Dependencies: 6.1
+### Description: Enable importing arbitrary SVG files as typed React components using SVGR, aligning output API with Icon.tsx expectations.
+### Details:
+1. Install `@svgr/webpack -D`.
+2. Extend `next.config.js` `webpack` section:
+   ```js
+   webpack(config) {
+     config.module.rules.push({
+       test: /\.svg$/,
+       issuer: /\.[jt]sx?$/,
+       use: [
+         {
+           loader: '@svgr/webpack',
+           options: {
+             icon: true, // converts height/width to `1em`
+             svgo: true,
+             svgoConfig: {
+               plugins: [{ name: 'removeViewBox', active: false }]
+             },
+             typescript: true
+           }
+         }
+       ]
+     });
+     return config;
+   }
+   ```
+3. Create `icons/custom/logo.svg` sample file.
+4. Import in code: `import LogoIcon from '@/icons/custom/logo.svg';`
+
+## 4. Demonstrate Icon Usage and Verify Bundle Optimisation [pending]
+### Dependencies: 6.2, 6.3
+### Description: Add example icons to a demo page and run bundle analysis to ensure tree-shaking keeps a single Lucide instance.
+### Details:
+1. Add `app/icon-demo/page.tsx` (or equivalent route).
+2. Render `<Icon name={Search} size={32} color="#6366f1" />` and `<LogoIcon className="h-8 w-8 text-emerald-500" />`.
+3. Execute `npm run dev` and observe browser — both icons should appear with no console errors.
+4. Install `@next/bundle-analyzer` ‑ configure via `ANALYZE=true npm run build`.
+5. Check the report: only one Lucide icon module and one shared helpers chunk should remain.
+
+## 5. Document Icon Pipeline in README.md [pending]
+### Dependencies: 6.4
+### Description: Provide clear developer instructions for adding Lucide icons and custom SVGs, including reference examples.
+### Details:
+1. In `README.md`, add a new section "Iconography".
+2. Document installation (handled by workspace), usage of `<Icon>` with Lucide examples, and how to import an `.svg` directly.
+3. Include code snippets for both default and coloured icons.
+4. Link to Lucide docs and internal design guidelines.
+5. Add troubleshooting tips (e.g., webpack cache issue, SVG without viewBox).
+

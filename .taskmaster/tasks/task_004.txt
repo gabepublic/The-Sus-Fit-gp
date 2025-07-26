@@ -1,0 +1,67 @@
+# Task ID: 4
+# Title: Install & Configure shadcn/ui Component Library
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Add shadcn/ui for accessible, theme-able React components.
+# Details:
+• `npx shadcn-ui@latest init` → choose TailwindCSS & TypeScript
+• Configure paths to `components/ui`
+• Generate sample Button and Dialog
+• Extend Tailwind config with shadcn presets
+
+# Test Strategy:
+• Import `<Button>` on homepage – click triggers alert
+• Lighthouse check → accessibility score ≥ 90
+
+# Subtasks:
+## 1. Install shadcn/ui CLI & Initialize Library [pending]
+### Dependencies: None
+### Description: Add shadcn/ui CLI as a dev-dependency and run the interactive init to scaffold the base configuration for a TailwindCSS + TypeScript Next.js project.
+### Details:
+1. Run `npm i -D shadcn-ui` (or `pnpm add -D shadcn-ui`).
+2. Execute `npx shadcn-ui@latest init`.
+   • Select "TailwindCSS" as the styling solution.
+   • Select "TypeScript" when prompted.
+3. Commit the auto-generated `.shadcn-ui.json` (or equivalent) so the project retains chosen paths/theme.
+4. Verify that no files were overwritten unintentionally by running `git diff`.
+5. Document the installed version in CHANGELOG.
+
+## 2. Configure Component Paths & Import Aliases [pending]
+### Dependencies: 4.1
+### Description: Align shadcn/ui generated files with the project’s folder structure (`components/ui`) and create TypeScript path aliases for clean imports.
+### Details:
+1. In `.shadcn-ui.json`, set `components` to "components/ui" and `rsc` to `false` (or project-specific value).
+2. Update `tsconfig.json` → `compilerOptions.paths`:
+   "@/components/ui/*": ["components/ui/*"].
+3. Re-run `npx shadcn-ui@latest sync` to regenerate the index file reflecting the new path.
+4. Add an ESLint rule override (import/no-unresolved) if necessary to honor the alias.
+
+## 3. Generate Sample Button & Dialog Components [pending]
+### Dependencies: 4.1, 4.2
+### Description: Scaffold commonly used components to validate generation pipeline and provide concrete examples for future development.
+### Details:
+1. Run `npx shadcn-ui@latest add button`.
+2. Run `npx shadcn-ui@latest add dialog`.
+3. Confirm two new files exist under `components/ui` with accompanying styles.
+4. Commit generated code; ensure no lint or type errors.
+
+## 4. Extend Tailwind Configuration with shadcn Presets [pending]
+### Dependencies: 4.3
+### Description: Integrate shadcn/ui’s required Tailwind plugin and theme tokens into the existing Tailwind v4 setup.
+### Details:
+1. Open `tailwind.config.ts` and add `...require("tailwindcss-animate")` to the `plugins` array.
+2. Merge shadcn’s radius, font, and color tokens into `theme.extend` (copy from generated `components/theme.ts` if provided).
+3. Ensure JIT purge paths include `components/ui/**/*.{ts,tsx}`.
+4. Restart the dev server so Tailwind picks up the new config.
+
+## 5. Validate Integration & Accessibility Baseline [pending]
+### Dependencies: 4.4
+### Description: Embed a `<Button>` instance on the home page, verify functionality, and run accessibility checks to confirm ≥90 score.
+### Details:
+1. Edit `app/page.tsx` (or index route) to import `Button` from `@/components/ui/button`.
+2. Add an `onClick={() => alert('Shadcn ready')}` handler.
+3. Start the dev server and click the button to ensure interaction works.
+4. Execute Lighthouse in Chrome DevTools (desktop & mobile) and record the accessibility score.
+5. If score < 90, inspect contrast issues or missing ARIA attributes from generated components and adjust Tailwind theme accordingly.
+

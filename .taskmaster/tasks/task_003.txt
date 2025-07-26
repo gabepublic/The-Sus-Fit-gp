@@ -1,0 +1,87 @@
+# Task ID: 3
+# Title: Integrate TailwindCSS v4 + PostCSS
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Add TailwindCSS styling pipeline with JIT, content purge, and custom theme tokens.
+# Details:
+• `npm i -D tailwindcss@^4 postcss autoprefixer`
+• Execute `npx tailwindcss init -p`
+• Configure `tailwind.config.ts` content paths: `./app/**/*.{ts,tsx}`
+• Define color palette, font families (Inter/Poppins placeholders) and breakpoints
+• Import `globals.css` in `app/layout.tsx`
+
+# Test Strategy:
+• Run `npm run dev` → no Tailwind compilation errors
+• Create sample utility classes in index page; verify styling in DevTools
+• Inspect build output: unused classes purged
+
+# Subtasks:
+## 1. Install TailwindCSS v4 & PostCSS toolchain [pending]
+### Dependencies: None
+### Description: Add required build-time dependencies and generate baseline configuration files for TailwindCSS and PostCSS.
+### Details:
+1. From the project root run `npm i -D tailwindcss@^4 postcss autoprefixer`.
+2. Execute `npx tailwindcss init -p` – this creates `tailwind.config.ts` (TypeScript template) and `postcss.config.js` pre-wired with `tailwindcss` and `autoprefixer` plugins.
+3. Commit the lockfile and new config files to version control.
+
+## 2. Configure content paths & purge strategy [pending]
+### Dependencies: 3.1
+### Description: Ensure Tailwind’s JIT compiler scans only project source files and purges unused styles in production builds.
+### Details:
+1. Open `tailwind.config.ts`.
+2. Replace the default `content` array with `["./app/**/*.{ts,tsx}"]` so all route files and components are included.
+3. No explicit `mode: 'jit'` flag is required in v4 (enabled by default).
+4. Verify PostCSS build triggers only for files matching the pattern by running `NEXT_PUBLIC_TAILWIND_MODE=watch npm run dev` and checking console output.
+
+## 3. Define custom theme tokens (colors, fonts, breakpoints) [pending]
+### Dependencies: 3.1
+### Description: Extend Tailwind’s default theme to include the project’s design-system primitives.
+### Details:
+1. Inside `tailwind.config.ts`, add:
+   ```ts
+   theme: {
+     extend: {
+       colors: {
+         primary: "#2563eb",
+         secondary: "#9333ea",
+         accent:   "#14b8a6",
+       },
+       fontFamily: {
+         sans: ["Inter", "ui-sans-serif", "system-ui"],
+         display: ["Poppins", "ui-sans-serif", "system-ui"],
+       },
+       screens: {
+         'xs': '480px',
+         ...defaultTheme.screens, // keep Tailwind defaults
+       },
+     },
+   }
+   ```
+2. Optionally expose the palette as CSS variables in `:root` (to be referenced later by components).
+
+## 4. Create global stylesheet and wire into Next.js layout [pending]
+### Dependencies: 3.1, 3.3
+### Description: Add Tailwind directives to a global CSS file and ensure the file is loaded application-wide.
+### Details:
+1. Create `app/styles/globals.css` (or `./styles/globals.css` in monorepos).
+2. Add Tailwind base imports:
+   ```css
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   ```
+3. (Optional) Define CSS variables for the custom color palette under `:root`.
+4. In `app/layout.tsx`, add `import "@/styles/globals.css";` at the top (adjust path if different).
+5. Restart the dev server to apply PostCSS pipeline to the new file.
+
+## 5. Validate build & purge correctness [pending]
+### Dependencies: 3.2, 3.4
+### Description: Run both development and production builds to confirm Tailwind compiles without errors and tree-shakes unused classes.
+### Details:
+1. Development check: `npm run dev` – ensure there are no Tailwind or PostCSS errors in the terminal and hot-reloading works.
+2. Production check: execute `npm run build && npm start`.
+3. Inspect the generated CSS bundle size (e.g., `node_modules/.next/static/css/*.css`). It should be <10 KB if purge is effective.
+4. Render sample utilities (e.g., `flex`, `md:grid`, `bg-secondary`) in `app/page.tsx` and manually verify styles in the browser.
+5. Commit all finalized configuration files.
+

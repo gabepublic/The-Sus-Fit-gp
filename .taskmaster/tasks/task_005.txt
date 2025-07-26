@@ -1,0 +1,70 @@
+# Task ID: 5
+# Title: Self-Host Google Fonts (Inter & Poppins)
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Serve fonts locally for performance and offline reliability.
+# Details:
+• Use `next/font/local` or `next/font/google` with `display: swap` and `preload`
+• Download woff2 subsets for latin and latin-ext
+• Place assets under `public/fonts` and reference via Tailwind fontFamily
+• Update `tailwind.config.ts` and global styles
+
+# Test Strategy:
+• Disable network throttling → fonts load from local origin (Chrome DevTools Network)
+• CLS metric unaffected during font swap
+
+# Subtasks:
+## 1. Download Inter & Poppins woff2 subsets [pending]
+### Dependencies: None
+### Description: Obtain the required font files (woff2 format, latin + latin-ext subsets, selected weights) and store them temporarily for inclusion in the repo.
+### Details:
+• Use https://google-webfonts-helper.herokuapp.com or Google Fonts API to generate Inter (weights 400, 600) and Poppins (weights 400, 700) with latin and latin-ext subsets.
+• Select woff2 only to minimise payload size.
+• Download the generated ZIP and extract into a local staging folder (e.g., tmp/fonts).
+• Preserve the provided OFL licences in a LICENCE.txt inside each font family folder for compliance.
+• Verify checksums and that file names are kebab-case (e.g., inter-latin-400.woff2).
+
+## 2. Integrate font assets into Next.js public directory [pending]
+### Dependencies: 5.1
+### Description: Move the downloaded font files into the project so that they are served from the same origin at build/runtime.
+### Details:
+• Create folder structure: /public/fonts/inter and /public/fonts/poppins.
+• Copy corresponding woff2 and licence files into each folder.
+• Commit the assets to VCS.
+• Run `pnpm dev` and visit http://localhost:3000/fonts/inter/inter-latin-400.woff2 to confirm 200 response.
+
+## 3. Configure next/font/local with preload & swap [pending]
+### Dependencies: 5.2
+### Description: Tell Next.js to load the local fonts, expose CSS variables, and enable optimal loading behaviour.
+### Details:
+• In app/_fonts.ts (new file) import { localFont } from "next/font/local".
+• Define two exports: `const inter = localFont({ src: [/* weight descriptors */], variable: '--font-inter', display: 'swap', preload: true });` and similar for poppins.
+• Reference `inter.variable` & `poppins.variable` in `app/layout.tsx` – e.g., `<body className={cn(inter.variable, poppins.variable, 'bg-white')}>`.
+• Ensure weights map correctly by passing `weight` and `style` fields in the src array.
+
+## 4. Update Tailwind configuration and global styles [pending]
+### Dependencies: 5.3
+### Description: Expose the new font faces to utility classes and default typography.
+### Details:
+• In tailwind.config.ts extend theme.fontFamily with:
+  ```js
+  fontFamily: {
+    sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+    heading: ['var(--font-poppins)', 'sans-serif'],
+  }
+  ```
+• Add optional utilities `font-inter` and `font-poppins` using the same CSS variables.
+• In globals.css declare fallbacks if needed and ensure html{font-family:var(--font-inter);}.
+• Run `pnpm dev` to re-compile Tailwind.
+
+## 5. Validate offline reliability & performance metrics [pending]
+### Dependencies: 5.4
+### Description: Confirm fonts load from the local origin without external network calls and that CLS remains unaffected.
+### Details:
+• In Chrome DevTools, disable network throttling for fonts.google.com in the ‘Blocked URLs’ pane.
+• Reload site; fonts should still render correctly.
+• Switch to ‘Offline’ mode → refresh → fonts continue to resolve from Service Worker (if present) or cache.
+• Run Lighthouse → verify ‘Eliminate render-blocking resources’ is clear and CLS score is unchanged.
+• Document findings in README under “Fonts”.
+

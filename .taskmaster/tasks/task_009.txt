@@ -1,0 +1,82 @@
+# Task ID: 9
+# Title: Configure Testing & Linting Stack
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Automate code quality gates with Jest, React Testing Library, ESLint, and Prettier.
+# Details:
+• `npm i -D jest @testing-library/react @testing-library/jest-dom ts-jest` & configs
+• Add basic render test for `<Button>`
+• Extend ESLint with `next/core-web-vitals`, `@typescript-eslint`, and Prettier plugin
+• Set coverage threshold 80% lines
+
+# Test Strategy:
+• `npm test` passes with ≥ 80% coverage
+• `npm run lint` returns 0 errors
+• Break a lint rule intentionally – CI should fail
+
+# Subtasks:
+## 1. Install dev-dependencies & add NPM scripts [pending]
+### Dependencies: None
+### Description: Add all required test and lint tooling to the project and expose npm scripts that will be reused by later subtasks.
+### Details:
+1. Run: npm i -D jest @testing-library/react @testing-library/jest-dom ts-jest eslint eslint-config-next @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-prettier eslint-config-prettier prettier
+2. In package.json add scripts:
+   "test": "jest --coverage",
+   "lint": "eslint . --ext .ts,.tsx",
+   "format": "prettier --write ."
+3. Commit the updated package.json and package-lock.json / pnpm-lock.yaml.
+
+## 2. Create Jest configuration with TypeScript & coverage gates [pending]
+### Dependencies: 9.1
+### Description: Configure Jest to work with React, JSDOM, and TypeScript while enforcing an 80 % line-coverage threshold.
+### Details:
+1. Generate config: npx ts-jest config:init → produces jest.config.ts
+2. Edit jest.config.ts:
+   - preset: 'ts-jest'
+   - testEnvironment: 'jsdom'
+   - setupFilesAfterEnv: ['<rootDir>/jest.setup.ts']
+   - collectCoverage: true, coverageDirectory: 'coverage', coverageThreshold: { global: { lines: 80 } }
+3. Create jest.setup.ts importing '@testing-library/jest-dom/extend-expect';
+4. Ensure paths/globs include **/*.test.{ts,tsx}.
+
+## 3. Add initial React Testing Library test for <Button> [pending]
+### Dependencies: 9.2
+### Description: Provide a minimal render test that exercises the new Jest setup and contributes to baseline coverage.
+### Details:
+1. In components/ui/Button.tsx export a simple functional Button (or reuse existing).
+2. Create components/ui/__tests__/Button.test.tsx:
+   import { render, screen } from '@testing-library/react';
+   import { Button } from '../Button';
+   test('renders Button with label', () => {
+     render(<Button>Click me</Button>);
+     expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
+   });
+
+## 4. Configure ESLint with Next, TypeScript & Prettier plugins [pending]
+### Dependencies: 9.1
+### Description: Extend ESLint rules to include Next.js Web Vitals, TypeScript best practices, and formatting integration.
+### Details:
+1. Create .eslintrc.json:
+   {
+     "root": true,
+     "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
+     "parser": "@typescript-eslint/parser",
+     "plugins": ["@typescript-eslint"],
+     "ignorePatterns": ["node_modules", "*.config.js", "*.config.ts"],
+     "rules": { "@typescript-eslint/explicit-module-boundary-types": "off" }
+   }
+2. Optionally add .eslintignore with build & coverage folders.
+3. Verify `npm run lint` output shows 0 errors on existing code.
+
+## 5. Establish Prettier configuration and IDE / CI hooks [pending]
+### Dependencies: 9.4
+### Description: Finalize code-formatting rules, integrate with ESLint, and ensure automated enforcement.
+### Details:
+1. Create .prettierrc.json (example): { "singleQuote": true, "trailingComma": "es5", "printWidth": 100 };
+2. Add .prettierignore mirroring .eslintignore.
+3. Confirm ESLint–Prettier synergy: run `npm run lint` – no formatting errors.
+4. (Optional) Add Husky + lint-staged: npx husky-init && npm i -D lint-staged; configure package.json:
+   "lint-staged": { "*.{ts,tsx,js,jsx}": "eslint --fix" }.
+5. Document in README how to run `npm run format`.
+

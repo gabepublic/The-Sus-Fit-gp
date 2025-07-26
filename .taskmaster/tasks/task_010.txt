@@ -1,0 +1,66 @@
+# Task ID: 10
+# Title: Set Up GitHub Actions CI Pipeline
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Automate lint & test on push to main and PRs, aligning with deployment flow.
+# Details:
+• Create `.github/workflows/ci.yml`
+• Steps: checkout, setup-node@v4 (cache), install deps, run lint, test, next build
+• Matrix on Node 22
+• Upload coverage as artifact
+• Badge in README
+
+# Test Strategy:
+• Push feature branch with failing test – workflow exits non-zero
+• Merge main – CI passes and Vercel preview deploy triggered automatically
+
+# Subtasks:
+## 1. Create CI workflow skeleton & triggers [pending]
+### Dependencies: None
+### Description: Generate the initial `.github/workflows/ci.yml` file with name, triggering events, and a basic job matrix targeting Node 22.
+### Details:
+• Path: .github/workflows/ci.yml
+• Name the workflow: "CI"
+• Set `on:` to `push` (branches: [main]) and `pull_request` (all branches)
+• Define a single job `build-test` with a `strategy.matrix.node-version: [22.x]`
+• Add a minimal `runs-on: ubuntu-latest` section; leave steps array empty for now
+• Commit as `chore(ci): add workflow skeleton`
+
+## 2. Add checkout & cached Node setup steps [pending]
+### Dependencies: 10.1
+### Description: Introduce code checkout and Node setup (with npm cache) to the workflow job.
+### Details:
+• Append to `steps`:
+  1. `actions/checkout@v4` with `fetch-depth: 1`
+  2. `actions/setup-node@v4` using `${{ matrix.node-version }}` and `cache: 'npm'`
+• Verify `node-version` uses the matrix variable
+• Commit as `ci: add checkout and node setup with cache`
+
+## 3. Install dependencies, run lint & test, upload coverage [pending]
+### Dependencies: 10.2
+### Description: Extend the workflow to install packages, execute linting and unit tests, and save coverage output as an artifact.
+### Details:
+• Add step `npm ci` (or `npm install --frozen-lockfile` if using pnpm/yarn) after Node setup
+• Add step `npm run lint` with `continue-on-error: false`
+• Add step `npm test -- --coverage --runInBand` (ensure Jest config outputs to `coverage/`)
+• Add `actions/upload-artifact@v4` to upload `coverage/` as `coverage-${{ github.sha }}`
+• Commit as `ci: integrate lint, test, and coverage artifact`
+
+## 4. Add Next.js production build verification [pending]
+### Dependencies: 10.3
+### Description: Include a `next build` step to guarantee that the application compiles successfully before merge or deploy.
+### Details:
+• Install `next` if not already present in devDependencies
+• Append step `npm run build` (or `next build`) after successful tests
+• Optionally allocate `NODE_OPTIONS: --max_old_space_size=4096` for large builds
+• Commit as `ci: add next build step`
+
+## 5. Publish workflow & coverage badges to README [pending]
+### Dependencies: 10.3, 10.4
+### Description: Expose CI status and coverage percentages via dynamic badges in `README.md`.
+### Details:
+• In README, add GitHub Actions status badge: `![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)`
+• Integrate coverage badge using shields.io and GitHub artifact download URL or use a service like Coveralls/Codecov if adopted later; interim badge can reflect latest run’s artifact via shields endpoint.
+• Commit as `docs: add CI & coverage badges`
+
