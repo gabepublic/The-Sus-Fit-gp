@@ -17,6 +17,18 @@ A stealth mode guerilla branding campaign for AI fun
 - See [awesome-cursorrules](https://github.com/PatrickJS/awesome-cursorrules/blob/main/rules-new/codequality.mdc)
   for more rules;
 
+### Git Workflow
+
+- See [BRANCH_STRATEGY.md](BRANCH_STRATEGY.md) for detailed branch strategy and protection rules
+- Follow conventional commit messages and feature branch workflow
+- Use `develop` branch for integration, `main` for production
+
+### Contributing
+
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines
+- Follow the pull request template when submitting changes
+- Ensure all pre-commit checks pass before submitting PRs
+
 ### TaskMaster
 
 - Setup taskmaster; also see [taskmaster docs](https://github.com/eyaltoledano/claude-task-master/tree/main)
