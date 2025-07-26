@@ -44,37 +44,37 @@ the LLM API keys; so the file has been EXPLICITLY "ignored" in the `.gitignore`
 # Parse Product Requirements Document
 npx task-master parse-prd PRDs/blueprint-prd.txt
 
-# Generate individual task files
+# [Optional] Generate individual task files
 npx task-master generate
 
-# Expand tasks into subtasks
+# [Recommended] Expand tasks into subtasks
 npx task-master expand --all
 ```
 
 - List tasks
 ```
-task-master list
+npx task-master list
 
 # List tasks with a specific status
-task-master list --status=<status>
+npx task-master list --status=<status>
 
 # List tasks with subtasks
-task-master list --with-subtasks
+npx task-master list --with-subtasks
 ```
 
 - Add a new task
 ```
 # Add a new task using AI (main role)
-task-master add-task --prompt="Description of the new task"
+npx task-master add-task --prompt="Description of the new task"
 
 # Add a new task using AI (research role)
-task-master add-task --prompt="Description of the new task" --research
+npx task-master add-task --prompt="Description of the new task" --research
 
 # Add a task with dependencies
-task-master add-task --prompt="Description" --dependencies=1,2,3
+npx task-master add-task --prompt="Description" --dependencies=1,2,3
 
 # Add a task with priority
-task-master add-task --prompt="Description" --priority=high
+npx task-master add-task --prompt="Description" --priority=high
 ```
 
 
@@ -110,3 +110,28 @@ npx task-master validate-dependencies
 npx task-master fix-dependencies
 npx task-master add-dependency --id=7 --depends-on=11
 ```
+
+## AI CODING WORKFLOW
+
+- also see : [AI-Driven Development Workflow](https://docs.task-master.dev/docs/best-practices/advanced-tasks#ai-driven-development-workflow)
+
+- At this point the PRD has been translated into tasks; see `.taskmaster/tasks/tasks.json`
+
+- Also recommended, to "expand" (break down the task) especially when it's big and complicated.
+```
+npx task-master expand --all
+# or
+npx task-master expand --id=<id>
+``` 
+- Now, let's start the AI-Coding; This is done with the AI chat, NOT with the command line anymore.
+  In thsi case, cursor or claude-code.
+```AI Chat
+what is the next task?
+
+AI:
+The next task to work on is Task 1: Verify and Harden Git Repository.
+[...]
+
+Let's start with task 1.1
+```
+"# Test comment" 
