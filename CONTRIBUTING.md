@@ -2,13 +2,18 @@
 
 Thank you for your interest in contributing to The Sus Fit project! This document provides guidelines and setup instructions for contributors.
 
+## Windows Setup Notes
+- All commands and scripts work in Windows cmd (Command Prompt)
+- If you encounter permission issues, run your terminal as Administrator
+- Use pnpm for best compatibility
+
 ## Prerequisites
 
 ### Node.js Installation
 
-This project requires Node.js version 18 or higher. To install Node.js:
+This project requires **Node.js version 22 or higher**. To install Node.js:
 
-1. **Download from official website**: Visit [nodejs.org](https://nodejs.org/) and download the LTS version
+1. **Download from official website**: Visit [nodejs.org](https://nodejs.org/) and download the LTS version (22.x)
 2. **Verify installation**: Run `node --version` and `npm --version` to confirm installation
 3. **Alternative package managers**: You can also use `pnpm` (recommended) or `yarn`
 
