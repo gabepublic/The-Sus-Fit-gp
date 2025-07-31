@@ -66,6 +66,5 @@ start task 1
 - Create tasks
 ```
 npx task-master parse-prd .taskmaster/docs/blueprint-prd-ui-setup-01.txt
-# No need to expand because it's a small PRD
 ```
 - Use the AI Chat to guide AI-coding
