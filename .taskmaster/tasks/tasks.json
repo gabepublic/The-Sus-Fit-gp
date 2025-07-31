@@ -1,0 +1,140 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Establish Repository & Local Environment",
+        "description": "Create the project’s Git repository and guarantee all developers share a consistent local runtime (Node 22 LTS + pnpm).",
+        "details": "• git init && echo node_modules >> .gitignore\n• nvm install 22 && nvm use 22\n• corepack enable && corepack prepare pnpm@latest --activate\n• pnpm install\n• Commit scaffolding from create-next-app\nPseudo-code:\nif (process.version !== 'v22.*') throw new Error('Node 22 required');",
+        "testStrategy": "Run `node -v` & `pnpm -v`; execute `pnpm install` to confirm lockfile generation; push to remote and clone on clean machine.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Audit & Prune Next.js Scaffold (Blank-Canvas Enforcement)",
+        "description": "Align scaffold with PRD: upgrade to Next.js 15+, App Router, remove sample pages, verify blank canvas.",
+        "details": "• pnpm up next@latest react@latest react-dom@latest\n• Delete `/app/page.tsx` content → return null\n• Ensure `/app/layout.tsx` only wraps `{children}` with html/lang attrs.\n• Update `next.config.js`:\n  experimental:{appDir:true}\n• Add meta tags (<meta viewport>, charset) in layout.\n• Verify build: `pnpm next build`.",
+        "testStrategy": "1. Build succeeds.\n2. Visit `/` -> blank white page with no console errors.\n3. Lighthouse score ≥ 95 for “performance” on empty page.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Configure TypeScript 5 & ESLint 9",
+        "description": "Enable strict typing and linting rules that match Next.js & Tailwind.",
+        "details": "• tsconfig.json: \"strict\": true, \"baseUrl\": \".\", \"paths\" for @/*.\n• pnpm add -D typescript@^5 @typescript-eslint/parser@^8 eslint@^9 eslint-plugin-react eslint-plugin-tailwindcss\n• .eslintrc.cjs extends ['next/core-web-vitals','plugin:@typescript-eslint/recommended','plugin:tailwindcss/recommended']\n• Add script: \"lint\":\"eslint --ext .ts,.tsx .\"",
+        "testStrategy": "Run `pnpm lint` → zero errors on scaffold; add failing sample to ensure lint fails; CI step (see task 9) runs lint.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Integrate TailwindCSS 4 & PostCSS",
+        "description": "Set up Tailwind 4 with JIT, remove all demo classes after verification.",
+        "details": "• pnpm add -D tailwindcss@^4 postcss autoprefixer\n• npx tailwindcss init -p\n• tailwind.config.ts → content:['./app/**/*.{ts,tsx}']\n• globals.css:\n  @tailwind base;\n  @tailwind components;\n  @tailwind utilities;\n• Temporary <div className=\"bg-red-500 w-4 h-4\"/> in page for build test, then delete.",
+        "testStrategy": "Run `pnpm next dev`; view temporary element, then remove and verify blank canvas; run `pnpm next build` with `TAILWIND_MODE=build`—no unused-class warnings.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Install & Configure shadcn/ui 2",
+        "description": "Add component library via pnpm and set up config without persisting example UI.",
+        "details": "• npx shadcn-ui@latest init --ts --tailwind-config ./tailwind.config.ts\n• Choose separator=\"/src/components\"; theme=\"default\".\n• Generate a Button component, import in page to verify, then delete import & component.\n• Ensure tree-shaking by adding `/** @jsxImportSource react */` for components.",
+        "testStrategy": "1. `pnpm run dev` shows Button, then removal returns blank canvas.\n2. `pnpm next build` size report confirms shadcn code included <10 kB after purge.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Create Responsive Global Layout Skeleton",
+        "description": "Implement minimal HTML shell that scales across breakpoints (mobile-first) while remaining visually empty.",
+        "details": "• app/layout.tsx:\n  export const metadata={title:'App',viewport:'width=device-width,initial-scale=1'};\n  Html lang=\"en\" className=\"h-full\">\n   <body className=\"min-h-screen flex flex-col bg-white text-neutral-900\">\n     <main className=\"flex-grow\">{children}</main>\n   </body>\n• Add _document.tsx not required (App Router covers).\n• No visual content apart from background color.",
+        "testStrategy": "Browser DevTools: emulate iPhone 14 & Desktop 1440px; look for horizontal scroll (none). Run Playwright (task 8) responsive test.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Set Up Vitest Unit Testing",
+        "description": "Configure Vitest 7 for React + TS, including coverage reporting.",
+        "details": "• pnpm add -D vitest@^7 @testing-library/react @testing-library/jest-dom jsdom\n• vitest.config.ts:\n  test:{environment:'jsdom', globals:true, coverage:{provider:'v8', reporter:['text','lcov']}}\n• Example test: render <div/>; expect(document.body).toBeDefined(); then delete.\n• Add script \"test\":\"vitest\".",
+        "testStrategy": "Run `pnpm test`; expect 0 failing tests; CI (task 9) captures coverage ≥ 90% once real code exists.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Configure Playwright 1.54 E2E & Responsive Checks",
+        "description": "Automate smoke tests verifying blank canvas loads on common viewports.",
+        "details": "• pnpm add -D playwright@^1.54 @playwright/test\n• npx playwright install\n• tests/example.spec.ts:\n  test.describe('blank canvas',()=>{\n    for (const size of [[375,667],[768,1024],[1440,900]])\n      test(`viewport ${size}`, async ({page})=>{\n        await page.setViewportSize({width:size[0],height:size[1]});\n        await page.goto('/');\n        await expect(page.locator('body')).toBeVisible();\n        await expect(page.locator('*')).toHaveCount(0); // no visible elements\n      });\n  });",
+        "testStrategy": "Run `pnpm exec playwright test` locally; all tests green. Fails if any demo element sneaks in.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement CI Workflow (GitHub Actions)",
+        "description": "Automate lint, unit, e2e and build on every push using Node 22 and pnpm cache.",
+        "details": ".github/workflows/ci.yml:\n  jobs:\n    build:\n      runs-on: ubuntu-latest\n      steps:\n        - uses: actions/checkout@v4\n        - uses: actions/setup-node@v4 with: {node-version:22, cache:'pnpm'}\n        - run: corepack enable && corepack prepare pnpm@latest --activate\n        - run: pnpm install\n        - run: pnpm lint\n        - run: pnpm test\n        - run: pnpm exec playwright install --with-deps\n        - run: pnpm exec playwright test\n        - run: pnpm next build",
+        "testStrategy": "Open PR → Action passes. Force lint error locally, push, expect CI failure.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Blank-Canvas Enforcement Guard",
+        "description": "Create script & pre-commit hook to block residual demo UI and ensure empty DOM.",
+        "details": "• pnpm add -D husky lint-staged @babel/parser @babel/traverse\n• .husky/pre-commit: `pnpm run guard && pnpm lint-staged`\n• guard.ts: scan *.tsx for className matches /(bg-|text-|border-)/ when NODE_ENV==='blankGuard'; fail if matches outside **/tests/**.\nPseudo-code:\nparse(ast); if (foundForbidden) process.exit(1);\n• Add npm script \"guard\":\"tsx scripts/guard.ts\"",
+        "testStrategy": "Add sample div with class to page; commit should be blocked. Remove element → commit succeeds. CI (task 9) runs guard step.",
+        "priority": "low",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-31T00:59:27.553Z",
+      "updated": "2025-07-31T00:59:27.553Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

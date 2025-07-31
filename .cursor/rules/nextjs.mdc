@@ -1,0 +1,114 @@
+---
+description: Next.js with TypeScript and Tailwind UI best practices
+globs: **/*.tsx, **/*.ts, src/**/*.ts, src/**/*.tsx
+alwaysApply: false
+---
+# Next.js Best Practices
+
+## 🗂 Project Structure
+- Use **App Router** (Next.js 13+) exclusively
+- Place route-specific components in `src/app`
+- Place shared components in `src/components`
+  - `src/components/ui/` - shadcn/ui base components
+  - `src/components/` - custom component implementations
+- Use `src/context` for React context providers
+- Use `src/hooks` for custom hooks (one per file)
+- Use `src/lib` for API integrations, external utilities
+- Use `src/types` for shared TypeScript types
+- Use `src/utils` for pure helpers and constants
+- Use `src/test` for testing setup and mocks
+- Use kebab-case for folder names (e.g., `auth-wizard`)
+- Follow naming conventions for Next.js special files (`layout.tsx`, `page.tsx`, `loading.tsx`, etc.)
+- Use `.env` for environment configuration (validate at runtime)
+
+### 🔎 Testing Folder Structure
+- `src/test/` - Setup and test utils
+  - `mocks/` - MSW mock handlers
+  - `utils.tsx` - Test utilities with providers
+- `__tests__/` - Unit/integration test colocated with source
+- `e2e/` - Playwright E2E tests
+
+### 🧪 Examples Directory (Optional)
+- `examples/components/`, `examples/hooks/`, etc. for demo patterns
+
+## 🎨 Style & Conventions
+- Use **TypeScript strictly** (no JS except config)
+- Use **absolute imports** (`@/`) across the project
+- Use **Tailwind CSS** for styling and **shadcn/ui** for primitives
+- Enforce formatting with Prettier + ESLint (Next.js plugin recommended)
+
+## 🧱 Components & Modularity
+- Use **Server Components by default**
+- Use **Client Components only when necessary**, explicitly marked with `"use client"`
+- Wrap async Client Components in `<Suspense fallback={...} />`
+- Split large components (>200 lines) into smaller pieces
+- Define static props/interfaces at file end for readability
+- Use `dynamic()` import for non-critical or deferred components
+- Use `error.tsx` and `error boundaries` for graceful fallbacks
+
+## ⚡ Performance
+- Use `next/image` for optimized images (WebP, lazy load)
+- Favor Server Components to reduce JS sent to client
+- Minimize `useEffect` and `setState`
+- Enable [Partial Prerendering (PPR)](https://nextjs.org/docs/app/building-your-application/routing/ppr) when supported
+- Use `dynamic()` with `{ ssr: false }` only if absolutely needed
+- Avoid large client bundles by tracking in `next build` output
+
+## 🔁 Data Fetching
+- Prefer **fetching in Server Components** via `async` functions
+- Use `cache` options for fetch (`force-cache`, `no-store`, etc.)
+- Implement `loading.tsx`, `error.tsx` in routes for UX consistency
+- Use Incremental Static Regeneration (`revalidate`) when needed
+- Handle edge cases (empty states, failed loads) clearly
+
+## 📍 Routing
+- Use App Router file conventions (`page.tsx`, `layout.tsx`, etc.)
+- Use `generateStaticParams()` for dynamic static routes
+- Use nested layouts, parallel routes, and intercepting routes when needed
+- Co-locate route handlers (`route.ts`) with their segments for APIs
+- Avoid client-side navigation for actions better handled via Server Actions
+
+## 📝 Forms & Validation
+- Use **Zod** or similar schema validation with server actions
+- Validate both client- and server-side inputs
+- Use progressive enhancement: `<form method="POST">` where possible
+- Display inline errors and disable buttons during submission
+
+## 🧠 State Management
+- Keep client state minimal and localized
+- Prefer derived state from Server Components
+- Use Context API only when truly global (e.g., auth, theme)
+- Use server actions and caching to reduce unnecessary state
+
+## 🧪 Testing & Reliability
+- Use **Jest + React Testing Library** for units/integration
+- Use **Playwright** for E2E coverage
+- Use **MSW** for mocking network in tests
+- Test for all states: success, loading, and error
+- Include a11y checks using `jest-axe` or `@testing-library/jest-dom`
+
+## 🔧 Development Workflow
+- Use pre-commit hooks with `lint`, `typecheck`, and formatting
+- Validate `.env` variables at runtime (e.g., with Zod)
+- Fail builds on unresolved ESLint or TypeScript errors
+- Ensure WCAG-compliant accessibility in all components
+
+## 🌐 Deployment & Hosting
+- Prefer static generation (SSG) for public pages to maximize performance and scalability  
+- Use serverless or edge runtimes to minimize latency where appropriate  
+- Secure API routes with authentication, validation, and rate limiting  
+- Apply security headers such as Content Security Policy (CSP) and other HTTP headers  
+- Utilize CDN caching for static assets to improve load times  
+- Adapt deployment configuration according to your chosen hosting environment  
+
+### Vercel Deployment & Hosting (Optional)
+- Leverage Vercel’s Edge Runtime by setting `export const runtime = 'edge'` in route handlers when low latency is critical  
+- Use Vercel’s built-in support for Incremental Static Regeneration (ISR) to update static content without full rebuilds  
+- Configure environment variables securely through Vercel dashboard  
+- Use Vercel Middleware for routing, authentication, and response headers  
+- Optimize build and deployment times using Vercel caching and serverless functions  
+- Apply platform-specific optimizations like image optimization and analytics provided by Vercel  
+
+
+@typescript.mdc  
+@tailwind.mdc

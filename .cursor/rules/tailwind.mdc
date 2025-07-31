@@ -1,0 +1,73 @@
+---
+description: Tailwind CSS and UI component best practices for modern web applications
+globs: **/*.css, **/*.tsx, **/*.jsx, tailwind.config.js, tailwind.config.ts
+alwaysApply: false
+---
+# Tailwind CSS Best Practices
+
+## Project Setup
+- Configure Tailwind with custom theme extensions (colors, spacing, breakpoints)
+- Use official plugins (forms, typography, aspect-ratio, line-clamp) as needed
+- Set up `content` paths correctly to enable purging unused styles
+- Organize configuration in a `tailwind.config.ts` or `.js` file for scalability
+
+## Component Styling
+- Prefer utility classes over custom CSS
+- Use `@apply` sparingly for repeated utility patterns
+- Co-locate component styles with components (e.g., `Button.tsx` + `Button.module.css` if needed)
+- Use `variant` utilities (`hover:`, `focus:`, `disabled:`, etc.) clearly and consistently
+- Keep class order readable and logical (e.g., layout → spacing → color → typography → states)
+
+## Theming
+- Implement dark mode using Tailwind’s `dark:` variants (`media` or `class` strategy)
+- Use semantic tokens (`primary`, `background`, `text`) for light/dark consistency
+- Test all components in both modes for contrast and accessibility
+
+## Layout
+- Use Flexbox and Grid utilities for layout instead of manual margins or positioning
+- Rely on Tailwind’s spacing scale (`gap`, `space-x/y`, `p/m`) for consistency
+- Use `container`, `max-w`, and responsive layouts for adaptive designs
+- Prefer `min-h-screen` for full-page layouts
+- Use `aspect-[ratio]` and `object-*` for media layout control
+
+## Typography
+- Use Tailwind’s `text-*`, `font-*`, and `leading-*` utilities for scalable typography
+- Customize `fontFamily`, `fontSize`, and `lineHeight` in theme when needed
+- Use `prose` class (via typography plugin) for rich text content
+- Keep text alignment and truncation (`truncate`, `line-clamp-*`) consistent
+- Apply text decoration using underline, line-through, and decoration-* utilities
+
+## Colors
+- Define a semantic color system (e.g., `primary`, `secondary`, `muted`) in the theme
+- Ensure WCAG-compliant contrast ratios for accessibility
+- Use `bg-opacity`, `text-opacity`, and `mix-blend-mode` utilities as needed
+- Apply `hover`, `focus`, and `active` state colors clearly and consistently
+- Use gradient utilities (bg-gradient-to-*, from-*, to-*) consistently and semantically
+
+## Component Design
+- Use `shadcn/ui` or headless UI libraries for accessibility and behavior consistency
+- Define consistent variants using `clsx` or `tailwind-variants`
+- Use `transition`, `duration`, and `ease-*` utilities for micro-interactions
+- Use `animate-*` and `motion-safe:` for keyframe animations
+- Ensure all components meet basic a11y requirements (keyboard navigation, ARIA labels)
+
+## Responsive Design
+- Follow a mobile-first approach
+- Use `sm:`, `md:`, `lg:`, `xl:`, and `2xl:` prefixes for breakpoints
+- Use `container`, `max-w-*`, and `min-w-*` for scalable layouts
+- Use `responsive` utilities for spacing, typography, and alignment
+- Prefer `hidden` and `block` toggles over complex media queries
+
+## Performance
+- Enable content-aware purging in production builds
+- Avoid excessive custom CSS or deeply nested components
+- Monitor and minimize bundle size (e.g., with Tailwind's Just-in-Time mode)
+- Split large components and lazy-load where appropriate
+- Cache built assets and use a CDN in production
+
+## General Best Practices
+- Use meaningful utility combinations instead of arbitrary ones
+- Keep class strings readable and consistent across files
+- Document custom components and design tokens
+- Follow accessibility best practices (focus states, contrast, screen reader support)
+- Use consistent version control, commit conventions, and CI checks

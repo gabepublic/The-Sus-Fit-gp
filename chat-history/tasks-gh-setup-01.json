@@ -1,0 +1,141 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Verify Git Repository Initialization",
+        "description": "Confirm that a Git repository exists locally and/or on GitHub for the project.",
+        "details": "1. From project root, run `git rev-parse --is-inside-work-tree`.\n2. If exit code ≠ 0, initialize with `git init`.\n3. Check for `.git` directory presence.\n4. Document outcome in project wiki.",
+        "testStrategy": "Run automated shell script that:\n- Fails if `.git` not present.\n- Outputs repo status.\n- Reports success when repo initialized.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Configure & Validate `origin` Remote",
+        "description": "Ensure the correct remote URL is set and user has push/pull access.",
+        "details": "1. Execute `git remote get-url origin`.\n2. If missing or incorrect, run `git remote add origin <repo-url>` or `git remote set-url origin <repo-url>`.\n3. Verify authentication via `git ls-remote origin -h`.\n4. Prefer SSH over HTTPS for key-based auth.",
+        "testStrategy": "Script attempts `git fetch origin` and `git push --dry-run`.\nPass if both succeed without auth errors.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Bootstrap Node Project & Dev Tooling",
+        "description": "Add package.json and baseline dev dependencies required for hooks.",
+        "details": "1. Run `npm init -y` if package.json missing.\n2. Install dev deps: `npm i -D husky lint-staged eslint typescript @typescript-eslint/parser @typescript-eslint/eslint-plugin`.\n3. Add `scripts` placeholders: \"lint\",\"type-check\".",
+        "testStrategy": "CI step verifies `package.json` exists and listed dependencies are installable via `npm ci`.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Install & Activate Husky",
+        "description": "Enable Git hooks management via Husky.",
+        "details": "1. Run `npx husky install`.\n2. Add `postinstall` script: \"husky install\".\n3. Verify `.husky/` folder created.",
+        "testStrategy": "Unit test: check `.husky` directory exists and `git config core.hooksPath` points to it.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Create Pre-commit Hook File",
+        "description": "Generate `.husky/pre-commit` that invokes lint-staged.",
+        "details": "`npx husky add .husky/pre-commit \"npx lint-staged\"`.\nEnsure file is executable (`chmod +x`).",
+        "testStrategy": "Attempt `git commit --allow-empty -m test` → hook should run lint-staged.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Configure lint-staged",
+        "description": "Add lint-staged config to run eslint & tsc on staged files.",
+        "details": "In `package.json`:\n\"lint-staged\": {\n  \"*.{js,ts,tsx}\": [\n    \"eslint --fix\",\n    \"tsc --noEmit --project tsconfig.json\"\n  ]\n}",
+        "testStrategy": "Run `npx lint-staged --debug` with staged sample files and assert commands executed on subset.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Set up ESLint Configuration",
+        "description": "Provide ESLint rules compatible with TS.",
+        "details": "1. Create `.eslintrc.json` using `@typescript-eslint` preset.\n2. Include recommended rules.\n3. Add ignore patterns for build artifacts.",
+        "testStrategy": "Run `npm run lint` on repo; expect 0 errors for empty project.",
+        "priority": "low",
+        "dependencies": [
+          3
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Configure TypeScript for `tsc --noEmit`",
+        "description": "Add minimal tsconfig to allow type checking.",
+        "details": "1. Run `npx tsc --init`.\n2. Set `noEmit:true`, `strict:true`, `rootDir:src`, `exclude:[\"node_modules\",\"dist\"]`.",
+        "testStrategy": "Execute `npm run type-check` → expect exit code 0.",
+        "priority": "low",
+        "dependencies": [
+          3
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "End-to-End Validation of Pre-commit Hook",
+        "description": "Simulate real commit to ensure failures block commit.",
+        "details": "1. Create dummy TS file with lint error.\n2. Stage & commit; expect abort.\n3. Fix issue, commit again; expect success.",
+        "testStrategy": "Automate using shell script in CI; job passes only if behavior matches.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          7,
+          8
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Document Repository Standards",
+        "description": "Update CONTRIBUTING.md with setup & hook info.",
+        "details": "Include steps to install Node, run `npm ci`, Husky auto-install, and troubleshooting tips.",
+        "testStrategy": "Peer review; ensure doc renders correctly and includes all steps.",
+        "priority": "low",
+        "dependencies": [
+          9
+        ],
+        "status": "done",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-30T23:33:45.316Z",
+      "updated": "2025-07-31T00:10:06.369Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
