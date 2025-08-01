@@ -1,222 +1,214 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import { Play, Camera, Upload, RotateCcw } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {SaucyTicker} from  "@/components/ui/saucy-ticker"
-import { HeroImage } from "@/components/ui/hero-image"
+import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
 import { BrutalismCard } from "@/components/ui/brutalism-card"
+import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
 
 export default function SusFitPage() {
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
-  const [isCapturing, setIsCapturing] = useState(false)
-  const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
-  const [rightCardImage, setRightCardImage] = useState<string | null>(null)
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+    const [isCapturing, setIsCapturing] = useState(false)
+    const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
+    const [rightCardImage, setRightCardImage] = useState<string | null>(null)
+    const [showPolaroid, setShowPolaroid] = useState(false)
 
-  const handlePhotoCapture = () => {
-    setIsCapturing(true)
-    // Simulate photo capture
-    setTimeout(() => {
-      setIsCapturing(false)
-      // In a real app, this would capture from camera
-      setSelectedPhoto("/placeholder.svg?height=300&width=300")
-    }, 2000)
-  }
+    const handlePhotoCapture = () => {
+        console.log('Photo capture initiated!')
+        setIsCapturing(true)
+        setShowPolaroid(true)
+        // Simulate photo capture
+        setTimeout(() => {
+            setIsCapturing(false)
+            // In a real app, this would capture from camera
+            setSelectedPhoto("/placeholder.svg?height=300&width=300")
+        }, 2000)
+     }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setSelectedPhoto(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+
+
+    const resetPhoto = () => {
+        setSelectedPhoto(null)
     }
-  }
+    const handleGenerationStart = () => {
+        console.log('Generation started')
+    }
 
-  const resetPhoto = () => {
-    setSelectedPhoto(null)
-  }
+    const handleGenerationComplete = (imageUrl: string) => {
+        console.log('Generation complete:', imageUrl)
+        setSelectedPhoto(imageUrl)
+        setIsCapturing(false)
+    }
 
-  const handleLeftCardImageUpload = (imageUrl: string) => {
-    setLeftCardImage(imageUrl)
-  }
+    const handleClosePolaroid = () => {
+        console.log('Closing Polaroid')
+        setShowPolaroid(false)
+        setIsCapturing(false)
+        setSelectedPhoto(null)
+    }
 
-  const handleRightCardImageUpload = (imageUrl: string) => {
-    setRightCardImage(imageUrl)
-  }
+    const handleRetryGeneration = () => {
+        console.log('Retrying generation')
+        setIsCapturing(false)
+        setSelectedPhoto(null)
+        // Restart the generation process
+        setTimeout(() => {
+            setIsCapturing(true)
+        }, 100)
+    }
 
-  return (
-    <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
-      {/* Header */}
-      <header className="px-8 py-6">
-        <div className="max-w-6xl mx-auto">
-          <h1
-            className="title"
-          >
-            The Sus Fit
-          </h1>
-          <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
-          <p className="text-sm text-[#000000]"> THE PRODUCT GROUP</p>
-        </div>
-      </header>
+    const handleLeftCardImageUpload = (imageUrl: string) => {
+        setLeftCardImage(imageUrl)
+        console.log('Left card image uploaded:', imageUrl)
+    }
 
-      {/* ticker */}
-      <SaucyTicker/>
+    const handleRightCardImageUpload = (imageUrl: string) => {
+        setRightCardImage(imageUrl)
+        console.log('Right card image uploaded:', imageUrl)
+    }
 
-      {/* Main Content */}
-      <main className="max-w-8xl mx-auto px-8 py-12 relative">
-        <div className="flex flex-col  justify-center items-center relative space-y-8 lg:space-y-0">
+    const handleCameraButtonClick = () => {
+        console.log('Camera button clicked!')
+        handlePhotoCapture()
+    }
 
-            {/* Hero Image as background */}
-            <div className="absolute inset-0 flex justify-center items-center overflow-hidden z-0">
-                <HeroImage
-                    src="/images/PolaroidCamera.png"
-                    alt="Hero Image"
-                    className="w-[210%] max-w-none object-contain transform-gpu scale-150"
-                />
-            </div>
-
-            <div className="flex flex-col   relative z-10 w-[100%]  h-[100%] max-w-6xl">
-                {/* Content container with z-index to float above background */}
-                <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
-                            {/* Left Photo Frame */}
-                          <div className="relative -rotate-2 lg:-rotate-16">
-                            <BrutalismCard
-                              className="w-80 h-120 p-4 relative"
-                              title="Upload Your Angle"
-                              onImageUpload={handleLeftCardImageUpload}
-                            />
-                          </div>
-
-
-                          {/* Right Upload Frame */}
-                          <div className="relative rotate-2 lg:rotate-16">
-                            <BrutalismCard
-                              className="w-80 h-120 p-4 relative"
-                              buttonPosition="right"
-                              backgroundImage="/images/ScoredGarment.jpg"
-                              title="Select your Fit"
-                              shadowRotation="rotate-0"
-                              onImageUpload={handleRightCardImageUpload}
-                           />
-                          </div>
+    return (
+        <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
+            {/* Header */}
+            <header className="px-8 py-6">
+                <div className="max-w-6xl mx-auto">
+                    <h1 className="title">The Sus Fit</h1>
+                    <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
+                    <p className="text-sm text-[#000000]">
+                        a <b>Those People production</b>
+                    </p>
                 </div>
+            </header>
 
-                {/* Side Elements */}
-                <div className="flex flex-col md:flex-row justify-between items-center mt-8 space-y-4 md:space-y-0">
-                  {/* Left Side - Video Button */}
-                  <div className="flex flex-col items-center">
-                    <button className="w-16 h-16 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center mb-2 hover:bg-[#000000] hover:text-[#f9f8f8] transition-colors group">
-                      <Play className="w-8 h-8 text-[#000000] group-hover:text-[#f9f8f8] fill-current" />
-                    </button>
-                    <span className="text-sm text-[#000000]">How you do this?</span>
-                  </div>
+            {/* Ticker */}
+            <SaucyTicker />
 
-                  {/* Right Side - Snap Button */}
-                  <div className="flex space-x-4">
-                    <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="file-upload" />
-                    <label htmlFor="file-upload">
-                      <Button
-                        className="bg-[#f9f8f8] text-[#000000] border-1 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8] cursor-pointer"
-                        variant="outline"
-                        asChild
-                      >
-                        <span className="flex items-center space-x-2">
-                          <Upload className="w-4 h-4" />
-                          <span>Upload</span>
-                        </span>
-                      </Button>
-                    </label>
-                    <Button
-                      className="bg-[#f9f8f8] text-[#000000] border-1 border-[#000000] rounded-full px-6 py-2 hover:bg-[#000000] hover:text-[#f9f8f8]"
-                      variant="outline"
-                      onClick={handlePhotoCapture}
-                      disabled={isCapturing}
-                    >
-                      {isCapturing ? "Capturing..." : "Snap-a-Stunt"}
-                    </Button>
-                  </div>
-                </div>
+            {/* Main Content */}
+            <main className="max-w-8xl mx-auto px-8 py-12 relative min-h-[140vh]">
+                <div className="flex flex-col justify-center items-center relative space-y-8 lg:space-y-0">
 
-                {/* Bottom Photo Frame */}
-                <div className="flex justify-center mt-12">
-                  {/* <Card className="w-96 h-96 bg-[#f9f8f8] border-2 border-[#000000] p-8 relative">
-                    {selectedPhoto ? (
-                      <div className="w-full h-full relative">
-                        <img
-                          src={selectedPhoto || "/placeholder.svg"}
-                          alt="Captured photo"
-                          className="w-full h-full object-cover rounded"
-                        />
-                        <button
-                          onClick={resetPhoto}
-                          className="absolute top-2 right-2 w-8 h-8 bg-[#000000] text-[#f9f8f8] rounded-full flex items-center justify-center hover:bg-[#f9f8f8] hover:text-[#000000] border-2 border-[#000000] transition-colors"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="relative">
-                          <div className="w-12 h-12 bg-[#000000] rounded-full absolute -top-8 left-16"></div>
-                          <div
-                            className="w-48 h-32 bg-[#000000] rounded-3xl transition-transform hover:scale-105"
-                            style={{
-                              borderRadius: "50% 30% 50% 30%",
+                    {/* Hero Image as background */}
+                    <div id="hero-image-container" className="absolute top-[-1rem] left-0 right-0 flex justify-center items-center overflow-hidden z-100">
+                        <HeroImageWithButton
+                            src="/images/PolaroidCamera.png"
+                            alt="Hero Image"
+                            className="w-[210%] max-w-none object-contain transform-gpu scale-150 pl-4"
+                            overlayButton={{
+                                onClick: handleCameraButtonClick,
+                                position: {
+                                    leftPercent: '41.65%',
+                                    topPercent: '52%'
+                                },
+                                size: 'md',
+                                className: 'hover:shadow-red-500/50'
                             }}
-                          ></div>
+                        />
+                    </div>
+
+                    <div id="content-container" className="flex flex-col relative z-10 w-[100%] h-[75%] max-w-6xl">
+
+                        {/* POLAROID PHOTO GENERATOR - POSITIONED ABOVE SIDE CARDS */}
+                        {showPolaroid && (
+                            <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+                                <PolaroidPhotoGenerator
+                                    isGenerating={isCapturing}
+                                    onGenerationStart={handleGenerationStart}
+                                    onGenerationComplete={handleGenerationComplete}
+                                    onClose={handleClosePolaroid}
+                                    onRetry={handleRetryGeneration}
+                                    mockImageUrl={leftCardImage || rightCardImage || "/images/demo/WillShalom.jpg"}
+                                    className="animate-[slideDown_0.5s_ease-out]"
+                                />
+                            </div>
+                        )}
+
+                        {/* SIDE CARDS CONTAINER */}
+                        <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
+
+                            {/* Left Photo Frame */}
+                            <div className="relative -rotate-2 lg:-rotate-16">
+                                <BrutalismCard
+                                    className="w-80 h-120 p-4 relative"
+                                    title="Upload Your Angle"
+                                    onImageUpload={handleLeftCardImageUpload}
+                                />
+                            </div>
+
+                            {/* Right Upload Frame */}
+                            <div className="relative rotate-2 lg:rotate-16">
+                                <BrutalismCard
+                                    className="w-80 h-120 p-4 relative"
+                                    buttonPosition="right"
+                                    backgroundImage="/images/ScoredGarment.jpg"
+                                    title="Select your Fit"
+                                    shadowRotation="rotate-0"
+                                    onImageUpload={handleRightCardImageUpload}
+                                />
+                            </div>
                         </div>
-                      </div>
-                    )}
-                  </Card> */}
+                    </div>
                 </div>
+            </main>
+
+            {/* Social Media Footer */}
+            <footer className="flex justify-center py-8 mt-20">
+                <div className="flex space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-6 py-3">
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <span className="text-white font-bold text-lg">t</span>
+                    </a>
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <div className="w-6 h-6 border-1 border-[#000000] rounded-full"></div>
+                    </a>
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <span className="text-white font-bold text-lg">P</span>
+                    </a>
+                </div>
+            </footer>
+
+            {/* Bottom Copyright */}
+            <div className="text-center pb-8">
+                <p className="text-sm text-[#000000]">THE PRODUCT GROUP</p>
             </div>
-         </div>
-      </main>
 
-      {/* Social Media Footer */}
-      <footer className="flex justify-center py-8">
-        <div className="flex space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-6 py-3">
-          {/* <a
-            href="#"
-            className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <Instagram className="w-6 h-6 text-white" />
-          </a>
-          <a
-            href="#"
-            className="w-12 h-12 bg-[#4460a0] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <Facebook className="w-6 h-6 text-white" />
-          </a> */}
-          <a
-            href="#"
-            className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <span className="text-white font-bold text-lg">t</span>
-          </a>
-          <a
-            href="#"
-            className="w-12 h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <div className="w-6 h-6 border-1 border-[#000000] rounded-full"></div>
-          </a>
-          <a
-            href="#"
-            className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <span className="text-white font-bold text-lg">P</span>
-          </a>
+            {/* DEBUG INFO */}
+            {process.env.NODE_ENV === 'development' && (
+                <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded text-xs font-mono z-[9999]">
+                    <div>Left Image: {leftCardImage ? '✅' : '❌'}</div>
+                    <div>Right Image: {rightCardImage ? '✅' : '❌'}</div>
+                    <div>Show Polaroid: {showPolaroid ? '✅' : '❌'}</div>
+                    <div>Capturing: {isCapturing ? '✅' : '❌'}</div>
+                </div>
+            )}
+
+            {/* Custom slide down animation */}
+            <style jsx>{`
+        @keyframes slideDown {
+          0% {
+            opacity: 0;
+            transform: translateX(0%) translateY(-200px) ;
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0%) translateY(0) ;
+          }
+        }
+      `}</style>
         </div>
-      </footer>
-
-      {/* Bottom Copyright */}
-      <div className="text-center pb-8">
-        <p className="text-sm text-[#000000]"> THE PRODUCT GROUP</p>
-      </div>
-    </div>
-  )
+    )
 }
+

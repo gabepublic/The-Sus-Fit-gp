@@ -250,4 +250,130 @@
         font-weight: bold;
         margin: 0 15px;
     }
+
+    /* Additional CSS animations for Polaroid Photo Generator */
+
+    @keyframes slideDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes polaroidAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(-50px) rotate(-5deg) scale(0.9);
+        }
+        50% {
+            opacity: 0.8;
+            transform: translateY(-10px) rotate(-2deg) scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg) scale(1);
+        }
+    }
+
+    @keyframes photoSlideReveal {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        50% {
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes progressPulse {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(251, 96, 219, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(251, 96, 219, 0.6), 0 0 30px rgba(28, 153, 188, 0.4);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    /* Utility classes for the component */
+    .polaroid-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .polaroid-card:hover {
+        transform: translateX(4px) translateY(4px);
+        box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .progress-bar-animated {
+        animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    .photo-developing {
+        background: linear-gradient(
+                90deg,
+                rgba(156, 163, 175, 0.8) 0%,
+                rgba(156, 163, 175, 0.4) 50%,
+                rgba(156, 163, 175, 0.8) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    .polaroid-shadow {
+        box-shadow:
+                8px 8px 0px 0px rgba(0, 0, 0, 1),
+                0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .polaroid-shadow:hover {
+        box-shadow:
+                4px 4px 0px 0px rgba(0, 0, 0, 1),
+                0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .polaroid-card {
+            width: 280px;
+            height: 350px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .polaroid-card {
+            width: 240px;
+            height: 320px;
+        }
+    }
+
+    /* Animation classes for different states */
+    .animate-slideDown {
+        animation: slideDown 0.5s ease-out forwards;
+    }
+
+    .animate-polaroidAppear {
+        animation: polaroidAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animate-photoSlideReveal {
+        animation: photoSlideReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
 }
