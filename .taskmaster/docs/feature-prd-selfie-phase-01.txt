@@ -1,0 +1,91 @@
+<context>
+# **Overview**
+
+We are building a fashion-focused web app that allows users to visualize themselves in curated apparel and accessories by simply using their phone. The app is designed for casual users who value fun, simplicity, and privacy. With zero data retention and an entirely on-device experience, it caters to both desktop and mobile users seeking instant gratification.
+
+This document defines the requirements for an incremental feature: converting a user’s selfie into anime art in real-time. No data is stored, but both the original selfie and the generated anime image can be downloaded to the user’s local device.
+
+# **Core Capabilities**
+
+1. **Single-Page Minimalist Interface**
+   - **Purpose:** Provide a frictionless, focused experience with all interactions contained on a single responsive page.
+   - **Implementation:** Built using a single HTML view; dynamic behavior is managed via client-side scripting (React/Next.js).
+
+2. **AI-Powered Image Transformation**
+   - **Purpose:** Instantly convert the user’s selfie into stylized anime using an external AI model.
+   - **Why Now:** This serves as a precursor to the full-featured apparel overlay system and enables early user feedback on core UI/UX patterns.
+   - **Implementation:** Integrates with OpenAI’s Vision API for real-time image processing; results are displayed directly in the browser.
+
+3. **Privacy-First architecture**
+   - **Purpose:** Ensure complete user trust by avoiding any backend data persistence.
+   - **Implementation:** All image data remains in-browser and is held only in memory. Capturing a new image overwrites the previous one. No server-side logging or caching occurs.
+
+4. **User-Controlled Image Output**
+   - **Purpose:** Allow users to save the transformed image locally or retake the selfie.
+   - **Implementation:** Use browser APIs to enable local file download. A “Retake” action resets app state and reactivates the camera without retaining prior data.
+
+# **User Experience**
+
+- **Personas**:
+  - **Casual Users:** looking to stylize selfies for sharing.
+  - **Privacy-conscious users:** avoiding apps that store facial data.
+  - **Anime Fans:** Younger users (teens to early 30s) interested in stylized or creative self-expression.
+
+- **Key User Flows**:
+  1. User launches app → Camera appears → Captures selfie
+  2. AI transforms selfie to anime → Both images displayed side-by-side
+  3. User selects:
+     - Download → Saves anime image to device
+     - Retake → Restarts camera and resets UI state
+
+- **UI/UX Design Principle**:
+  - Visually appealing, lightweight interface
+  - One-tap interactions (Take, Save, Retake)
+  - Optimized for mobile-first usage
+  - Cross-browser compatibility (Chrome, Safari, Edge, Firefox, etc.)
+</context>
+<PRD>
+# Technical Architecture
+
+## Development Environments
+- Windows
+- Use MS-DOS Command Terminal to run script.
+
+## Database
+- None
+
+# Development
+
+## COMPLETED SETUP
+- Git repo initialized; feature branch created and active
+- Project scaffolding complete: 
+  - Next.js app with App Router
+  - ESLint v9 and Strict TypeScript configuration
+  - TailwindCSS 4 with PostCSS
+  - shadcn/ui component Library
+  - Jest for unit testing
+  - Playwright v1.54 for end-to-end (E2E) testing
+  - CI Pipeline via GitHub Actions
+ 
+## Tasks To Be Completed
+1. Build UI in app/page.tsx following minimal UX patterns
+2. Implement in-browser camera functionality
+3. Enable selfie capture and preview
+4. Integrate with OpenAI Vision API for real-time anime transformation
+5. Display both the original selfie and AI-transformed images
+6. Enable local download of the original selfie and anime images
+7. Add "Retake" logic to reset the state
+8. Enforce strict no-storage policy (in-memory only)
+9. Write comprehensive unit and E2E tests; tasks are considered complete only when all tests pass
+
+# Implementation Sequence (Logical Dependency Chain)
+1. Validate the base layout and styling in (`app/page.tsx`)
+2. Implement camera access and preview logic
+3. Capture image and show selfie preview
+4. Send image to external API and display AI transformed result
+5. Enable side-by-side image viewing
+6. Add download button functionality
+7. Implement retake/reset logic (overwrite prior image in memory)
+8. Conduct cross-browser functional testing
+9. Finalize UX consistency on mobile and desktop devices
+</PRD>

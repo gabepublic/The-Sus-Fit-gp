@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const path = require('path');
+import { execSync } from 'child_process';
+import path from 'path';
 
 // Get the staged files from process.argv (lint-staged passes them as arguments)
 const stagedFiles = process.argv.slice(2);
@@ -21,8 +21,9 @@ if (nonTestFiles.length === 0) {
 }
 
 try {
-  // Run TypeScript check only on non-test files
-  const command = `npx tsc --noEmit ${nonTestFiles.join(' ')}`;
+  // Run TypeScript check using the project's tsconfig.json
+  // This ensures proper JSX configuration and path aliases are used
+  const command = 'npx tsc --noEmit';
   execSync(command, { stdio: 'inherit' });
   console.log('TypeScript check passed');
 } catch (error) {

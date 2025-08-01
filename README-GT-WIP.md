@@ -68,3 +68,19 @@ start task 1
 npx task-master parse-prd .taskmaster/docs/blueprint-prd-ui-setup-01.txt
 ```
 - Use the AI Chat to guide AI-coding
+
+## DEVELOP FEATURE - Camera selfie page
+- Add `taskmaster/docs/feature-prd-selfie-phase-01.txt`
+- Create tasks
+```
+npx task-master parse-prd .taskmaster/docs/feature-prd-selfie-phase-01.txt
+npx task-master expand --all
+```
+- Use the AI Chat to guide AI-coding
+
+### Guidance change
+
+- Refactor from OpenAI chat.completion API to Responses API
+```
+refactor the `generateAnime` function to use OpenAI responses API described in https://platform.openai.com/docs/api-reference/images/createEdit?lang=node.js
+```

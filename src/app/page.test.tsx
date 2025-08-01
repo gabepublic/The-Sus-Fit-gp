@@ -6,10 +6,10 @@ describe('Home Page', () => {
     expect(() => render(<Home />)).not.toThrow()
   })
 
-  it('renders blank canvas', () => {
+  it('renders main container with Selfie component', () => {
     const { container } = render(<Home />)
-    expect(container.firstChild).toBeNull()
+    const mainElement = container.querySelector('main')
+    expect(mainElement).toBeInTheDocument()
+    expect(mainElement).toHaveClass('flex', 'flex-col', 'items-center', 'justify-center', 'w-full', 'h-full', 'gap-4')
   })
-
-
 }) 

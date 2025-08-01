@@ -18,7 +18,8 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+    unoptimized: true,
   },
 }
 
-module.exports = nextConfig
+export default nextConfig
