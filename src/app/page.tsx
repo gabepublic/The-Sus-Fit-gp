@@ -1,69 +1,214 @@
+"use client"
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-      </div>
+import type React from "react"
+import { useState } from "react"
+import {SaucyTicker} from  "@/components/ui/saucy-ticker"
+import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
+import { BrutalismCard } from "@/components/ui/brutalism-card"
+import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <h1 className="text-6xl font-bold text-center">
-          My Shifu
-        </h1>
-      </div>
+export default function SusFitPage() {
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+    const [isCapturing, setIsCapturing] = useState(false)
+    const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
+    const [rightCardImage, setRightCardImage] = useState<string | null>(null)
+    const [showPolaroid, setShowPolaroid] = useState(false)
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Claude API{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Powerful AI conversations with Claude API integration
-          </p>
+    const handlePhotoCapture = () => {
+        console.log('Photo capture initiated!')
+        setIsCapturing(true)
+        setShowPolaroid(true)
+        // Simulate photo capture
+        setTimeout(() => {
+            setIsCapturing(false)
+            // In a real app, this would capture from camera
+            setSelectedPhoto("/placeholder.svg?height=300&width=300")
+        }, 2000)
+     }
+
+
+
+    const resetPhoto = () => {
+        setSelectedPhoto(null)
+    }
+    const handleGenerationStart = () => {
+        console.log('Generation started')
+    }
+
+    const handleGenerationComplete = (imageUrl: string) => {
+        console.log('Generation complete:', imageUrl)
+        setSelectedPhoto(imageUrl)
+        setIsCapturing(false)
+    }
+
+    const handleClosePolaroid = () => {
+        console.log('Closing Polaroid')
+        setShowPolaroid(false)
+        setIsCapturing(false)
+        setSelectedPhoto(null)
+    }
+
+    const handleRetryGeneration = () => {
+        console.log('Retrying generation')
+        setIsCapturing(false)
+        setSelectedPhoto(null)
+        // Restart the generation process
+        setTimeout(() => {
+            setIsCapturing(true)
+        }, 100)
+    }
+
+    const handleLeftCardImageUpload = (imageUrl: string) => {
+        setLeftCardImage(imageUrl)
+        console.log('Left card image uploaded:', imageUrl)
+    }
+
+    const handleRightCardImageUpload = (imageUrl: string) => {
+        setRightCardImage(imageUrl)
+        console.log('Right card image uploaded:', imageUrl)
+    }
+
+    const handleCameraButtonClick = () => {
+        console.log('Camera button clicked!')
+        handlePhotoCapture()
+    }
+
+    return (
+        <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
+            {/* Header */}
+            <header className="px-8 py-6">
+                <div className="max-w-6xl mx-auto">
+                    <h1 className="title">The Sus Fit</h1>
+                    <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
+                    <p className="text-sm text-[#000000]">
+                        a <b>Those People production</b>
+                    </p>
+                </div>
+            </header>
+
+            {/* Ticker */}
+            <SaucyTicker />
+
+            {/* Main Content */}
+            <main className="max-w-8xl mx-auto px-8 py-12 relative min-h-[140vh]">
+                <div className="flex flex-col justify-center items-center relative space-y-8 lg:space-y-0">
+
+                    {/* Hero Image as background */}
+                    <div id="hero-image-container" className="absolute top-[-1rem] left-0 right-0 flex justify-center items-center overflow-hidden z-100">
+                        <HeroImageWithButton
+                            src="/images/PolaroidCamera.png"
+                            alt="Hero Image"
+                            className="w-[210%] max-w-none object-contain transform-gpu scale-150 pl-4"
+                            overlayButton={{
+                                onClick: handleCameraButtonClick,
+                                position: {
+                                    leftPercent: '41.65%',
+                                    topPercent: '52%'
+                                },
+                                size: 'md',
+                                className: 'hover:shadow-red-500/50'
+                            }}
+                        />
+                    </div>
+
+                    <div id="content-container" className="flex flex-col relative z-10 w-[100%] h-[75%] max-w-6xl">
+
+                        {/* POLAROID PHOTO GENERATOR - POSITIONED ABOVE SIDE CARDS */}
+                        {showPolaroid && (
+                            <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+                                <PolaroidPhotoGenerator
+                                    isGenerating={isCapturing}
+                                    onGenerationStart={handleGenerationStart}
+                                    onGenerationComplete={handleGenerationComplete}
+                                    onClose={handleClosePolaroid}
+                                    onRetry={handleRetryGeneration}
+                                    mockImageUrl={"/images/demo/WillShalom.jpg"}
+                                    className="animate-[slideDown_0.5s_ease-out]"
+                                />
+                            </div>
+                        )}
+
+                        {/* SIDE CARDS CONTAINER */}
+                        <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
+
+                            {/* Left Photo Frame */}
+                            <div className="relative -rotate-2 lg:-rotate-16">
+                                <BrutalismCard
+                                    className="w-80 h-120 p-4 relative"
+                                    title="Upload Your Angle"
+                                    onImageUpload={handleLeftCardImageUpload}
+                                />
+                            </div>
+
+                            {/* Right Upload Frame */}
+                            <div className="relative rotate-2 lg:rotate-16">
+                                <BrutalismCard
+                                    className="w-80 h-120 p-4 relative"
+                                    buttonPosition="right"
+                                    backgroundImage="/images/ScoredGarment.jpg"
+                                    title="Select your Fit"
+                                    shadowRotation="rotate-0"
+                                    onImageUpload={handleRightCardImageUpload}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            {/* Social Media Footer */}
+            <footer className="flex justify-center py-8 mt-20">
+                <div className="flex space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-6 py-3">
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <span className="text-white font-bold text-lg">t</span>
+                    </a>
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <div className="w-6 h-6 border-1 border-[#000000] rounded-full"></div>
+                    </a>
+                    <a
+                        href="#"
+                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                    >
+                        <span className="text-white font-bold text-lg">P</span>
+                    </a>
+                </div>
+            </footer>
+
+            {/* Bottom Copyright */}
+            <div className="text-center pb-8">
+                <p className="text-sm text-[#000000]">THE PRODUCT GROUP</p>
+            </div>
+
+            {/* DEBUG INFO */}
+            {process.env.NODE_ENV === 'development' && (
+                <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded text-xs font-mono z-[9999]">
+                    <div>Left Image: {leftCardImage ? '✅' : '❌'}</div>
+                    <div>Right Image: {rightCardImage ? '✅' : '❌'}</div>
+                    <div>Show Polaroid: {showPolaroid ? '✅' : '❌'}</div>
+                    <div>Capturing: {isCapturing ? '✅' : '❌'}</div>
+                </div>
+            )}
+
+            {/* Custom slide down animation */}
+            <style jsx>{`
+        @keyframes slideDown {
+          0% {
+            opacity: 0;
+            transform: translateX(0%) translateY(-200px) ;
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0%) translateY(0) ;
+          }
+        }
+      `}</style>
         </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Pinecone{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Vector database for context storage and retrieval
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            LangChain{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            AI workflow orchestration and prompt engineering
-          </p>
-        </div>
-
-        <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30">
-          <h2 className="mb-3 text-2xl font-semibold">
-            Testing{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Comprehensive testing with Jest, RTL, and Playwright
-          </p>
-        </div>
-      </div>
-    </main>
-  )
+    )
 }
+

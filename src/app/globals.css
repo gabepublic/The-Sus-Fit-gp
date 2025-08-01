@@ -1,56 +1,68 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fascinate&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nabla&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Fix font references by removing var() wrapper */
-  --font-sans: system-ui, sans-serif;
+  /* Font families */
+  --font-sans: 'Montserrat Alternates', system-ui, sans-serif;
+  --font-secondary: 'Nabla', system-ui, sans-serif;
+  --font-tertiary: 'Fascinate', system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
 
-  /* Original colors (for backward compatibility) */
-  --color-shifu-sage: #7A893E;
-  --color-shifu-lavender: #B296DE;
-  --color-shifu-gold: #C9C683;
-  --color-shifu-rose: #E2D0D2;
-  --color-shifu-cream: #FAF9F5;
+  /* Original SusFit colors */
+  --color-susfit-teal: #1C99BC;
+  --color-susfit-teal-dark: #1989A9;
+  --color-susfit-pink: #FB60DB;
+  --color-susfit-pink-light: #FC94E7;
+  --color-susfit-yellow: #F9B801;
+  --color-susfit-yellow-light: #FEC82F;
+  --color-susfit-green: #21ED80;
+  --color-susfit-green-light: #50F19B;
+  --color-susfit-cream: #F9F5F2;
+  --color-susfit-cream-dark: #EFE4DC;
+  --color-susfit-black: #171717;
+  --color-susfit-gray: #282929;
 
-  /* Shifu Sage Variations */
-  --color-shifu-sage-100: #E6EAD9;
-  --color-shifu-sage-200: #CDD4B3;
-  --color-shifu-sage-500: #7A893E;
-  --color-shifu-sage-800: #4F582A;
-  --color-shifu-sage-900: #323816;
+  /* SusFit Teal Variations */
+  --color-susfit-teal-100: #E8F6FA;
+  --color-susfit-teal-200: #C5E8F2;
+  --color-susfit-teal-500: #1C99BC;
+  --color-susfit-teal-800: #146F88;
+  --color-susfit-teal-900: #0D4554;
 
-  /* Shifu Lavender Variations */
-  --color-shifu-lavender-100: #EDE7F7;
-  --color-shifu-lavender-200: #D8CCF0;
-  --color-shifu-lavender-500: #B296DE;
-  --color-shifu-lavender-800: #7E69A5;
-  --color-shifu-lavender-900: #5A4A77;
+  /* SusFit Pink Variations */
+  --color-susfit-pink-100: #FEE9F9;
+  --color-susfit-pink-200: #FDC7F0;
+  --color-susfit-pink-500: #FB60DB;
+  --color-susfit-pink-800: #C93DAF;
+  --color-susfit-pink-900: #8F2B7C;
 
-  /* Shifu Gold Variations */
-  --color-shifu-gold-100: #F5F6E3;
-  --color-shifu-gold-200: #E9ECC0;
-  --color-shifu-gold-500: #C9C683;
-  --color-shifu-gold-800: #9B9965;
-  --color-shifu-gold-900: #6D6C47;
+  /* SusFit Yellow Variations */
+  --color-susfit-yellow-100: #FEF6E0;
+  --color-susfit-yellow-200: #FEE9B3;
+  --color-susfit-yellow-500: #F9B801;
+  --color-susfit-yellow-800: #C79301;
+  --color-susfit-yellow-900: #8B6801;
 
-  /* Shifu Rose Variations */
-  --color-shifu-rose-100: #F8F2F3;
-  --color-shifu-rose-200: #F0E4E5;
-  --color-shifu-rose-500: #E2D0D2;
-  --color-shifu-rose-800: #BBA3A6;
-  --color-shifu-rose-900: #8C7A7C;
+  /* SusFit Green Variations */
+  --color-susfit-green-100: #E9FDF3;
+  --color-susfit-green-200: #C7FBDF;
+  --color-susfit-green-500: #21ED80;
+  --color-susfit-green-800: #13B05F;
+  --color-susfit-green-900: #0D7A42;
 
-  /* Shifu Cream Variations */
-  --color-shifu-cream-100: #FEFDFC;
-  --color-shifu-cream-200: #FCFBF8;
-  --color-shifu-cream-500: #FAF9F5;
-  --color-shifu-cream-800: #E5E4E0;
-  --color-shifu-cream-900: #C8C7C4;
+  /* SusFit Cream Variations */
+  --color-susfit-cream-100: #FEFEFE;
+  --color-susfit-cream-200: #FCFBF9;
+  --color-susfit-cream-500: #F9F5F2;
+  --color-susfit-cream-800: #EFE4DC;
+  --color-susfit-cream-900: #D5C9C0;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -85,86 +97,91 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Yellow Gradient Background (extracted from image) */
+  --gradient-yellow-warm: linear-gradient(180deg, #F4C430 0%, #DAA520 100%);
+  --gradient-yellow-warm-radial: radial-gradient(ellipse at center, #F4C430 0%, #E6B800 50%, #DAA520 100%);
 }
 
 :root {
   --radius: 0.625rem;
 
-  /* Updated with -500 values */
-  --background: oklch(0.973 0.007 76.049);           /* #FAF9F5 cream-500 */
-  --foreground: oklch(0.294 0.043 91.749);           /* Dark sage-900 for text */
-  --card: oklch(0.973 0.007 76.049);                 /* #FAF9F5 cream-500 */
-  --card-foreground: oklch(0.294 0.043 91.749);      /* Dark sage-900 */
-  --popover: oklch(0.973 0.007 76.049);              /* #FAF9F5 cream-500 */
-  --popover-foreground: oklch(0.294 0.043 91.749);   /* Dark sage-900 */
-  --primary: oklch(0.503 0.063 91.749);              /* #7A893E sage-500 */
-  --primary-foreground: oklch(0.973 0.007 76.049);   /* cream-500 on sage */
-  --secondary: oklch(0.729 0.094 284.415);           /* #B296DE lavender-500 */
-  --secondary-foreground: oklch(0.294 0.043 91.749); /* dark sage-900 on lavender */
-  --muted: oklch(0.831 0.027 346.667);               /* #E2D0D2 rose-500 */
-  --muted-foreground: oklch(0.450 0.043 91.749);     /* sage-800 on rose */
-  --accent: oklch(0.747 0.047 92.308);               /* #C9C683 gold-500 */
-  --accent-foreground: oklch(0.294 0.043 91.749);    /* dark sage-900 on gold */
+  /* Updated with SusFit colors */
+  --background: oklch(from #F9B801);                   /* cream-500 */
+  --foreground: oklch(from #171717);                   /* black for text */
+  --card: oklch(from #F9F5F2);                         /* cream-500 */
+  --card-foreground: oklch(from #171717);              /* black */
+  --popover: oklch(from #F9F5F2);                      /* cream-500 */
+  --popover-foreground: oklch(from #171717);           /* black */
+  --primary: oklch(from #1C99BC);                      /* teal-500 */
+  --primary-foreground: oklch(from #F9F5F2);           /* cream-500 on teal */
+  --secondary: oklch(from #FB60DB);                    /* pink-500 */
+  --secondary-foreground: oklch(from #171717);         /* black on pink */
+  --muted: oklch(from #EFE4DC);                        /* cream-800 */
+  --muted-foreground: oklch(from #282929);             /* gray on cream */
+  --accent: oklch(from #F9B801);                       /* yellow-500 */
+  --accent-foreground: oklch(from #171717);            /* black on yellow */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.831 0.027 346.667);              /* #E2D0D2 rose-500 */
-  --input: oklch(0.831 0.027 346.667);               /* #E2D0D2 rose-500 */
-  --ring: oklch(0.503 0.063 91.749);                 /* #7A893E sage-500 */
+  --border: oklch(from #EFE4DC);                       /* cream-800 */
+  --input: oklch(from #EFE4DC);                        /* cream-800 */
+  --ring: oklch(from #1C99BC);                         /* teal-500 */
 
   /* Charts using updated palette */
-  --chart-1: oklch(0.503 0.063 91.749);              /* sage-500 */
-  --chart-2: oklch(0.729 0.094 284.415);             /* lavender-500 */
-  --chart-3: oklch(0.747 0.047 92.308);              /* gold-500 */
-  --chart-4: oklch(0.831 0.027 346.667);             /* rose-500 */
-  --chart-5: oklch(0.973 0.007 76.049);              /* cream-500 */
+  --chart-1: oklch(from #1C99BC);                      /* teal-500 */
+  --chart-2: oklch(from #FB60DB);                      /* pink-500 */
+  --chart-3: oklch(from #F9B801);                      /* yellow-500 */
+  --chart-4: oklch(from #21ED80);                      /* green-500 */
+  --chart-5: oklch(from #F9F5F2);                      /* cream-500 */
 
   /* Sidebar using updated palette */
-  --sidebar: oklch(0.973 0.007 76.049);              /* cream-500 */
-  --sidebar-foreground: oklch(0.294 0.043 91.749);   /* dark sage-900 */
-  --sidebar-primary: oklch(0.503 0.063 91.749);      /* sage-500 */
-  --sidebar-primary-foreground: oklch(0.973 0.007 76.049); /* cream-500 */
-  --sidebar-accent: oklch(0.729 0.094 284.415);      /* lavender-500 */
-  --sidebar-accent-foreground: oklch(0.294 0.043 91.749); /* dark sage-900 */
-  --sidebar-border: oklch(0.831 0.027 346.667);      /* rose-500 */
-  --sidebar-ring: oklch(0.503 0.063 91.749);         /* sage-500 */
+  --sidebar: oklch(from #F9F5F2);                      /* cream-500 */
+  --sidebar-foreground: oklch(from #171717);           /* black */
+  --sidebar-primary: oklch(from #1C99BC);              /* teal-500 */
+  --sidebar-primary-foreground: oklch(from #F9F5F2);   /* cream-500 */
+  --sidebar-accent: oklch(from #FB60DB);               /* pink-500 */
+  --sidebar-accent-foreground: oklch(from #171717);    /* black */
+  --sidebar-border: oklch(from #EFE4DC);               /* cream-800 */
+  --sidebar-ring: oklch(from #1C99BC);                 /* teal-500 */
 }
 
 .dark {
-  /* Updated Dark Mode with -500, -800, -900 values */
-  --background: oklch(0.150 0.043 91.749);           /* Dark sage-900 background */
-  --foreground: oklch(0.973 0.007 76.049);           /* cream-500 text */
-  --card: oklch(0.200 0.043 91.749);                 /* Slightly lighter sage-800 */
-  --card-foreground: oklch(0.973 0.007 76.049);      /* cream-500 */
-  --popover: oklch(0.200 0.043 91.749);              /* Slightly lighter sage-800 */
-  --popover-foreground: oklch(0.973 0.007 76.049);   /* cream-500 */
-  --primary: oklch(0.729 0.094 284.415);             /* lavender-500 primary in dark */
-  --primary-foreground: oklch(0.150 0.043 91.749);   /* dark sage-900 on lavender */
-  --secondary: oklch(0.250 0.043 91.749);            /* Medium sage-700 */
-  --secondary-foreground: oklch(0.973 0.007 76.049); /* cream-500 */
-  --muted: oklch(0.250 0.043 91.749);                /* Medium sage-700 */
-  --muted-foreground: oklch(0.831 0.027 346.667);    /* rose-500 */
-  --accent: oklch(0.747 0.047 92.308);               /* gold-500 accent */
-  --accent-foreground: oklch(0.150 0.043 91.749);    /* dark sage-900 */
+  /* Updated Dark Mode with SusFit colors */
+  --background: oklch(from #171717);                   /* black background */
+  --foreground: oklch(from #F9F5F2);                   /* cream-500 text */
+  --card: oklch(from #282929);                         /* gray */
+  --card-foreground: oklch(from #F9F5F2);              /* cream-500 */
+  --popover: oklch(from #282929);                      /* gray */
+  --popover-foreground: oklch(from #F9F5F2);           /* cream-500 */
+  --primary: oklch(from #1C99BC);                      /* teal-500 primary in dark */
+  --primary-foreground: oklch(from #F9F5F2);           /* cream-500 on teal */
+  --secondary: oklch(from #FB60DB);                    /* pink-500 */
+  --secondary-foreground: oklch(from #F9F5F2);         /* cream-500 */
+  --muted: oklch(from #282929);                        /* gray */
+  --muted-foreground: oklch(from #EFE4DC);             /* cream-800 */
+  --accent: oklch(from #F9B801);                       /* yellow-500 accent */
+  --accent-foreground: oklch(from #171717);            /* black */
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.250 0.043 91.749);               /* Medium sage-700 */
-  --input: oklch(0.250 0.043 91.749);                /* Medium sage-700 */
-  --ring: oklch(0.729 0.094 284.415);                /* lavender-500 */
+  --border: oklch(from #282929);                       /* gray */
+  --input: oklch(from #282929);                        /* gray */
+  --ring: oklch(from #1C99BC);                         /* teal-500 */
 
   /* Charts for dark mode */
-  --chart-1: oklch(0.729 0.094 284.415);             /* lavender-500 */
-  --chart-2: oklch(0.747 0.047 92.308);              /* gold-500 */
-  --chart-3: oklch(0.831 0.027 346.667);             /* rose-500 */
-  --chart-4: oklch(0.503 0.063 91.749);              /* sage-500 */
-  --chart-5: oklch(0.973 0.007 76.049);              /* cream-500 */
+  --chart-1: oklch(from #1C99BC);                      /* teal-500 */
+  --chart-2: oklch(from #FB60DB);                      /* pink-500 */
+  --chart-3: oklch(from #F9B801);                      /* yellow-500 */
+  --chart-4: oklch(from #21ED80);                      /* green-500 */
+  --chart-5: oklch(from #F9F5F2);                      /* cream-500 */
 
   /* Sidebar for dark mode */
-  --sidebar: oklch(0.200 0.043 91.749);              /* Slightly lighter sage-800 */
-  --sidebar-foreground: oklch(0.973 0.007 76.049);   /* cream-500 */
-  --sidebar-primary: oklch(0.729 0.094 284.415);     /* lavender-500 */
-  --sidebar-primary-foreground: oklch(0.150 0.043 91.749); /* dark sage-900 */
-  --sidebar-accent: oklch(0.747 0.047 92.308);       /* gold-500 */
-  --sidebar-accent-foreground: oklch(0.150 0.043 91.749); /* dark sage-900 */
-  --sidebar-border: oklch(0.250 0.043 91.749);       /* medium sage-700 */
-  --sidebar-ring: oklch(0.729 0.094 284.415);        /* lavender-500 */
+  --sidebar: oklch(from #282929);                      /* gray */
+  --sidebar-foreground: oklch(from #F9F5F2);           /* cream-500 */
+  --sidebar-primary: oklch(from #1C99BC);              /* teal-500 */
+  --sidebar-primary-foreground: oklch(from #F9F5F2);   /* cream-500 */
+  --sidebar-accent: oklch(from #FB60DB);               /* pink-500 */
+  --sidebar-accent-foreground: oklch(from #F9F5F2);    /* cream-500 */
+  --sidebar-border: oklch(from #282929);               /* gray */
+  --sidebar-ring: oklch(from #1C99BC);                 /* teal-500 */
+}
 
 @layer base {
   * {
@@ -173,7 +190,190 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    font-family: var(--font-sans);
+    background-image: var(--gradient-yellow-warm-radial);
   }
- }
+
+  h1, h2, h3 {
+    font-family: var(--font-secondary);
+  }
+  .accent-text {
+    font-family: var(--font-tertiary);
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  /* Site title */
+  .title {
+        display: flex;
+        flex-direction: column;
+        font-family: var(--font-secondary);
+        font-size: 100px;
+        font-weight: 400;
+        line-height: 216.76px;
+        filter: hue-rotate(285deg) saturate(320%) brightness(0.9);
+        text-shadow:   -8px -8px 0 #7561be,
+                       8px -8px 0 #7561be,
+                       -8px 8px 0 #7561be,
+                       8px 8px 0 #7561be;
+        /* background: var(--color-susfit-pink-500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; */
+      }
+
+    .ticker-container {
+        background-color: var(--color-susfit-black) ;
+        color: var(--color-susfit-pink-800) ;
+        padding: 12px 0;
+        font-family: Arial, sans-serif;
+        border-top:1px solid var(--color-susfit-teal-500);
+        border-bottom: 1px solid var(--color-susfit-teal-500);
+    }
+
+    .ticker-item {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-right: 30px;
+        white-space: nowrap;
+    }
+
+
+    .separator {
+        color: var(--color-susfit-teal-500);
+        font-weight: bold;
+        margin: 0 15px;
+    }
+
+    /* Additional CSS animations for Polaroid Photo Generator */
+
+    @keyframes slideDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes polaroidAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(-50px) rotate(-5deg) scale(0.9);
+        }
+        50% {
+            opacity: 0.8;
+            transform: translateY(-10px) rotate(-2deg) scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg) scale(1);
+        }
+    }
+
+    @keyframes photoSlideReveal {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        50% {
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes progressPulse {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(251, 96, 219, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(251, 96, 219, 0.6), 0 0 30px rgba(28, 153, 188, 0.4);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    /* Utility classes for the component */
+    .polaroid-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .polaroid-card:hover {
+        transform: translateX(4px) translateY(4px);
+        box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    }
+
+    .progress-bar-animated {
+        animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    .photo-developing {
+        background: linear-gradient(
+                90deg,
+                rgba(156, 163, 175, 0.8) 0%,
+                rgba(156, 163, 175, 0.4) 50%,
+                rgba(156, 163, 175, 0.8) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    .polaroid-shadow {
+        box-shadow:
+                8px 8px 0px 0px rgba(0, 0, 0, 1),
+                0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .polaroid-shadow:hover {
+        box-shadow:
+                4px 4px 0px 0px rgba(0, 0, 0, 1),
+                0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .polaroid-card {
+            width: 280px;
+            height: 350px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .polaroid-card {
+            width: 240px;
+            height: 320px;
+        }
+    }
+
+    /* Animation classes for different states */
+    .animate-slideDown {
+        animation: slideDown 0.5s ease-out forwards;
+    }
+
+    .animate-polaroidAppear {
+        animation: polaroidAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animate-photoSlideReveal {
+        animation: photoSlideReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
 }
