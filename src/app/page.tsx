@@ -122,7 +122,7 @@ export default function SusFitPage() {
                                     onGenerationComplete={handleGenerationComplete}
                                     onClose={handleClosePolaroid}
                                     onRetry={handleRetryGeneration}
-                                    mockImageUrl={leftCardImage || rightCardImage || "/images/demo/WillShalom.jpg"}
+                                    mockImageUrl={"/images/demo/WillShalom.jpg"}
                                     className="animate-[slideDown_0.5s_ease-out]"
                                 />
                             </div>
