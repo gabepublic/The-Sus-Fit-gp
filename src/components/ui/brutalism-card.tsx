@@ -1,7 +1,6 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Upload } from "lucide-react"
 import { useState, useId } from "react"
 
 interface BrutalismCardProps {

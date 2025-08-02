@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 
 interface PolaroidPhotoGeneratorProps {
@@ -29,13 +29,7 @@ export function PolaroidPhotoGenerator({
     const [animationPhase, setAnimationPhase] = useState<'idle' | 'processing' | 'revealing' | 'complete'>('idle')
     const [showButtons, setShowButtons] = useState(false)
 
-    useEffect(() => {
-        if (isGenerating && animationPhase === 'idle') {
-            startGenerationSequence()
-        }
-    }, [isGenerating])
-
-    const startGenerationSequence = () => {
+    const startGenerationSequence = useCallback(() => {
         setAnimationPhase('processing')
         setProgress(0)
         setPhotoVisible(false)
@@ -71,7 +65,13 @@ export function PolaroidPhotoGenerator({
                 return prev + 2
             })
         }, 60) // 60ms intervals for smooth animation (3 seconds total)
-    }
+    }, [onGenerationStart, onGenerationComplete, mockImageUrl])
+
+    useEffect(() => {
+        if (isGenerating && animationPhase === 'idle') {
+            startGenerationSequence()
+        }
+    }, [isGenerating, animationPhase, startGenerationSequence])
 
     const resetPolaroid = () => {
         setAnimationPhase('idle')

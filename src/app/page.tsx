@@ -8,7 +8,6 @@ import { BrutalismCard } from "@/components/ui/brutalism-card"
 import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
 
 export default function SusFitPage() {
-    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
     const [isCapturing, setIsCapturing] = useState(false)
     const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
     const [rightCardImage, setRightCardImage] = useState<string | null>(null)
@@ -22,22 +21,14 @@ export default function SusFitPage() {
         setTimeout(() => {
             setIsCapturing(false)
             // In a real app, this would capture from camera
-            setSelectedPhoto("/placeholder.svg?height=300&width=300")
         }, 2000)
      }
-
-
-
-    const resetPhoto = () => {
-        setSelectedPhoto(null)
-    }
     const handleGenerationStart = () => {
         console.log('Generation started')
     }
 
     const handleGenerationComplete = (imageUrl: string) => {
         console.log('Generation complete:', imageUrl)
-        setSelectedPhoto(imageUrl)
         setIsCapturing(false)
     }
 
@@ -45,13 +36,11 @@ export default function SusFitPage() {
         console.log('Closing Polaroid')
         setShowPolaroid(false)
         setIsCapturing(false)
-        setSelectedPhoto(null)
     }
 
     const handleRetryGeneration = () => {
         console.log('Retrying generation')
         setIsCapturing(false)
-        setSelectedPhoto(null)
         // Restart the generation process
         setTimeout(() => {
             setIsCapturing(true)
@@ -79,7 +68,7 @@ export default function SusFitPage() {
             <header className="px-8 py-6">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="title">The Sus Fit</h1>
-                    <p className="text-lg text-[#000000] mb-4">we be doin' the most</p>
+                    <p className="text-lg text-[#000000] mb-4">we be doin&apos; the most</p>
                     <p className="text-sm text-[#000000]">
                         a <b>Those People production</b>
                     </p>

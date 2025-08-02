@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 
 interface EnhancedPolaroidPhotoGeneratorProps {
     className?: string
@@ -31,13 +31,7 @@ export function EnhancedPolaroidPhotoGenerator({
     const [polaroidVisible, setPolaroidVisible] = useState(false)
     const progressRef = useRef<NodeJS.Timeout | null>(null)
 
-    useEffect(() => {
-        if (isGenerating && animationPhase === 'idle') {
-            startGenerationSequence()
-        }
-    }, [isGenerating])
-
-    const startGenerationSequence = () => {
+    const startGenerationSequence = useCallback(() => {
         // Show the polaroid sliding out from camera
         setPolaroidVisible(true)
         setAnimationPhase('processing')
@@ -83,18 +77,15 @@ export function EnhancedPolaroidPhotoGenerator({
                 }, 500)
             }
         }, 80) // Slower, more realistic progress
-    }
+    }, [onGenerationStart, onGenerationComplete, personImageUrl, garmentImageUrl, mockImageUrl])
 
-    const resetPolaroid = () => {
-        if (progressRef.current) {
-            clearInterval(progressRef.current)
+    useEffect(() => {
+        if (isGenerating && animationPhase === 'idle') {
+            startGenerationSequence()
         }
-        setAnimationPhase('idle')
-        setProgress(0)
-        setPhotoVisible(false)
-        setGeneratedImageUrl(null)
-        setPolaroidVisible(false)
-    }
+    }, [isGenerating, animationPhase, startGenerationSequence])
+
+
 
     const getPositionClasses = () => {
         switch (position) {

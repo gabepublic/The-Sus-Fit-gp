@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 
 interface OverlayButtonProps {
     onClick: () => void
@@ -40,7 +40,7 @@ export function HeroImageWithButton({
         lg: 'w-10 h-10'
     }
 
-    const calculateButtonPositionAndSize = () => {
+    const calculateButtonPositionAndSize = useCallback(() => {
         if (!overlayButton) return
 
         const baseLeftPercent = parseFloat(overlayButton.position.leftPercent.replace('%', ''))
@@ -105,7 +105,7 @@ export function HeroImageWithButton({
             setAdjustedLeftPercent(`${newLeftPercent}%`)
             setButtonScale(scale)
         }
-    }
+    }, [overlayButton])
 
 
     // Calculate position when image loads
@@ -120,7 +120,7 @@ export function HeroImageWithButton({
         calculateButtonPositionAndSize()
         const timeoutId = setTimeout(calculateButtonPositionAndSize, 100)
         return () => clearTimeout(timeoutId)
-    }, [overlayButton])
+    }, [overlayButton, calculateButtonPositionAndSize])
 
     // Recalculate on window resize
     useEffect(() => {
@@ -130,7 +130,7 @@ export function HeroImageWithButton({
 
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-    }, [overlayButton])
+    }, [overlayButton, calculateButtonPositionAndSize])
 
     return (
         <div className={cn(
