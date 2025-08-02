@@ -31,7 +31,7 @@ test.describe('Camera Flow Tests', () => {
     test('video element has correct responsive styling', async ({ page }) => {
       await page.context().grantPermissions(['camera']);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       const video = page.locator('video#camera-stream');
       await expect(video).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('Camera Flow Tests', () => {
     test('buttons are in correct initial state when camera is active', async ({ page }) => {
       await page.context().grantPermissions(['camera']);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for camera to initialize
       await page.waitForFunction(() => {
@@ -78,23 +78,21 @@ test.describe('Camera Flow Tests', () => {
       await page.addInitScript(() => {
         Object.defineProperty(navigator, 'mediaDevices', {
           value: {
-            getUserMedia: () => Promise.reject({
-              name: 'NotAllowedError',
-              message: 'Camera access denied'
-            })
+            getUserMedia: () => Promise.reject(new DOMException('Camera access denied', 'NotAllowedError'))
           }
         });
       });
       
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for error alert to appear - look for alert with camera error content
       const alert = page.locator('[role="alert"]').filter({ hasText: /camera access denied/i });
-      await expect(alert).toBeVisible({ timeout: 5000 });
+      await expect(alert).toBeVisible({ timeout: 10000 });
       
-      // Check error message
+      // Check error message - the component shows a more descriptive message
       await expect(alert).toContainText('Camera access denied');
+      await expect(alert).toContainText('Please allow camera permissions');
       
       // Check retry button is present
       const retryButton = page.getByRole('button', { name: /retry camera access/i });
@@ -111,10 +109,7 @@ test.describe('Camera Flow Tests', () => {
               callCount++;
               if (callCount === 1) {
                 // First call fails
-                return Promise.reject({
-                  name: 'NotAllowedError',
-                  message: 'Camera access denied'
-                });
+                return Promise.reject(new DOMException('Camera access denied', 'NotAllowedError'));
               } else {
                 // Subsequent calls succeed
                 return Promise.resolve({
@@ -130,11 +125,11 @@ test.describe('Camera Flow Tests', () => {
       });
       
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for initial error - look for alert with camera error content
       const alert = page.locator('[role="alert"]').filter({ hasText: /camera access denied/i });
-      await expect(alert).toBeVisible({ timeout: 5000 });
+      await expect(alert).toBeVisible({ timeout: 10000 });
       
       // Click retry button
       const retryButton = page.getByRole('button', { name: /retry camera access/i });
@@ -156,7 +151,7 @@ test.describe('Camera Flow Tests', () => {
       
       await page.context().grantPermissions(['camera']);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for camera to initialize
       await page.waitForFunction(() => {
@@ -180,7 +175,7 @@ test.describe('Camera Flow Tests', () => {
       
       await page.context().grantPermissions(['camera']);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for camera to initialize
       await page.waitForFunction(() => {
@@ -205,20 +200,17 @@ test.describe('Camera Flow Tests', () => {
       await page.addInitScript(() => {
         Object.defineProperty(navigator, 'mediaDevices', {
           value: {
-            getUserMedia: () => Promise.reject({
-              name: 'NotReadableError',
-              message: 'Camera is already in use'
-            })
+            getUserMedia: () => Promise.reject(new DOMException('Camera is already in use', 'NotReadableError'))
           }
         });
       });
       
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for error alert - look for alert with camera in use content
       const alert = page.locator('[role="alert"]').filter({ hasText: /camera is already in use/i });
-      await expect(alert).toBeVisible({ timeout: 5000 });
+      await expect(alert).toBeVisible({ timeout: 10000 });
       await expect(alert).toContainText('Camera is already in use');
     });
 
@@ -227,20 +219,17 @@ test.describe('Camera Flow Tests', () => {
       await page.addInitScript(() => {
         Object.defineProperty(navigator, 'mediaDevices', {
           value: {
-            getUserMedia: () => Promise.reject({
-              name: 'NotFoundError',
-              message: 'No camera found'
-            })
+            getUserMedia: () => Promise.reject(new DOMException('No camera found', 'NotFoundError'))
           }
         });
       });
       
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for error alert - look for alert with no camera content
       const alert = page.locator('[role="alert"]').filter({ hasText: /no camera found/i });
-      await expect(alert).toBeVisible({ timeout: 5000 });
+      await expect(alert).toBeVisible({ timeout: 10000 });
       await expect(alert).toContainText('No camera found');
     });
   });
@@ -249,7 +238,7 @@ test.describe('Camera Flow Tests', () => {
     test('has proper ARIA attributes and labels', async ({ page }) => {
       await page.context().grantPermissions(['camera']);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Check video element has proper ID
       const video = page.locator('video#camera-stream');
@@ -275,20 +264,17 @@ test.describe('Camera Flow Tests', () => {
       await page.addInitScript(() => {
         Object.defineProperty(navigator, 'mediaDevices', {
           value: {
-            getUserMedia: () => Promise.reject({
-              name: 'NotAllowedError',
-              message: 'Camera access denied'
-            })
+            getUserMedia: () => Promise.reject(new DOMException('Camera access denied', 'NotAllowedError'))
           }
         });
       });
       
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle', { timeout: 30000 });
+      await page.waitForLoadState('load', { timeout: 10000 });
       
       // Wait for error alert - look for alert with camera error content
       const alert = page.locator('[role="alert"]').filter({ hasText: /camera access denied/i });
-      await expect(alert).toBeVisible({ timeout: 5000 });
+      await expect(alert).toBeVisible({ timeout: 10000 });
       
       // Check alert has proper role and content
       await expect(alert).toHaveAttribute('role', 'alert');

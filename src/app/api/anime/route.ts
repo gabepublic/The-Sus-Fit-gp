@@ -15,8 +15,17 @@ interface AnimeResponse {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Parse request body
-    const body: AnimeRequest = await request.json();
+    // Parse request body with better error handling
+    let body: AnimeRequest;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
     
     // Validate input
     if (!body.selfie) {

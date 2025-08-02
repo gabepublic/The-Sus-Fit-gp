@@ -21,9 +21,9 @@ if (nonTestFiles.length === 0) {
 }
 
 try {
-  // Run TypeScript check using the project's tsconfig.json
+  // Run TypeScript check using the lint-specific configuration
   // This ensures proper JSX configuration and path aliases are used
-  const command = 'npx tsc --noEmit';
+  const command = 'npx tsc --noEmit --project tsconfig.lint.json';
   execSync(command, { stdio: 'inherit' });
   console.log('TypeScript check passed');
 } catch (error) {

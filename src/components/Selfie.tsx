@@ -24,12 +24,14 @@ export const BUTTON_STATES = {
   INITIAL: {
     take: { disabled: false, variant: 'default' as const },
     download: { disabled: true, variant: 'secondary' as const },
-    retake: { disabled: true, variant: 'secondary' as const }
+    retake: { disabled: true, variant: 'secondary' as const },
+    generate: { disabled: true, variant: 'secondary' as const }
   },
   AFTER_CAPTURE: {
     take: { disabled: true, variant: 'secondary' as const },
     download: { disabled: false, variant: 'default' as const },
-    retake: { disabled: false, variant: 'default' as const }
+    retake: { disabled: false, variant: 'default' as const },
+    generate: { disabled: false, variant: 'default' as const }
   }
 } as const;
 
@@ -104,16 +106,30 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
   const getButtonStates = () => {
     const baseStates = selfieUrl ? BUTTON_STATES.AFTER_CAPTURE : BUTTON_STATES.INITIAL;
     
-    // If loading, disable all buttons except retake (for abort functionality)
+    // If loading, disable most buttons but keep retake enabled to allow cancellation
     if (loading) {
       return {
         take: { disabled: true, variant: 'secondary' as const },
         download: { disabled: true, variant: 'secondary' as const },
-        retake: { disabled: false, variant: 'default' as const } // Keep retake enabled for abort
+        retake: { disabled: false, variant: 'default' as const }, // Allow retake during loading
+        generate: { disabled: true, variant: 'secondary' as const }
       };
     }
     
-    return baseStates;
+    // Override generate button state based on selfieBlob availability
+    const states = { ...baseStates };
+    if (!selfieBlob) {
+      states.generate = { disabled: true, variant: 'secondary' as const };
+    }
+    
+    console.log('getButtonStates:', { 
+      selfieUrl: !!selfieUrl, 
+      selfieBlob: !!selfieBlob, 
+      loading, 
+      generateDisabled: states.generate.disabled 
+    });
+    
+    return states;
   };
 
   // Function to handle download selection
@@ -159,15 +175,25 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
         }
       });
       
-      // 3) Restart camera stream
+      // 3) Clear any errors
+      setError(undefined);
+      setCamError(null);
+      
+      // 4) Restart camera stream with proper waiting
       await restartCamera();
       
-      // 4) Reset button states to initial values
+      // 5) Update stream reference to match the new stream
+      if (videoRef.current && videoRef.current.srcObject) {
+        streamRef.current = videoRef.current.srcObject as MediaStream;
+      }
+      
+      // 6) Reset button states to initial values
       // This is handled automatically by getButtonStates() based on selfieUrl being empty
       
       console.log('Retake completed: MediaStream stopped, state reset, camera restarted');
     } catch (error) {
       console.error('Error during retake:', error);
+      setCamError('Failed to restart camera. Please refresh the page and try again.');
       toast({
         variant: "destructive",
         title: "Retake failed",
@@ -177,12 +203,14 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
   };
 
   // Function to capture selfie from video stream
-  const onTakeClick = () => {
-    const video = videoRef.current;
-    if (!video || !video.srcObject) {
-      console.error('Video element or stream not available');
-      return;
-    }
+  const onTakeClick = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const video = videoRef.current;
+      if (!video || !video.srcObject) {
+        console.error('Video element or stream not available');
+        reject(new Error('Video element or stream not available'));
+        return;
+      }
 
     // Get video dimensions
     const videoWidth = video.videoWidth;
@@ -206,42 +234,44 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
     canvas.width = finalWidth;
     canvas.height = finalHeight;
     
-    // Get 2D context (willReadFrequently: false for better performance)
-    const ctx = canvas.getContext('2d', { willReadFrequently: false });
-    if (!ctx) {
-      console.error('Failed to get canvas context');
-      return;
-    }
+      // Get 2D context (willReadFrequently: false for better performance)
+      const ctx = canvas.getContext('2d', { willReadFrequently: false });
+      if (!ctx) {
+        console.error('Failed to get canvas context');
+        reject(new Error('Failed to get canvas context'));
+        return;
+      }
 
-    // Draw current video frame to canvas
-    ctx.drawImage(video, 0, 0, finalWidth, finalHeight);
-    
-         // Convert canvas to blob with high-quality JPEG
-     canvas.toBlob(
-       (blob) => {
-         if (blob) {
-           // Store blob in React state
-           setSelfieBlob(blob);
-           
-           // Create object URL and store in React state
-           const objectUrl = URL.createObjectURL(blob);
-           setSelfieUrl(objectUrl);
-           
-           console.log('Selfie captured and stored:', { 
-             blobSize: blob.size, 
-             blobType: blob.type,
-             objectUrl 
-           });
-         } else {
-           console.error('Failed to create blob from canvas');
-         }
-         
-         // Canvas reference is automatically cleaned up by garbage collection
-         // after blob generation completes
-       },
-       'image/jpeg', // MIME type
-       0.95 // Quality (0.95 = 95% quality)
-     );
+      // Draw current video frame to canvas
+      ctx.drawImage(video, 0, 0, finalWidth, finalHeight);
+      
+      // Convert canvas to blob with high-quality JPEG
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            // Store blob in React state
+            setSelfieBlob(blob);
+            
+            // Create object URL and store in React state
+            const objectUrl = URL.createObjectURL(blob);
+            setSelfieUrl(objectUrl);
+            
+            console.log('Selfie captured and stored:', { 
+              blobSize: blob.size, 
+              blobType: blob.type,
+              objectUrl 
+            });
+          } else {
+            console.error('Failed to create blob from canvas');
+          }
+          
+          // Canvas reference is automatically cleaned up by garbage collection
+          // after blob generation completes
+        },
+        'image/jpeg', // MIME type
+        0.95 // Quality (0.95 = 95% quality)
+      );
+    });
   };
 
   // Function to stop all MediaStream tracks safely
@@ -349,20 +379,31 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
 
   // Function to generate anime from selfie
   const onGenerateAnime = async () => {
+    console.log('onGenerateAnime called, selfieBlob exists:', !!selfieBlob);
     if (!selfieBlob) return;
+    
+    console.log('onGenerateAnime proceeding, setting loading to true');
+    
+    // Set loading state immediately when button is clicked
     setLoading(true);
     setError(undefined);
     setAnimeUrl('');
+    
     // Abort any previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
+    
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    
     try {
+      console.log('Calling requestAnime...');
       const url = await requestAnime(selfieBlob, controller.signal);
+      console.log('requestAnime succeeded, setting animeUrl');
       setAnimeUrl(url);
     } catch (err) {
+      console.log('requestAnime failed:', err);
       if (err instanceof TimeoutError) {
         setError('Anime generation timed out. Please try again.');
       } else if (err instanceof Error) {
@@ -371,6 +412,7 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
         setError('Unknown error occurred.');
       }
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
   };
@@ -438,7 +480,7 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
   }, [selfieUrl]);
 
   return (
-    <section className="flex flex-col items-center justify-center w-full h-full gap-4 p-4" role="group" aria-label="Selfie comparison">
+    <section className="flex flex-col items-center justify-center w-full h-full gap-4 p-4 relative" role="group" aria-label="Selfie comparison">
       {/* Error Alert */}
       {camError && (
         <Alert variant="destructive" className="w-full max-w-sm md:max-w-md">
@@ -465,8 +507,14 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
       )}
       {/* Spinner overlay */}
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-50">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-50" data-testid="spinner-container">
           <Loader2 data-testid="spinner" className="animate-spin w-12 h-12 text-primary" />
+        </div>
+      )}
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ position: 'fixed', top: '10px', right: '10px', background: 'white', padding: '10px', border: '1px solid black', zIndex: 9999 }}>
+          Loading: {loading ? 'true' : 'false'}
         </div>
       )}
       {/* Selfie or video preview */}
@@ -628,11 +676,22 @@ const Selfie = forwardRef<SelfieRef, SelfieProps>((props, ref) => {
         <Button
           id="generate-anime-btn"
           aria-label="Generate anime portrait"
-          disabled={!selfieBlob || loading}
-          variant="default"
+          disabled={getButtonStates().generate.disabled}
+          variant={getButtonStates().generate.variant}
           onClick={onGenerateAnime}
+          aria-busy={loading}
+          data-testid="generate-anime-btn"
+          data-selfie-blob={selfieBlob ? 'exists' : 'missing'}
+          data-loading={loading ? 'true' : 'false'}
         >
-          Generate Anime
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin w-4 h-4 mr-2" data-testid="spinner" />
+              Generating...
+            </>
+          ) : (
+            'Generate Anime'
+          )}
         </Button>
       </div>
     </section>

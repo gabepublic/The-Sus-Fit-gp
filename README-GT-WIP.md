@@ -78,9 +78,29 @@ npx task-master expand --all
 ```
 - Use the AI Chat to guide AI-coding
 
-### Guidance change
+- Playwright test
+```
+npx playwright test --project=chromium-desktop
+npx playwright test --project=chromium-desktop,chromium-mobile,webkit,iphone
+npx playwright test e2e/anime-transformation.spec.ts --project=chromium-desktop
+npx playwright test e2e/retake-flow.spec.ts --project=chromium-desktop
+npx playwright test e2e/selfie-anime.spec.ts --project=chromium-desktop
+
+```
+
+### Change from PRD
 
 - Refactor from OpenAI chat.completion API to Responses API
 ```
 refactor the `generateAnime` function to use OpenAI responses API described in https://platform.openai.com/docs/api-reference/images/createEdit?lang=node.js
 ```
+
+
+Implementation Plan
+I'll apply these changes systematically:
+Replace button readiness waits with proper state checks
+Replace animation completion waits with spinner visibility checks
+Replace camera initialization waits with video element visibility checks
+Replace component mounting waits with alert/error visibility checks
+Replace retry logic waits with proper retry mechanisms
+Would you like me to proceed with implementing these changes?

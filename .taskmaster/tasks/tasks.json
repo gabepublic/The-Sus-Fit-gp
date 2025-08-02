@@ -407,7 +407,7 @@
         "testStrategy": "Unit: after clicking Retake assert state variables null and video.srcObject restored.\nE2E: Perform full flow Take → Retake → Take again, ensure new image differs via checksum.",
         "priority": "medium",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -545,8 +545,8 @@
             "title": "Establish Testing Framework & Coverage Gate",
             "description": "Install and configure Jest, React Testing Library, Playwright and coverage tooling to create a unified testing foundation with ≥ 90 % line coverage enforcement.",
             "dependencies": [],
-            "details": "• Add dev-deps: jest, @testing-library/react, @testing-library/jest-dom, ts-jest, jest-environment-jsdom, playwright, @playwright/test, jest-coverage-badges.\n• Create jest.config.ts extending ts-jest preset; set collectCoverageFrom to src/**/*.{ts,tsx}; coverageThreshold global.lines=90.\n• Add RTL setup file importing '@testing-library/jest-dom'.\n• Initialise Playwright via `npx playwright install` then create playwright.config.ts with projects chromium, firefox, webkit, iPhone14 (device descriptor). Disable storageState.\n• Add `pnpm script` aliases: \"test\" → \"jest --runInBand\", \"e2e\" → \"playwright test --project=all\".\n• Commit a sample dummy test to verify both runners execute.",
-            "status": "pending",
+            "details": "• Add dev-deps: jest, @testing-library/react, @testing-library/jest-dom, ts-jest, jest-environment-jsdom, playwright, @playwright/test, jest-coverage-badges.\n• Create jest.config.ts extending ts-jest preset; set collectCoverageFrom to src/**/*.{ts,tsx}; coverageThreshold global.lines=90.\n• Add RTL setup file importing '@testing-library/jest-dom'.\n• Initialise Playwright via `npx playwright install` then create playwright.config.ts with projects chromium, firefox, webkit, iPhone14 (device descriptor). Disable storageState.\n• Add `pnpm script` aliases: \"test\" → \"jest --runInBand\", \"e2e\" → \"playwright test --project=all\".\n• Commit a sample dummy test to verify both runners execute.\n<info added on 2025-08-01T23:00:44.049Z>\nProgress Update:\n• Extended jest.config.ts to enforce global coverageThreshold of { lines: 90, branches: 80, functions: 80, statements: 80 }.\n• Integrated jest-coverage-badges: badge now generated automatically after test run.\n• Updated package.json scripts: \"test\" uses --runInBand; \"e2e\" executes Playwright with --project=all.\n• Initial coverage run sits at ~67 % lines, confirming gate fails as expected.\n\nNext Steps:\n1. Commit a sample unit + e2e test to validate both runners in CI.\n2. Author additional unit tests (camera hook, OpenAI API mock, Selfie flow) to raise coverage to ≥ 90 %.\n3. Run Playwright suite across chromium-desktop, chromium-mobile, webkit, and iPhone14; address any flakiness.\n4. Re-verify that coverage thresholds for lines, branches, functions, and statements are strictly enforced in CI.\n</info added on 2025-08-01T23:00:44.049Z>\n<info added on 2025-08-01T23:02:35.814Z>\n• Testing framework scaffolding finished: Jest + RTL (ts-jest) and Playwright fully configured, coverage collected from src/**/*.{ts,tsx}.  \n• Global coverage gates enforced (≥ 90 % lines, ≥ 80 % branches/functions/statements) with automatic badge generation.  \n• New scripts: `test`, `test:coverage`, and `e2e` wired to CI; initial run verifies thresholds trigger failure at ~67 % coverage.  \n• Playwright projects defined for chromium-desktop, chromium-mobile, webkit, and iPhone14, including fake-media support for camera tests.  \n• Committed verification tests: `src/test/sample.test.ts` (unit) and `e2e/sample.spec.ts` (E2E) confirm both runners execute across all targets.  \n• Framework now ready—proceed to Subtask 9.2 to add real unit tests and raise coverage above the enforced threshold.\n</info added on 2025-08-01T23:02:35.814Z>",
+            "status": "done",
             "testStrategy": "Run `pnpm test --coverage` expecting 0 failures and coverage summary; run `pnpm e2e` expecting all four projects pass the placeholder test."
           },
           {
@@ -578,8 +578,8 @@
             "dependencies": [
               "9.1"
             ],
-            "details": "• In tests/e2e/selfie-anime.spec.ts: launch app using `pnpm start` via `webServer` in playwright.config.\n• Grant camera permission through context, inject fake camera feed via `--use-file-for-fake-video-capture` if supported; otherwise stub getUserMedia.\n• Walk through: allow camera, click Capture, wait for anime image (mock OpenAI via route.fulfill), verify both images visible, click Retake and confirm UI resets.\n• Capture screenshot on each major step using testInfo.attach.\n• Configure `video: 'retain-on-failure'` and `trace: 'retain-on-failure'` in config.",
-            "status": "pending",
+            "details": "• In tests/e2e/selfie-anime.spec.ts: launch app using `pnpm start` via `webServer` in playwright.config.\n• Grant camera permission through context, inject fake camera feed via `--use-file-for-fake-video-capture` if supported; otherwise stub getUserMedia.\n• Walk through: allow camera, click Capture, wait for anime image (mock OpenAI via route.fulfill), verify both images visible, click Retake and confirm UI resets.\n• Capture screenshot on each major step using testInfo.attach.\n• Configure `video: 'retain-on-failure'` and `trace: 'retain-on-failure'` in config.\n<info added on 2025-08-02T06:25:51.786Z>\n• Address flaky assertions revealed by latest E2E run:\n  – Patch Selfie component so `loading` is set to true immediately on “Generate Anime” click; spinner should render before the network request begins.  \n  – Normalize button props: while `loading` is true, “Generate Anime” and “Retake” disabled, spinner inside button shows aria-busy.  \n\n• Update selfie-anime.spec.ts to match new UX and harden against race conditions:  \n  – After click, `await page.waitForSelector('[data-testid=spinner]', { state: \"visible\" });` instead of expecting it instantly.  \n  – Assert button disabled/enabled states explicitly with `toBeDisabled()` / `toBeEnabled()` at each phase.  \n  – Replace fragile `page.waitForTimeout()` calls with `await expect(animeImg).toBeVisible({ timeout: 15000 })`.  \n\n• Fix mock interception:  \n  – `await page.route('**/v1/chat/completions', route => route.fulfill({ status: 200, body: JSON.stringify(mockAnimeResp) }))` to guarantee the base64 image payload is delivered.  \n  – Verify `<img data-testid=\"anime-img\">` receives a non-empty src starting with `data:image/png;base64,`.  \n\n• Extend test config:  \n  – `expect.poll(() => page.locator('[data-testid=spinner]').isVisible()).toBeFalsy()` to ensure spinner disappears after response.  \n  – Set global `expect.setTimeout(20000)` to reduce random CI timeouts.\n</info added on 2025-08-02T06:25:51.786Z>",
+            "status": "in-progress",
             "testStrategy": "Run `pnpm e2e`; expect all projects green. Use `npx playwright show-report` to manually review."
           },
           {
@@ -668,7 +668,7 @@
     ],
     "metadata": {
       "created": "2025-07-31T21:02:40.067Z",
-      "updated": "2025-08-01T22:19:33.588Z",
+      "updated": "2025-08-02T00:41:20.879Z",
       "description": "Tasks for master context"
     }
   }

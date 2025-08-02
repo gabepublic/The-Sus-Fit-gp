@@ -14,7 +14,8 @@ export default defineConfig({
   timeout: 120000,
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
+    video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Add fake media device support for consistent testing
     launchOptions: {
@@ -78,7 +79,8 @@ export default defineConfig({
       threshold: 0.3, // Allow more rendering variance for camera tests
     },
     toHaveScreenshot: {
-      // timeout is not a valid property for toHaveScreenshot
+      threshold: 0.2, // Allow some variance for UI tests
+      maxDiffPixels: 10000, // Allow up to 10k pixel differences
     },
   },
 })

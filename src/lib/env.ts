@@ -28,4 +28,14 @@ export function validateEnv(): Env {
   }
 }
 
-export const env = validateEnv()
+// Lazy validation - only validate when accessed
+let _env: Env | null = null
+
+export const env: Env = new Proxy({} as Env, {
+  get(target, prop) {
+    if (_env === null) {
+      _env = validateEnv()
+    }
+    return _env[prop as keyof Env]
+  }
+})
