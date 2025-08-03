@@ -7,6 +7,49 @@ import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
 import { BrutalismCard } from "@/components/ui/brutalism-card"
 import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
 
+// Utility function to resize image to 1024x1536
+const resizeImageTo1024x1536 = (imageUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = "anonymous"
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            
+            if (!ctx) {
+                reject(new Error('Could not get canvas context'))
+                return
+            }
+            
+            // Set canvas dimensions to target size
+            canvas.width = 1024
+            canvas.height = 1536
+            
+            // Draw the image resized to fit the canvas
+            ctx.drawImage(img, 0, 0, 1024, 1536)
+            
+            // Convert to data URL
+            const resizedImageUrl = canvas.toDataURL('image/jpeg', 0.9)
+            resolve(resizedImageUrl)
+        }
+        
+        img.onerror = () => {
+            reject(new Error('Failed to load image for resizing'))
+        }
+        
+        img.src = imageUrl
+    })
+}
+
+// Utility function moved outside the component
+const logImageDimensions = (imageUrl: string, cardName: string) => {
+    const img = new Image()
+    img.src = imageUrl
+    img.onload = () => {
+        console.log(`${cardName} image dimensions:`, { width: img.width, height: img.height })
+    }
+}
+
 export default function SusFitPage() {
     const [isCapturing, setIsCapturing] = useState(false)
     const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
@@ -47,14 +90,42 @@ export default function SusFitPage() {
         }, 100)
     }
 
-    const handleLeftCardImageUpload = (imageUrl: string) => {
-        setLeftCardImage(imageUrl)
-        console.log('Left card image uploaded:', imageUrl)
+    const handleLeftCardImageUpload = async (imageUrl: string) => {
+        try {
+            console.log('Left card image uploaded: (original):', imageUrl)
+            logImageDimensions(imageUrl, 'Left card (original)')
+            
+            // Resize the image to 1024x1536
+            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
+            
+            setLeftCardImage(resizedImageUrl)
+            console.log('Left card image resized to 1024x1536:', resizedImageUrl)
+            logImageDimensions(resizedImageUrl, 'Left card (resized)')
+        } catch (error) {
+            console.error('Error resizing image:', error)
+            // Fallback to original image if resizing fails
+            setRightCardImage(imageUrl)
+            console.log('Using original image due to resize error')
+        }
     }
 
-    const handleRightCardImageUpload = (imageUrl: string) => {
-        setRightCardImage(imageUrl)
-        console.log('Right card image uploaded:', imageUrl)
+    const handleRightCardImageUpload = async (imageUrl: string) => {
+        try {
+            console.log('Right card image uploaded (original):', imageUrl)
+            logImageDimensions(imageUrl, 'Right card (original)')
+            
+            // Resize the image to 1024x1536
+            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
+            
+            setRightCardImage(resizedImageUrl)
+            console.log('Right card image resized to 1024x1536:', resizedImageUrl)
+            logImageDimensions(resizedImageUrl, 'Right card (resized)')
+        } catch (error) {
+            console.error('Error resizing image:', error)
+            // Fallback to original image if resizing fails
+            setRightCardImage(imageUrl)
+            console.log('Using original image due to resize error')
+        }
     }
 
     const handleCameraButtonClick = () => {

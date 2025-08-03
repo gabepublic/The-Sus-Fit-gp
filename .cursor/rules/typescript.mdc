@@ -1,0 +1,67 @@
+---
+description: TypeScript coding standards and best practices for modern web development
+globs: **/*.ts, **/*.tsx, **/*.d.ts
+alwaysApply: false
+---
+# TypeScript Best Practices
+
+## Type System
+- Prefer `interface` over `type` for object shape definitions
+- Use `type` for unions, intersections, and mapped/utility types
+- Avoid `any`; prefer `unknown` or proper narrowing
+- Enable `strict` mode in `tsconfig.json`
+- Leverage built-in utility types (`Partial`, `Pick`, `Record`, etc.)
+- Use generics to build reusable abstractions
+- Use `readonly` to enforce immutability where appropriate
+- Prefer `enum` alternatives like union string literals when possible
+
+## Naming Conventions
+- Use `PascalCase` for types, interfaces, enums, and components
+- Use `camelCase` for variables, functions, and object properties
+- Use `UPPER_CASE` for constants
+- Use descriptive, intention-revealing names (e.g., `isLoading`, `hasError`)
+- Suffix React props interfaces with `Props` (e.g., `ButtonProps`)
+- Avoid single-letter names except in generic type parameters (e.g., `T`, `U`)
+
+## Code Organization
+- Co-locate types and interfaces near usage; extract to `types/` when shared
+- Use barrel files (`index.ts`) for re-exporting modules
+- Group related types and utilities into cohesive modules
+- Structure projects for feature or domain-based modularity
+- Use relative imports within modules, absolute imports for external modules
+
+## Functions & Methods
+- Use explicit return types for exported/public functions
+- Prefer arrow functions for callbacks and inline handlers
+- Use overloads for functions with multiple valid input/output shapes
+- Use `async/await` with proper error handling over raw Promises
+- Avoid complex return types in function signatures—extract and name them
+- Keep functions small and focused on a single responsibility
+
+## Error Handling
+- Define custom error classes for domain-specific failures
+- Use `try/catch` with typed error handling and guards
+- Handle Promise rejections explicitly
+- Prefer `Result` or `Either` patterns for expected errors
+- Use error boundaries in React components where needed
+
+## Type Safety Patterns
+- Use type guards (`typeof`, `in`, `instanceof`) for narrowing
+- Leverage discriminated unions for conditional branching
+- Use exhaustive `switch` cases with `never` to catch missing branches
+- Avoid type assertions (`as`) unless absolutely necessary
+- Use `asserts` functions for custom runtime validation
+
+## Design Patterns
+- Use the Builder pattern for configurable object construction
+- Apply the Repository pattern for data access abstraction
+- Use Factory functions for instance creation
+- Prefer Dependency Injection for testability and modularity
+- Encapsulate logic via Modules and isolate side effects
+
+## Tooling & Ecosystem
+- Use linters (`eslint`, `prettier`) with TypeScript plugins
+- Prefer `tsup`, `esbuild`, or `vite` for fast builds and bundling
+- Validate types in CI pipelines
+- Use `tsc --noEmit` to enforce type correctness without compiling
+- Write integration tests for critical type constraints (e.g., API boundaries)
