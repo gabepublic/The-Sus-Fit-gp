@@ -1,4 +1,5 @@
 import { TryonSchema } from '../../../src/app/api/tryon/schema';
+import { normalizeBase64 } from '../../../src/lib/tryOnSchema';
 
 describe('TryonSchema', () => {
   describe('valid payloads', () => {
@@ -23,6 +24,38 @@ describe('TryonSchema', () => {
 
       const result = TryonSchema.parse(validPayload);
       expect(result).toEqual(validPayload);
+    });
+
+    it('should validate payload with pure base64 strings', () => {
+      const validPayload = {
+        modelImage: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        apparelImages: ['iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+      };
+
+      const result = TryonSchema.parse(validPayload);
+      expect(result).toEqual(validPayload);
+    });
+  });
+
+  describe('normalizeBase64 function', () => {
+    it('should strip data URL prefix from base64 strings', () => {
+      const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      const expected = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      
+      expect(normalizeBase64(dataUrl)).toBe(expected);
+    });
+
+    it('should return pure base64 strings unchanged', () => {
+      const pureBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      
+      expect(normalizeBase64(pureBase64)).toBe(pureBase64);
+    });
+
+    it('should handle different image formats', () => {
+      const jpegDataUrl = 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      const expected = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      
+      expect(normalizeBase64(jpegDataUrl)).toBe(expected);
     });
   });
 
@@ -67,7 +100,16 @@ describe('TryonSchema', () => {
         apparelImages: ['', 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
       };
 
-      expect(() => TryonSchema.parse(invalidPayload)).toThrow('String must contain at least 1 character(s)');
+      expect(() => TryonSchema.parse(invalidPayload)).toThrow('Invalid apparel image');
+    });
+
+    it('should reject payload with invalid base64 data', () => {
+      const invalidPayload = {
+        modelImage: 'not-base64-data',
+        apparelImages: ['data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+      };
+
+      expect(() => TryonSchema.parse(invalidPayload)).toThrow('Invalid base64 image data');
     });
   });
 }); 

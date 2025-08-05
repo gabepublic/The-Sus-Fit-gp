@@ -8,7 +8,7 @@
 
 import OpenAI from 'openai';
 import { getEnv } from './getEnv';
-import { TryOnParamsSchema, TryOnResultSchema, type TryOnParams } from './tryOnSchema';
+import { TryOnParamsSchema, TryOnResultSchema, type TryOnParams, normalizeBase64 } from './tryOnSchema';
 
 // Retrieve and validate environment variables with fail-fast approach
 const { key, model } = getEnv();
@@ -18,6 +18,33 @@ const openai = new OpenAI({ apiKey: key });
 
 // Export both the client instance and model for reuse by other modules
 export { openai, model };
+
+/**
+ * Convert base64 string to File object for OpenAI API
+ * 
+ * @param base64String - Base64 encoded image string (with or without data URL prefix)
+ * @param filename - Name for the file (default: 'image.png')
+ * @returns File object suitable for OpenAI API
+ */
+const base64ToFile = (base64String: string, filename: string = 'image.png'): File => {
+  // Normalize base64 (strip data URL prefix if present)
+  const normalizedBase64 = normalizeBase64(base64String);
+  
+  // Convert base64 to binary data using Node.js Buffer
+  const buffer = Buffer.from(normalizedBase64, 'base64');
+
+  // KEEP for TESTING; DO NOT REMOVE
+  // Save file to local drive
+  //const fs = require('fs');
+  //const path = require('path');
+  //const savePath = path.join(process.cwd(), 'uploads', filename);
+  //fs.mkdirSync(path.dirname(savePath), { recursive: true });
+  //fs.writeFileSync(savePath, buffer);
+  
+  // Create blob and file
+  const blob = new Blob([buffer], { type: 'image/png' });
+  return new File([blob], filename, { type: 'image/png' });
+};
 
 /**
  * Generate a try-on image by combining a model image with apparel images
@@ -32,8 +59,8 @@ export { openai, model };
  * @example
  * ```typescript
  * const result = await generateTryOn({
- *   modelImage: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
- *   apparelImages: ["iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="]
+ *   modelImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+ *   apparelImages: ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="]
  * });
  * // Returns: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
  * ```
@@ -43,11 +70,14 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
     // Validate input parameters
     TryOnParamsSchema.parse({ modelImage, apparelImages });
 
+    // Convert base64 strings to File objects for OpenAI API
+    const modelFile = base64ToFile(modelImage, 'model.png');
+    const apparelFile = base64ToFile(apparelImages[0], 'apparel.png');
+
     // Call OpenAI Images Edit API
     const response = await openai.images.edit({
       model,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      image: [modelImage, apparelImages[0]] as any, // Use first apparel image - cast to any for base64 strings
+      image: [modelFile, apparelFile],
       prompt: 'Change the garment of the model in the first image with the garment from the second image.',
       n: 1,
       size: '1024x1024',
@@ -63,6 +93,11 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
     if (!b64Json) {
       throw new Error('No image data received from OpenAI API');
     }
+    console.log('Generated image length: ', b64Json.length);
+    
+    // KEEP for TESTING; DO NOT REMOVE
+    // Save generated image to file
+    //const generatedImageFile = base64ToFile(b64Json, 'generated.png');
 
     // Validate output using schema
     const validatedResult = TryOnResultSchema.parse({ imgGenerated: b64Json });

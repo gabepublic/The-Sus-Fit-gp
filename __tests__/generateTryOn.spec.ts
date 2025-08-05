@@ -7,20 +7,7 @@
 
 import { ZodError } from 'zod';
 
-// Mock the OpenAI SDK
-jest.mock('openai', () => {
-  const mockImagesEdit = jest.fn();
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => ({
-      images: {
-        edit: mockImagesEdit
-      }
-    }))
-  };
-});
-
-// Mock the environment variables
+// Mock getEnv first
 jest.mock('../src/lib/getEnv', () => ({
   getEnv: jest.fn(() => ({
     key: 'test-api-key',
@@ -28,20 +15,35 @@ jest.mock('../src/lib/getEnv', () => ({
   }))
 }));
 
+// Mock OpenAI
+jest.mock('openai', () => {
+  const mockImagesEdit = jest.fn();
+  return jest.fn().mockImplementation(() => ({
+    images: {
+      edit: mockImagesEdit
+    }
+  }));
+});
+
 // Import after mocks are set up
 import { generateTryOn } from '../src/lib/openaiClient';
 
 describe('generateTryOn', () => {
-  // Valid base64 test fixtures
   const validBase64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+  
   const mockOpenAIResponse = {
-    data: [{ b64_json: 'ZmFrZUJhc2U2NA==' }]
+    data: [
+      {
+        b64_json: 'ZmFrZUJhc2U2NA=='
+      }
+    ]
   };
 
-  // Helper to get the mock OpenAI instance
-  const getMockOpenAI = () => {
-    const OpenAI = require('openai').default;
-    return new OpenAI();
+  // Get the mock function from the mocked module
+  const getMockImagesEdit = () => {
+    const OpenAI = require('openai');
+    const mockInstance = new OpenAI();
+    return mockInstance.images.edit;
   };
 
   beforeEach(() => {
@@ -51,8 +53,8 @@ describe('generateTryOn', () => {
   describe('Happy Path', () => {
     it('should successfully generate try-on image with valid inputs', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue(mockOpenAIResponse);
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue(mockOpenAIResponse);
       
       const params = {
         modelImage: validBase64Image,
@@ -64,21 +66,29 @@ describe('generateTryOn', () => {
 
       // Assert
       expect(result).toBe('ZmFrZUJhc2U2NA==');
-      expect(mockOpenAI.images.edit).toHaveBeenCalledTimes(1);
-      expect(mockOpenAI.images.edit).toHaveBeenCalledWith({
+      expect(mockImagesEdit).toHaveBeenCalledTimes(1);
+      expect(mockImagesEdit).toHaveBeenCalledWith({
         model: 'gpt-image-1',
-        image: [validBase64Image, validBase64Image],
+        image: expect.arrayContaining([
+          expect.any(File),
+          expect.any(File)
+        ]),
         prompt: 'Change the garment of the model in the first image with the garment from the second image.',
         n: 1,
         size: '1024x1024',
         quality: 'low'
       });
+      
+      // Verify File objects have correct names
+      const callArgs = mockImagesEdit.mock.calls[0][0];
+      expect(callArgs.image[0].name).toBe('model.png');
+      expect(callArgs.image[1].name).toBe('apparel.png');
     });
 
     it('should use the first apparel image when multiple are provided', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue(mockOpenAIResponse);
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue(mockOpenAIResponse);
       
       const params = {
         modelImage: validBase64Image,
@@ -90,11 +100,20 @@ describe('generateTryOn', () => {
 
       // Assert
       expect(result).toBe('ZmFrZUJhc2U2NA==');
-      expect(mockOpenAI.images.edit).toHaveBeenCalledWith(
+      expect(mockImagesEdit).toHaveBeenCalledWith(
         expect.objectContaining({
-          image: [validBase64Image, validBase64Image] // Should use first apparel image only
+          image: expect.arrayContaining([
+            expect.any(File),
+            expect.any(File)
+          ])
         })
       );
+      
+      // Verify only first apparel image is used
+      const callArgs = mockImagesEdit.mock.calls[0][0];
+      expect(callArgs.image).toHaveLength(2);
+      expect(callArgs.image[0].name).toBe('model.png');
+      expect(callArgs.image[1].name).toBe('apparel.png');
     });
   });
 
@@ -112,8 +131,8 @@ describe('generateTryOn', () => {
         fail('Expected function to throw an error');
       } catch (error) {
         expect((error as any).cause).toBeInstanceOf(ZodError);
-        const mockOpenAI = getMockOpenAI();
-        expect(mockOpenAI.images.edit).not.toHaveBeenCalled();
+        const mockImagesEdit = getMockImagesEdit();
+        expect(mockImagesEdit).not.toHaveBeenCalled();
       }
     });
 
@@ -130,8 +149,8 @@ describe('generateTryOn', () => {
         fail('Expected function to throw an error');
       } catch (error) {
         expect((error as any).cause).toBeInstanceOf(ZodError);
-        const mockOpenAI = getMockOpenAI();
-        expect(mockOpenAI.images.edit).not.toHaveBeenCalled();
+        const mockImagesEdit = getMockImagesEdit();
+        expect(mockImagesEdit).not.toHaveBeenCalled();
       }
     });
 
@@ -148,8 +167,8 @@ describe('generateTryOn', () => {
         fail('Expected function to throw an error');
       } catch (error) {
         expect((error as any).cause).toBeInstanceOf(ZodError);
-        const mockOpenAI = getMockOpenAI();
-        expect(mockOpenAI.images.edit).not.toHaveBeenCalled();
+        const mockImagesEdit = getMockImagesEdit();
+        expect(mockImagesEdit).not.toHaveBeenCalled();
       }
     });
 
@@ -166,8 +185,8 @@ describe('generateTryOn', () => {
         fail('Expected function to throw an error');
       } catch (error) {
         expect((error as any).cause).toBeInstanceOf(ZodError);
-        const mockOpenAI = getMockOpenAI();
-        expect(mockOpenAI.images.edit).not.toHaveBeenCalled();
+        const mockImagesEdit = getMockImagesEdit();
+        expect(mockImagesEdit).not.toHaveBeenCalled();
       }
     });
   });
@@ -175,9 +194,9 @@ describe('generateTryOn', () => {
   describe('OpenAI API Error Handling', () => {
     it('should propagate OpenAI API errors with custom context', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      const apiError = new Error('OpenAI API rate limit exceeded');
-      mockOpenAI.images.edit.mockRejectedValue(apiError);
+      const mockImagesEdit = getMockImagesEdit();
+      const apiError = new Error('OpenAI API error');
+      mockImagesEdit.mockRejectedValue(apiError);
       
       const params = {
         modelImage: validBase64Image,
@@ -185,15 +204,21 @@ describe('generateTryOn', () => {
       };
 
       // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: OpenAI API rate limit exceeded');
-      expect(mockOpenAI.images.edit).toHaveBeenCalledTimes(1);
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: OpenAI API error');
+        expect((error as any).cause).toBe(apiError);
+      }
     });
 
     it('should handle OpenAI API errors with non-Error objects', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      const apiError = 'String error from OpenAI';
-      mockOpenAI.images.edit.mockRejectedValue(apiError);
+      const mockImagesEdit = getMockImagesEdit();
+      const apiError = 'String error';
+      mockImagesEdit.mockRejectedValue(apiError);
       
       const params = {
         modelImage: validBase64Image,
@@ -201,15 +226,22 @@ describe('generateTryOn', () => {
       };
 
       // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: Unknown error occurred');
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: Unknown error occurred');
+        expect((error as any).cause).toBe(apiError);
+      }
     });
 
     it('should handle OpenAI API timeout errors', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
+      const mockImagesEdit = getMockImagesEdit();
       const timeoutError = new Error('Request timeout');
-      timeoutError.name = 'TimeoutError';
-      mockOpenAI.images.edit.mockRejectedValue(timeoutError);
+      timeoutError.name = 'AbortError';
+      mockImagesEdit.mockRejectedValue(timeoutError);
       
       const params = {
         modelImage: validBase64Image,
@@ -217,15 +249,22 @@ describe('generateTryOn', () => {
       };
 
       // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: Request timeout');
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: Request timeout');
+        expect((error as any).cause).toBe(timeoutError);
+      }
     });
   });
 
   describe('Response Validation', () => {
     it('should throw error when OpenAI returns no data', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue({ data: [] });
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue({ data: [] });
       
       const params = {
         modelImage: validBase64Image,
@@ -233,13 +272,19 @@ describe('generateTryOn', () => {
       };
 
       // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: No response data received from OpenAI API');
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: No response data received from OpenAI API');
+      }
     });
 
     it('should throw error when OpenAI returns undefined data', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue({ data: undefined });
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue({ data: undefined });
       
       const params = {
         modelImage: validBase64Image,
@@ -247,14 +292,20 @@ describe('generateTryOn', () => {
       };
 
       // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: No response data received from OpenAI API');
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: No response data received from OpenAI API');
+      }
     });
 
     it('should throw error when OpenAI returns invalid base64 in response', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue({
-        data: [{ b64_json: 'invalid-base64-response' }]
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue({
+        data: [{ b64_json: 'invalid-base64' }]
       });
       
       const params = {
@@ -267,63 +318,18 @@ describe('generateTryOn', () => {
         await generateTryOn(params);
         fail('Expected function to throw an error');
       } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed');
         expect((error as any).cause).toBeInstanceOf(ZodError);
       }
     });
 
     it('should throw error when OpenAI returns no b64_json in response', async () => {
       // Arrange
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockResolvedValue({
-        data: [{ url: 'https://example.com/image.png' }]
+      const mockImagesEdit = getMockImagesEdit();
+      mockImagesEdit.mockResolvedValue({
+        data: [{}]
       });
-      
-      const params = {
-        modelImage: validBase64Image,
-        apparelImages: [validBase64Image]
-      };
-
-      // Act & Assert
-      await expect(generateTryOn(params)).rejects.toThrow('generateTryOn failed: No image data received from OpenAI API');
-    });
-  });
-
-  describe('Timeout and Promise Handling', () => {
-    it('should not swallow timeout errors', async () => {
-      // Arrange
-      jest.useFakeTimers();
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 5000);
-      });
-      
-      const mockOpenAI = getMockOpenAI();
-      mockOpenAI.images.edit.mockImplementation(() => timeoutPromise);
-      
-      const params = {
-        modelImage: validBase64Image,
-        apparelImages: [validBase64Image]
-      };
-
-      // Act
-      const resultPromise = generateTryOn(params);
-      
-      // Fast-forward time to trigger timeout
-      jest.advanceTimersByTime(5000);
-      
-      // Assert
-      await expect(resultPromise).rejects.toThrow('generateTryOn failed: Request timeout');
-      
-      jest.useRealTimers();
-    });
-  });
-
-  describe('Error Context Preservation', () => {
-    it('should preserve original error as cause', async () => {
-      // Arrange
-      const mockOpenAI = getMockOpenAI();
-      const originalError = new Error('Original OpenAI error');
-      mockOpenAI.images.edit.mockRejectedValue(originalError);
       
       const params = {
         modelImage: validBase64Image,
@@ -333,10 +339,56 @@ describe('generateTryOn', () => {
       // Act & Assert
       try {
         await generateTryOn(params);
+        fail('Expected function to throw an error');
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: No image data received from OpenAI API');
+      }
+    });
+  });
+
+  describe('Timeout and Promise Handling', () => {
+    it('should not swallow timeout errors', async () => {
+      // Arrange
+      const mockImagesEdit = getMockImagesEdit();
+      const timeoutError = new Error('Request timeout');
+      mockImagesEdit.mockRejectedValue(timeoutError);
+      
+      const params = {
+        modelImage: validBase64Image,
+        apparelImages: [validBase64Image]
+      };
+
+      // Act & Assert
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain('generateTryOn failed: Request timeout');
+        expect((error as any).cause).toBe(timeoutError);
+      }
+    });
+  });
+
+  describe('Error Context Preservation', () => {
+    it('should preserve original error as cause', async () => {
+      // Arrange
+      const mockImagesEdit = getMockImagesEdit();
+      const originalError = new Error('Original error');
+      mockImagesEdit.mockRejectedValue(originalError);
+      
+      const params = {
+        modelImage: validBase64Image,
+        apparelImages: [validBase64Image]
+      };
+
+      // Act & Assert
+      try {
+        await generateTryOn(params);
+        fail('Expected function to throw an error');
+      } catch (error) {
         expect((error as any).cause).toBe(originalError);
-        expect((error as Error).message).toContain('generateTryOn failed: Original OpenAI error');
       }
     });
   });

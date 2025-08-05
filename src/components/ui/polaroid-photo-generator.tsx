@@ -17,241 +17,125 @@ interface PolaroidPhotoGeneratorProps {
 }
 
 export function PolaroidPhotoGenerator({
-                                           className,
-                                           onGenerationStart,
-                                           onGenerationComplete,
-                                           onClose,
-                                           onRetry,
-                                           isGenerating = false,
-                                           mockImageUrl = "/images/demo/WillShalom.jpg",
-                                           generatedImage,
-                                           isLoading = false
-                                       }: PolaroidPhotoGeneratorProps) {
-    const [progress, setProgress] = useState(0)
-    const [photoVisible, setPhotoVisible] = useState(false)
-    const [animationPhase, setAnimationPhase] = useState<'idle' | 'processing' | 'revealing' | 'complete'>('idle')
-    const [showButtons, setShowButtons] = useState(false)
+    className,
+    onGenerationStart,
+    onGenerationComplete,
+    onClose,
+    onRetry,
+    isGenerating = false,
+    mockImageUrl = "/images/demo/WillShalom.jpg",
+    generatedImage,
+    isLoading = false
+}: PolaroidPhotoGeneratorProps) {
     const [imgLoaded, setImgLoaded] = useState(false)
-    const animationTimersRef = useRef<(NodeJS.Timeout | number)[]>([])
-    const hasCompletedRef = useRef(false) // Track if completion callback has been called
+    const [showButtons, setShowButtons] = useState(false)
 
-    // Use refs to avoid dependency issues with callbacks
-    const onGenerationStartRef = useRef(onGenerationStart)
-    const onGenerationCompleteRef = useRef(onGenerationComplete)
-    const currentPhaseRef = useRef(animationPhase)
+    // Debug logging
+    console.log('PolaroidPhotoGenerator props:', {
+        generatedImage: generatedImage ? `base64 (${generatedImage.length} chars)` : 'null',
+        isGenerating,
+        isLoading
+    })
 
-    // Update refs when callbacks change
+    // Handle generatedImage changes - show immediately when available
     useEffect(() => {
-        onGenerationStartRef.current = onGenerationStart
-        onGenerationCompleteRef.current = onGenerationComplete
-    }, [onGenerationStart, onGenerationComplete])
-
-    // Update phase ref when animationPhase changes
-    useEffect(() => {
-        currentPhaseRef.current = animationPhase
-    }, [animationPhase])
-
-    // Use generatedImage prop if provided, otherwise fall back to mockImageUrl
-    const imageToDisplay = generatedImage != null ? generatedImage : mockImageUrl
-
-    const startGenerationSequence = useCallback(() => {
-        // Clear any existing timers
-        animationTimersRef.current.forEach(timer => {
-            if (typeof timer === 'number') {
-                clearTimeout(timer)
-                clearInterval(timer)
-            } else {
-                clearTimeout(timer)
-            }
-        })
-        animationTimersRef.current = []
-        
-        // Reset completion flag
-        hasCompletedRef.current = false
-        
-        setAnimationPhase('processing')
-        setProgress(0)
-        setPhotoVisible(false)
-        setShowButtons(false)
-        setImgLoaded(false)
-
-        const timers: (NodeJS.Timeout | number)[] = []
-
-        // Phase 1: Progress bar animation (0-3 seconds)
-        const progressInterval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(progressInterval)
-                    // Start Phase 2: Photo revelation
-                    const revealTimer = setTimeout(() => {
-                        setAnimationPhase('revealing')
-                        setPhotoVisible(true)
-
-                        // Phase 3: Complete after slide animation
-                        const completeTimer = setTimeout(() => {
-                            setAnimationPhase('complete')
-                            setShowButtons(true) // Show buttons with animation
-                            
-                            // Only call onGenerationComplete once
-                            if (onGenerationCompleteRef.current && !hasCompletedRef.current) {
-                                hasCompletedRef.current = true
-                                // Call with the full data URL format
-                                const fullImageUrl = generatedImage != null ? `data:image/png;base64,${generatedImage}` : imageToDisplay
-                                onGenerationCompleteRef.current(fullImageUrl)
-                            }
-                        }, 1000) // Reduced time for testing
-                        timers.push(completeTimer)
-                    }, 200)
-                    timers.push(revealTimer)
-                    return 100
-                }
-                return prev + 2
-            })
-        }, 60) // 60ms intervals for smooth animation (3 seconds total)
-        
-        timers.push(progressInterval)
-        animationTimersRef.current = timers
-    }, [generatedImage, imageToDisplay])
-
-    const resetPolaroid = useCallback(() => {
-        // Clear any existing timers
-        animationTimersRef.current.forEach(timer => {
-            if (typeof timer === 'number') {
-                clearTimeout(timer)
-                clearInterval(timer)
-            } else {
-                clearTimeout(timer)
-            }
-        })
-        animationTimersRef.current = []
-        
-        // Reset completion flag
-        hasCompletedRef.current = false
-        
-        setAnimationPhase('idle')
-        setProgress(0)
-        setPhotoVisible(false)
-        setShowButtons(false)
-        setImgLoaded(false)
-    }, [])
-
-    // Handle generation state changes
-    useEffect(() => {
-        // Prioritize isGenerating over isLoading when both are provided
-        const shouldStartGeneration = isGenerating || (isLoading !== undefined && isLoading)
-        
-        if (shouldStartGeneration) {
-            // Call onGenerationStart immediately when generation begins
-            if (onGenerationStartRef.current && currentPhaseRef.current === 'idle') {
-                onGenerationStartRef.current()
-            }
+        if (generatedImage != null) {
+            console.log('Generated image available, showing immediately')
+            setShowButtons(true)
+            setImgLoaded(false) // Will be set to true when image loads
             
-            // Only start the sequence if we're in idle state
-            if (currentPhaseRef.current === 'idle') {
-                startGenerationSequence()
+            // Call onGenerationComplete immediately without delay
+            if (onGenerationComplete) {
+                const fullImageUrl = `data:image/png;base64,${generatedImage}`
+                onGenerationComplete(fullImageUrl)
             }
         } else {
-            // Reset when generation stops
-            resetPolaroid()
+            setShowButtons(false)
         }
-    }, [isLoading, isGenerating, startGenerationSequence, resetPolaroid])
+    }, [generatedImage, onGenerationComplete])
 
-    // Cleanup timers on unmount
+    // Handle generation start
     useEffect(() => {
-        return () => {
-            animationTimersRef.current.forEach(timer => {
-                if (typeof timer === 'number') {
-                    clearTimeout(timer)
-                    clearInterval(timer)
-                } else {
-                    clearTimeout(timer)
-                }
-            })
+        if (isGenerating && onGenerationStart) {
+            onGenerationStart()
         }
-    }, [])
+    }, [isGenerating, onGenerationStart])
 
     const handleRetry = () => {
-        resetPolaroid()
+        setImgLoaded(false)
+        setShowButtons(false)
         if (onRetry) {
             onRetry()
         }
     }
 
-    const handleImageLoad = () => {
+    const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const img = e.currentTarget
+        console.log('Image loaded successfully')
+        console.log('Image dimensions:', {
+            naturalWidth: img.naturalWidth,
+            naturalHeight: img.naturalHeight,
+            clientWidth: img.clientWidth,
+            clientHeight: img.clientHeight
+        })
         setImgLoaded(true)
     }
 
     return (
         <div className={cn("relative flex flex-col items-center", className)}>
-            {/* MUCH LARGER POLAROID - Nearly as wide as camera, longer than wide */}
+            {/* Polaroid Container */}
             <div className="relative bg-white p-6 w-[475px] h-[550px] flex flex-col shadow-lg rounded-sm">
-
-                {/* Large Square Photo Area - Authentic Polaroid style */}
+                {/* Photo Area */}
                 <div className="relative w-full h-[400px] overflow-hidden rounded-sm bg-gray-100">
+                    {/* Loading State */}
+                    {isGenerating && !generatedImage && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-susfit-pink-500)] mx-auto mb-4"></div>
+                                <div className="text-gray-600 font-mono">Generating...</div>
+                            </div>
+                        </div>
+                    )}
 
-                    {/* Gray Placeholder with Opacity */}
-                    <div
-                        className={cn(
-                            "absolute inset-0 bg-gray-400/80 transition-opacity duration-1000 z-10",
-                            photoVisible ? "opacity-0" : "opacity-100"
-                        )}
-                    />
+                    {/* Generated Image */}
+                    {generatedImage && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <img
+                                src={`data:image/png;base64,${generatedImage}`}
+                                alt="Generated try-on preview"
+                                className="max-w-full max-h-full object-contain rounded-sm"
+                                onLoad={handleImageLoad}
+                                onError={(e) => {
+                                    console.error('Image failed to load:', e)
+                                    console.error('Generated image length:', generatedImage?.length || 0)
+                                }}
+                            />
+                        </div>
+                    )}
 
-                    {/* Dynamic Image - Square format */}
-                    <div
-                        className={cn(
-                            "absolute inset-0 transition-all duration-1500 ease-out will-change-transform",
-                            photoVisible
-                                ? "transform translate-y-0 opacity-100"
-                                : "transform -translate-y-full opacity-0"
-                        )}
-                    >
-                        {/* Skeleton shimmer background while loading */}
-                        {!imgLoaded && (isLoading || isGenerating) && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-sm" />
-                        )}
-                        
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src={generatedImage != null ? `data:image/png;base64,${generatedImage}` : mockImageUrl}
-                            alt="Generated try-on preview"
-                            className={cn(
-                                "w-full h-full object-cover select-none rounded-sm transition-opacity duration-500",
-                                imgLoaded ? "opacity-100" : "opacity-0"
-                            )}
-                            onLoad={handleImageLoad}
-                            aria-busy={!imgLoaded && (isLoading || isGenerating)}
-                        />
-                    </div>
+                    {/* Placeholder when no image */}
+                    {!generatedImage && !isGenerating && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-gray-400 font-mono text-center">
+                                Ready to generate
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* Larger Polaroid White Bottom Border */}
+                {/* Polaroid Bottom Border */}
                 <div className="h-[70px] bg-white flex items-center justify-center">
                     <div className="text-lg text-gray-600 font-mono">
-                        {animationPhase === 'idle' && "Ready to generate"}
-                        {animationPhase === 'processing' && "Processing..."}
-                        {animationPhase === 'revealing' && "Developing..."}
-                        {animationPhase === 'complete' && "Complete!"}
+                        {isGenerating && !generatedImage && "Processing..."}
+                        {generatedImage && "Complete!"}
+                        {!isGenerating && !generatedImage && "Ready to generate"}
                     </div>
                 </div>
-
-                {/* Progress Bar - Positioned in white border area */}
-                {animationPhase === 'processing' && (
-                    <div className="absolute bottom-8 left-6 right-6 h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
-                        <div
-                            className="h-full bg-gradient-to-r from-[var(--color-susfit-pink-500)] to-[var(--color-susfit-teal-500)] transition-all duration-200 ease-out rounded-full"
-                            style={{
-                                width: `${progress}%`,
-                                transition: 'width 0.2s ease-out'
-                            }}
-                        />
-                    </div>
-                )}
             </div>
 
-            {/* ANIMATED BUTTONS - APPEAR ONLY WHEN COMPLETE */}
-            {(showButtons || generatedImage != null) && (
-                <div className="mt-4 flex gap-2 justify-center animate-slideUp">
+            {/* Buttons */}
+            {showButtons && (
+                <div className="mt-4 flex gap-2 justify-center">
                     <Button
                         onClick={handleRetry}
                         className="bg-[var(--color-susfit-pink-500)] hover:bg-[var(--color-susfit-pink-800)] text-black border-2 border-black font-bold text-sm px-3 py-1 transition-all duration-200"
@@ -269,8 +153,8 @@ export function PolaroidPhotoGenerator({
                 </div>
             )}
 
-            {/* Additional retry button visible when generatedImage is provided */}
-            {generatedImage != null && (
+            {/* Additional retry button */}
+            {generatedImage && (
                 <div className="mt-4 text-center" aria-live="polite">
                     <button 
                         onClick={onRetry} 
@@ -282,27 +166,10 @@ export function PolaroidPhotoGenerator({
                 </div>
             )}
 
-            {/* Custom Animation Styles */}
-            <style jsx>{`
-                @keyframes slideUp {
-                    0% {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    100% {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                .animate-slideUp {
-                    animation: slideUp 0.5s ease-out forwards;
-                }
-            `}</style>
-
-            {/* Debug/Dev Controls (remove in production) */}
+            {/* Debug Info */}
             {process.env.NODE_ENV === 'development' && (
                 <div className="mt-2 text-xs text-gray-500 font-mono text-center">
-                    Phase: {animationPhase} | Progress: {Math.round(progress)}% | Buttons: {showButtons ? '✅' : '❌'} | isGenerating: {isGenerating ? 'true' : 'false'}
+                    Generated: {generatedImage ? '✅' : '❌'} | Loading: {imgLoaded ? '✅' : '❌'} | isGenerating: {isGenerating ? 'true' : 'false'}
                 </div>
             )}
         </div>

@@ -92,7 +92,8 @@ export default function SusFitPage() {
 
     const handleGenerationComplete = (imageUrl: string) => {
         console.log('Generation complete:', imageUrl)
-        setIsCapturing(false)
+        // This is now handled directly in the API response
+        // No need to reset isCapturing here anymore
     }
 
     const handleClosePolaroid = () => {
@@ -243,12 +244,17 @@ export default function SusFitPage() {
             
             const { img_generated } = await response.json()
             console.log('Successfully received generated image from API')
+            console.log('Generated image length:', img_generated?.length || 0)
+            console.log('Generated image preview:', img_generated?.substring(0, 50) + '...')
             
             // Store the generated image in state
             setGeneratedImage(img_generated)
+            console.log('Set generatedImage state to:', img_generated ? 'base64 string' : 'null')
             
-            // The PolaroidPhotoGenerator will handle the generation animation
-            // and automatically call onGenerationComplete when done
+            // Set isCapturing to false immediately when we have the image
+            // This will hide the loading spinner and show the generated image
+            setIsCapturing(false)
+            console.log('Set isCapturing to false - image should now display')
             
         } catch (error) {
             console.error('Error in handleCameraButtonClick:', error)
@@ -261,6 +267,7 @@ export default function SusFitPage() {
                 console.error('Image compression failed - file too large even after compression')
                 setErrorMessage('Your image is still too large after compression. Please upload a smaller file.')
                 setShowError(true)
+                setIsCapturing(false)
                 return
             }
             
@@ -269,15 +276,17 @@ export default function SusFitPage() {
                 console.error('API request timed out after 30 seconds')
                 setErrorMessage('Request timed out. Please try again.')
                 setShowError(true)
+                setIsCapturing(false)
                 return
             }
             
             // Handle other errors
             setErrorMessage('Failed to generate image. Please try again.')
             setShowError(true)
-        } finally {
-            // Always reset loading state
             setIsCapturing(false)
+        } finally {
+            // Don't reset isCapturing here - let the PolaroidPhotoGenerator handle completion
+            // The component will call onGenerationComplete when the animation is done
         }
     }
 
@@ -324,7 +333,7 @@ export default function SusFitPage() {
 
                         {/* POLAROID PHOTO GENERATOR - POSITIONED ABOVE SIDE CARDS */}
                         {showPolaroid && (
-                            <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50 transition-all duration-500 ease-out">
+                            <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50">
                                 <PolaroidPhotoGenerator
                                     isGenerating={isCapturing}
                                     onGenerationStart={handleGenerationStart}
@@ -334,25 +343,23 @@ export default function SusFitPage() {
                                     mockImageUrl={"/images/demo/WillShalom.jpg"}
                                     generatedImage={generatedImage || undefined}
                                     isLoading={isCapturing}
-                                    className="animate-[slideDown_0.5s_ease-out]"
                                 />
                             </div>
                         )}
 
                         {/* SIDE CARDS CONTAINER */}
                         <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
-
-                                                                                      {/* Left Photo Frame */}
-                             <div className="relative -rotate-2 lg:-rotate-16" ref={leftCardRef} tabIndex={-1}>
+                            {/* Left Photo Frame */}
+                            <div className="relative -rotate-2 lg:-rotate-16" ref={leftCardRef} tabIndex={-1}>
                                  <BrutalismCard
                                      className="w-80 h-120 p-4 relative"
                                      title="Upload Your Angle"
                                      onImageUpload={handleLeftCardImageUpload}
                                                                            onFileUpload={handleUserFileUpload}
                                  />
-                             </div>
+                            </div>
 
-                                                                                      {/* Right Upload Frame */}
+                            {/* Right Upload Frame */}
                              <div className="relative rotate-2 lg:rotate-16" ref={rightCardRef} tabIndex={-1}>
                                  <BrutalismCard
                                      className="w-80 h-120 p-4 relative"
