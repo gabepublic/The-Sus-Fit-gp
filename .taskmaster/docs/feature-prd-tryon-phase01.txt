@@ -1,0 +1,178 @@
+<context>
+# **Overview**
+
+We are building a fashion-focused web app that allows users to visualize themselves in curated apparel and accessories by simply using their phone. The app is designed for casual users who value fun, simplicity, and privacy. With zero data retention and an entirely on-device experience, it caters to both desktop and mobile users seeking instant gratification.
+
+This document outlines the requirements for a new incremental feature: integrating the external OpenAI API to generate an image of the user wearing selected apparel. Specifically, this feature will:
+
+- Accept an input image of the user.
+
+- Accept an image of the selected garment.
+
+- Call the OpenAI API with both images.
+
+- Return and display a generated image of the user wearing the selected apparel.
+</context>
+<PRD>
+# Technical Architecture
+
+## Development Environments
+- Windows
+- Use MS-DOS Command Terminal to run script.
+
+## Database
+- None
+
+# Development
+
+## COMPLETED SETUP
+- Git repo initialized; feature branch created and active
+- Project scaffolding complete: 
+  - Next.js app with App Router
+  - ESLint v9 and Strict TypeScript configuration
+  - TailwindCSS 4 with PostCSS
+  - shadcn/ui component Library
+  - Jest for unit testing
+  - Playwright v1.54 for end-to-end (E2E) testing
+  - CI Pipeline via GitHub Actions
+- Frontend UI implemented with:
+  - Image upload panels for user and apparel inputs
+  - Trigger button to initiate image generation
+  - Output panel to render the generated composite image
+
+## Out of Scope
+- Security, Privacy & Compliance Hardening
+- CI/CD Pipeline Update & Quality Gates
+- Manual Cross-Browser & Responsive QA
+
+## Tasks To Be Completed
+1. **API Integration**
+   Implement a Next.js API route (tryon) to act as a server-side proxy for invoking the external OpenAI Vision API with both user and apparel images.
+
+   - **Directory structure:**
+```
+/app
+  /api
+    /tryon
+      route.ts    <-- Backend route handler
+  layout.tsx
+  page.tsx        <-- Main UI logic
+/components       <-- Shared UI components
+```
+
+   - **Tryon API Route** (`app/api/tryon/route.ts`)
+```
+interface TryonRequest {
+  modelImage: string;        // Base64 string of user image
+  apparelImages: string[];   // Array of base64-encoded apparel images
+}
+
+interface TryonResponse {
+  img_generated: string;  // Base64 string of the generated image
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Invoke external OpenAI API here
+}
+```
+
+2. **Client-side API Call**
+Trigger the /api/tryon endpoint when the user clicks the "generate image" button:
+```
+const res = await fetch('/api/tryon', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    modelImage: ...,        // base64-encoded user image
+    apparelImages: [...]    // base64-encoded apparel image(s)
+  }),
+});
+```
+
+3. **OpenAI Vision API**
+- API doc: https://platform.openai.com/docs/api-reference/images/createEdit?lang=node.js
+
+- Code snippet
+```
+import OpenAI from "openai";
+
+const client = new OpenAI();
+const rsp = await client.images.edit({
+  model: "gpt-image-1",
+  image: [modelImage, apparelImages[0]],
+  prompt: "Change the garment of the model in the first image with the garment from the second image.",
+  n: 1,
+  size: "1024x1024",
+  quality: "low"
+});
+```
+
+4. **UI Integration**
+
+   - **Model Image Panel** (in `app/page.tsx`)
+```
+{/* Left Photo Frame */}
+<div className="relative -rotate-2 lg:-rotate-16">
+    <BrutalismCard
+        className="w-80 h-120 p-4 relative"
+        title="Upload Your Angle"
+        onImageUpload={handleLeftCardImageUpload}
+    />
+</div>
+```
+
+    - **Apparel Image Panel** (in `app/page.tsx`)
+```
+{/* Right Upload Frame */}
+<div className="relative rotate-2 lg:rotate-16">
+    <BrutalismCard
+        className="w-80 h-120 p-4 relative"
+        buttonPosition="right"
+        backgroundImage="/images/ScoredGarment.jpg"
+        title="Select your Fit"
+        shadowRotation="rotate-0"
+        onImageUpload={handleRightCardImageUpload}
+    />
+</div>
+```
+
+  - **Image Generation Panel** (in `app/page.tsx`)
+```
+<PolaroidPhotoGenerator
+    isGenerating={isCapturing}
+    onGenerationStart={handleGenerationStart}
+    onGenerationComplete={handleGenerationComplete}
+    onClose={handleClosePolaroid}
+    onRetry={handleRetryGeneration}
+    mockImageUrl={"/images/demo/WillShalom.jpg"}
+    className="animate-[slideDown_0.5s_ease-out]"
+/>
+```
+
+   - **Trigger Button Panel** (in `app/page.tsx`)
+```
+{/* Hero Image as background */}
+<div id="hero-image-container" className="absolute top-[-1rem] left-0 right-0 flex justify-center items-center overflow-hidden z-100">
+    <HeroImageWithButton
+        src="/images/PolaroidCamera.png"
+        alt="Hero Image"
+        className="w-[210%] max-w-none object-contain transform-gpu scale-150 pl-4"
+        overlayButton={{
+            onClick: handleCameraButtonClick,
+            position: {
+                leftPercent: '41.65%',
+                topPercent: '52%'
+            },
+            size: 'md',
+            className: 'hover:shadow-red-500/50'
+        }}
+    />
+</div>
+```
+
+# Implementation Sequence (Logical Dependency Chain)
+1. Backend: Implement /api/tryon API route to call OpenAI Vision API with input images.
+2. Client Logic: Refactor handleCameraButtonClick to POST to the new API route.
+3. Display: Render the returned image inside the PolaroidPhotoGenerator panel.
+4. QA: Playwright e2e UI testing.
+</PRD>

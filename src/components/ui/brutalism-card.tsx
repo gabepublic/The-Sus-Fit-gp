@@ -11,6 +11,7 @@ interface BrutalismCardProps {
   backgroundImage?: string
   shadowRotation?: string
   onImageUpload?: (imageUrl: string) => void
+  onFileUpload?: (file: File) => void
 }
 
 export function BrutalismCard({
@@ -20,7 +21,8 @@ export function BrutalismCard({
   buttonPosition = "left",
   backgroundImage = '/images/zestyVogueColor.jpg',
   shadowRotation = "rotate-0",
-  onImageUpload
+  onImageUpload,
+  onFileUpload
 }: BrutalismCardProps) {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -29,6 +31,21 @@ export function BrutalismCard({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Basic validation
+      if (!file.type.startsWith('image/')) {
+        console.error('Selected file is not an image')
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        console.error('Image file is too large (max 5MB)')
+        return
+      }
+      
+      // Call onFileUpload callback if provided
+      if (onFileUpload) {
+        onFileUpload(file)
+      }
+      
       const reader = new FileReader()
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string
@@ -56,6 +73,17 @@ export function BrutalismCard({
 
     const file = e.dataTransfer.files?.[0]
     if (file && file.type.startsWith('image/')) {
+      // Basic validation
+      if (file.size > 5 * 1024 * 1024) {
+        console.error('Image file is too large (max 5MB)')
+        return
+      }
+      
+      // Call onFileUpload callback if provided
+      if (onFileUpload) {
+        onFileUpload(file)
+      }
+      
       const reader = new FileReader()
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string
@@ -133,6 +161,7 @@ export function BrutalismCard({
             {/* Main button */}
             <label
               htmlFor={fileInputId}
+              role="button"
               className="relative w-full bg-[var(--color-susfit-pink)] border-2 border-black px-4 py-2 rounded-md font-bold text-black text-lg block text-center cursor-pointer"
             >
               {title}

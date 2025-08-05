@@ -31,6 +31,69 @@ The following variables are required for the application to function:
 
 > ⚠️ **Security Warning**: Never commit `.env.local` to version control. The `.env.example` file is safe to commit as it contains no real secrets.
 
+## OpenAI Service Wrapper
+
+The project includes a comprehensive OpenAI service wrapper for virtual try-on functionality using the OpenAI Images Edit API. This wrapper provides type-safe, validated interactions with OpenAI's image generation capabilities.
+
+### Features
+
+- **Type-safe API**: Full TypeScript support with Zod validation schemas
+- **Input validation**: Automatic validation of base64 image data
+- **Error handling**: Comprehensive error handling with custom error context
+- **Clean API**: Simple, intuitive function interface
+
+### Usage
+
+```typescript
+import { generateTryOn, TryOnParams } from '@/lib';
+
+// Example usage
+const tryOnParams: TryOnParams = {
+  modelImage: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+  apparelImages: ["iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="]
+};
+
+try {
+  const generatedImage = await generateTryOn(tryOnParams);
+  console.log('Generated image:', generatedImage);
+} catch (error) {
+  console.error('Try-on failed:', error.message);
+}
+```
+
+### Environment Variables
+
+The OpenAI service wrapper requires the following environment variables:
+
+- `OPENAI_API_KEY` (Required): Your OpenAI API key for image generation
+- `OPENAI_MODEL` (Optional): The OpenAI model to use (defaults to `gpt-image-1`)
+
+### API Reference
+
+#### `generateTryOn(params: TryOnParams): Promise<string>`
+
+Generates a try-on image by combining a model image with apparel images.
+
+**Parameters:**
+- `params.modelImage` (string): Base64-encoded model image
+- `params.apparelImages` (string[]): Array of base64-encoded apparel images (minimum 1)
+
+**Returns:**
+- `Promise<string>`: Base64-encoded generated image
+
+**Throws:**
+- `Error`: When validation fails, API call fails, or response is invalid
+
+#### Types and Schemas
+
+The module exports the following types and validation schemas:
+
+- `TryOnParams`: TypeScript interface for function parameters
+- `TryOnResult`: TypeScript interface for function return value
+- `TryOnParamsSchema`: Zod schema for input validation
+- `TryOnResultSchema`: Zod schema for output validation
+- `Base64Str`: Zod schema for base64 string validation
+
 ## Running in Development
 
 ### Prerequisites

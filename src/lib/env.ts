@@ -28,4 +28,5 @@ export function validateEnv(): Env {
   }
 }
 
-export const env = validateEnv()
+// Only validate env at import time if not in test environment
+export const env = process.env.NODE_ENV === 'test' ? {} as Env : validateEnv()

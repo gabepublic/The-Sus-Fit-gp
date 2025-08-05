@@ -9,6 +9,7 @@ interface OverlayButtonProps {
     position: { leftPercent: string; topPercent: string }
     className?: string
     size?: 'sm' | 'md' | 'lg'
+    disabled?: boolean
 }
 
 interface HeroImageProps {
@@ -161,11 +162,13 @@ export function HeroImageWithButton({
                     >
                         <button
                             onClick={overlayButton.onClick}
+                            disabled={overlayButton.disabled}
                             className={cn(
                                 "absolute z-20 rounded-full",
                                 "transition-all duration-150 ease-in-out",
-                                "hover:scale-110 active:scale-95",
-                                "cursor-pointer",
+                                overlayButton.disabled 
+                                    ? "cursor-not-allowed opacity-50" 
+                                    : "hover:scale-110 active:scale-95 cursor-pointer",
                                 buttonSizes[overlayButton.size || 'md'],
                                 overlayButton.className
                             )}

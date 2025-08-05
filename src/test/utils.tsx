@@ -5,7 +5,9 @@ import { render, RenderOptions, screen } from '@testing-library/react'
 const customRender = (
   ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, options)
+) => {
+  return render(ui, options)
+}
 
 // Re-export everything from React Testing Library
 export * from '@testing-library/react'
