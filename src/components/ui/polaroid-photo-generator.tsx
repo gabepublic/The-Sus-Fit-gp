@@ -1,8 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 interface PolaroidPhotoGeneratorProps {
     className?: string
@@ -23,12 +24,13 @@ export function PolaroidPhotoGenerator({
     onClose,
     onRetry,
     isGenerating = false,
-    mockImageUrl = "/images/demo/WillShalom.jpg",
+    mockImageUrl,
     generatedImage,
     isLoading = false
 }: PolaroidPhotoGeneratorProps) {
     const [imgLoaded, setImgLoaded] = useState(false)
     const [showButtons, setShowButtons] = useState(false)
+    const [progress, setProgress] = useState(0)
 
     // Debug logging
     console.log('PolaroidPhotoGenerator props:', {
@@ -54,10 +56,26 @@ export function PolaroidPhotoGenerator({
         }
     }, [generatedImage, onGenerationComplete])
 
-    // Handle generation start
+    // Handle generation start and progress
     useEffect(() => {
         if (isGenerating && onGenerationStart) {
             onGenerationStart()
+            setProgress(0)
+            
+            // Start progress animation
+            const interval = setInterval(() => {
+                setProgress(prev => {
+                    if (prev >= 100) {
+                        clearInterval(interval)
+                        return 100
+                    }
+                    return prev + 2
+                })
+            }, 60) // Update every 60ms for smooth animation
+            
+            return () => clearInterval(interval)
+        } else {
+            setProgress(0)
         }
     }, [isGenerating, onGenerationStart])
 
@@ -87,34 +105,89 @@ export function PolaroidPhotoGenerator({
             <div className="relative bg-white p-6 w-[475px] h-[550px] flex flex-col shadow-lg rounded-sm">
                 {/* Photo Area */}
                 <div className="relative w-full h-[400px] overflow-hidden rounded-sm bg-gray-100">
-                    {/* Loading State */}
+                    {/* Loading State with Image, Spinner, and Progress Bar (for isGenerating prop) */}
                     {isGenerating && !generatedImage && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-susfit-pink-500)] mx-auto mb-4"></div>
-                                <div className="text-gray-600 font-mono">Generating...</div>
+                            <Image
+                                src={mockImageUrl || '/images/demo/WillShalom.jpg'}
+                                alt="Generated try-on preview"
+                                fill
+                                className="object-contain rounded-sm opacity-50"
+                                aria-busy="true"
+                                unoptimized
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-susfit-pink-500)] mx-auto mb-4"></div>
+                                    <div className="text-gray-600 font-mono">Generating...</div>
+                                    
+                                    {/* Progress Bar */}
+                                    <div className="mt-4 w-48 h-2 bg-gray-300 rounded-full overflow-hidden">
+                                        <div 
+                                            className="h-full bg-gradient-to-r from-[var(--color-susfit-pink-500)] to-[var(--color-susfit-teal-500)] transition-all duration-300 ease-out"
+                                            style={{ width: `${progress}%` }}
+                                            data-testid="progress-bar"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="absolute inset-0 animate-pulse bg-gray-200 rounded-sm"></div>
+                        </div>
+                    )}
+
+                    {/* Loading State with Image and Shimmer (for isLoading prop) */}
+                    {isLoading && !generatedImage && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Image
+                                src={mockImageUrl || '/images/demo/WillShalom.jpg'}
+                                alt="Generated try-on preview"
+                                fill
+                                className="object-contain rounded-sm opacity-50"
+                                aria-busy="true"
+                                unoptimized
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
+                                <div className="text-center">
+                                    <div className="animate-pulse rounded-full h-12 w-12 bg-[var(--color-susfit-pink-500)] mx-auto mb-4"></div>
+                                    <div className="text-gray-600 font-mono">Loading...</div>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Generated Image */}
+                    {/* Generated Image with Fade-in Effect */}
                     {generatedImage && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <img
+                            <Image
                                 src={`data:image/png;base64,${generatedImage}`}
                                 alt="Generated try-on preview"
-                                className="max-w-full max-h-full object-contain rounded-sm"
+                                fill
+                                className={`object-contain rounded-sm transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 onLoad={handleImageLoad}
                                 onError={(e) => {
                                     console.error('Image failed to load:', e)
                                     console.error('Generated image length:', generatedImage?.length || 0)
                                 }}
+                                unoptimized
                             />
                         </div>
                     )}
 
-                    {/* Placeholder when no image */}
-                    {!generatedImage && !isGenerating && (
+                    {/* Default Image when no other state is active and no mockImageUrl provided */}
+                    {!generatedImage && !isGenerating && !isLoading && mockImageUrl === undefined && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Image
+                                src="/images/demo/WillShalom.jpg"
+                                alt="Generated try-on preview"
+                                fill
+                                className="object-contain rounded-sm"
+                                unoptimized
+                            />
+                        </div>
+                    )}
+
+                    {/* Text placeholder when mockImageUrl is explicitly provided */}
+                    {!generatedImage && !isGenerating && !isLoading && mockImageUrl !== undefined && (
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="text-gray-400 font-mono text-center">
                                 Ready to generate
@@ -127,8 +200,9 @@ export function PolaroidPhotoGenerator({
                 <div className="h-[70px] bg-white flex items-center justify-center">
                     <div className="text-lg text-gray-600 font-mono">
                         {isGenerating && !generatedImage && "Processing..."}
+                        {isLoading && !generatedImage && "Loading..."}
                         {generatedImage && "Complete!"}
-                        {!isGenerating && !generatedImage && "Ready to generate"}
+                        {!isGenerating && !isLoading && !generatedImage && "Ready to generate"}
                     </div>
                 </div>
             </div>

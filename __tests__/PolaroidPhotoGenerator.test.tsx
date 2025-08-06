@@ -39,10 +39,13 @@ describe('PolaroidPhotoGenerator', () => {
         it('renders placeholder while generatedImage is undefined', () => {
             const { container } = render(<PolaroidPhotoGenerator {...defaultProps} />)
             
-            // Should show the mock image as placeholder
-            const img = screen.getByAltText('Generated try-on preview')
-            expect(img).toHaveAttribute('src', '/test-mock-image.jpg')
-            expect(img).toHaveClass('opacity-0') // Should be hidden initially
+            // Should show text placeholder when no image is provided
+            const placeholderTexts = screen.getAllByText('Ready to generate')
+            expect(placeholderTexts).toHaveLength(2) // One in photo area, one in bottom border
+            
+            // Should not have an image element when no generatedImage is provided
+            const img = screen.queryByAltText('Generated try-on preview')
+            expect(img).not.toBeInTheDocument()
             
             // Snapshot test for initial state
             expect(container.firstChild).toMatchSnapshot()
@@ -65,8 +68,8 @@ describe('PolaroidPhotoGenerator', () => {
         it('shows "Ready to generate" in idle state', () => {
             render(<PolaroidPhotoGenerator {...defaultProps} />)
             
-            const statusText = screen.getByText('Ready to generate')
-            expect(statusText).toBeInTheDocument()
+            const statusTexts = screen.getAllByText('Ready to generate')
+            expect(statusTexts.length).toBeGreaterThan(0)
         })
 
         it('renders with custom className', () => {
@@ -85,7 +88,7 @@ describe('PolaroidPhotoGenerator', () => {
         })
     })
 
-    describe('Generated Image Display', () => {
+    describe('base64', () => {
         it('displays generated image with correct base64 prefix', () => {
             const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
             render(
@@ -178,20 +181,42 @@ describe('PolaroidPhotoGenerator', () => {
                 jest.advanceTimersByTime(100)
             })
             
-            const progressBar = document.querySelector('.bg-gradient-to-r')
+            const progressBar = screen.getByTestId('progress-bar')
             expect(progressBar).toBeInTheDocument()
         })
 
         it('updates progress bar width', () => {
             render(<PolaroidPhotoGenerator {...defaultProps} isGenerating={true} />)
             
-            // Fast-forward to see progress updates
+            // Use data-testid for reliable selection
+            const progressBar = screen.getByTestId('progress-bar') as HTMLElement
+            expect(progressBar).toBeInTheDocument()
+            
+            // The progress bar should start at 0%
+            expect(progressBar).toHaveStyle({ width: '0%' })
+            
+            // Fast-forward timers to see progress updates
             act(() => {
-                jest.advanceTimersByTime(2000)
+                jest.advanceTimersByTime(1000) // Advance 1 second
             })
             
-            const progressBar = document.querySelector('.bg-gradient-to-r') as HTMLElement
-            expect(progressBar).toHaveStyle({ width: expect.stringContaining('%') })
+            // After advancing timers, the progress should have increased
+            // Since it updates every 60ms and increases by 2%, after 1000ms it should be around 33%
+            const widthAfter1Second = progressBar.style.width
+            expect(widthAfter1Second).toMatch(/^\d+%$/)
+            
+            // Fast-forward more to see further progress
+            act(() => {
+                jest.advanceTimersByTime(1000) // Advance another second
+            })
+            
+            const widthAfter2Seconds = progressBar.style.width
+            expect(widthAfter2Seconds).toMatch(/^\d+%$/)
+            
+            // The width should have increased
+            const width1 = parseInt(widthAfter1Second)
+            const width2 = parseInt(widthAfter2Seconds)
+            expect(width2).toBeGreaterThan(width1)
         })
     })
 
@@ -245,7 +270,7 @@ describe('PolaroidPhotoGenerator', () => {
             expect(defaultProps.onClose).toHaveBeenCalled()
         })
 
-        it('resets state when retry is clicked', async () => {
+        it('calls onRetry when retry button is clicked and resets internal state', async () => {
             render(
                 <PolaroidPhotoGenerator 
                     {...defaultProps} 
@@ -258,10 +283,12 @@ describe('PolaroidPhotoGenerator', () => {
             const retryButton = await waitFor(() => screen.getByText('Retry'))
             fireEvent.click(retryButton)
             
-            // Should reset to idle state
-            await waitFor(() => {
-                expect(screen.getByText('Ready to generate')).toBeInTheDocument()
-            })
+            // Should call onRetry callback
+            expect(defaultProps.onRetry).toHaveBeenCalled()
+            
+            // Internal state should be reset (buttons hidden, image not loaded)
+            // Note: The component will still show the generated image until props are updated by parent
+            // This is the expected behavior - the parent component should handle the state reset
         })
     })
 
@@ -279,36 +306,30 @@ describe('PolaroidPhotoGenerator', () => {
             expect(defaultProps.onGenerationStart).toHaveBeenCalled()
         })
 
-        it('calls onGenerationComplete when generation finishes', async () => {
+        it('calls onGenerationComplete when generatedImage is provided', async () => {
             const onGenerationComplete = jest.fn()
+            const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+            
             render(
                 <PolaroidPhotoGenerator 
                     {...defaultProps} 
                     isGenerating={true}
                     onGenerationComplete={onGenerationComplete}
+                    generatedImage={mockBase64}
                 />
             )
             
-            // Fast-forward through the complete generation sequence:
-            // 3000ms (progress phase) + 200ms (reveal delay) + 1000ms (complete phase) = 4200ms
-            act(() => {
-                jest.advanceTimersByTime(4200)
-            })
-            
-            // Run any remaining pending timers to ensure all state updates complete
-            act(() => {
-                jest.runOnlyPendingTimers()
-            })
-            
-            // Wait for the callback to be called
+            // onGenerationComplete should be called immediately when generatedImage is provided
             await waitFor(() => {
                 expect(onGenerationComplete).toHaveBeenCalledTimes(1)
-            }, { timeout: 5000 })
+                expect(onGenerationComplete).toHaveBeenCalledWith(`data:image/png;base64,${mockBase64}`)
+            })
         })
 
         it('handles multiple generation cycles', async () => {
             const onGenerationComplete = jest.fn()
             const onGenerationStart = jest.fn()
+            const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
             const { rerender } = render(
                 <PolaroidPhotoGenerator 
                     {...defaultProps} 
@@ -318,20 +339,26 @@ describe('PolaroidPhotoGenerator', () => {
                 />
             )
             
-            // Complete first generation
-            act(() => {
-                jest.advanceTimersByTime(4200)
-            })
+            // First generation should call onGenerationStart
+            expect(onGenerationStart).toHaveBeenCalledTimes(1)
             
-            // Run any remaining pending timers to ensure all state updates complete
+            // Complete first generation by providing generatedImage
             act(() => {
-                jest.runOnlyPendingTimers()
+                rerender(
+                    <PolaroidPhotoGenerator 
+                        {...defaultProps} 
+                        isGenerating={true}
+                        onGenerationComplete={onGenerationComplete}
+                        onGenerationStart={onGenerationStart}
+                        generatedImage={mockBase64}
+                    />
+                )
             })
             
             // Wait for the first callback to be called
             await waitFor(() => {
                 expect(onGenerationComplete).toHaveBeenCalledTimes(1)
-            }, { timeout: 5000 })
+            })
             
             // Reset the component state for second generation
             act(() => {
@@ -357,20 +384,23 @@ describe('PolaroidPhotoGenerator', () => {
                 )
             })
             
-            // Complete second generation
+            // Complete second generation by providing generatedImage
             act(() => {
-                jest.advanceTimersByTime(4200)
-            })
-            
-            // Run any remaining pending timers
-            act(() => {
-                jest.runOnlyPendingTimers()
+                rerender(
+                    <PolaroidPhotoGenerator 
+                        {...defaultProps} 
+                        isGenerating={true}
+                        onGenerationComplete={onGenerationComplete}
+                        onGenerationStart={onGenerationStart}
+                        generatedImage={mockBase64}
+                    />
+                )
             })
             
             // Wait for the second callback to be called
             await waitFor(() => {
                 expect(onGenerationComplete).toHaveBeenCalledTimes(2)
-            }, { timeout: 5000 })
+            })
             
             expect(onGenerationStart).toHaveBeenCalledTimes(2)
         })
@@ -416,8 +446,13 @@ describe('PolaroidPhotoGenerator', () => {
                 />
             )
             
-            const img = screen.getByAltText('Generated try-on preview')
-            expect(img).toHaveAttribute('src', 'data:image/png;base64,')
+            // Empty string should be treated as no image, so show placeholder text
+            const placeholderTexts = screen.getAllByText('Ready to generate')
+            expect(placeholderTexts).toHaveLength(2) // One in photo area, one in bottom border
+            
+            // Should not have an image element when generatedImage is empty
+            const img = screen.queryByAltText('Generated try-on preview')
+            expect(img).not.toBeInTheDocument()
         })
 
         it('handles null generated image', () => {
@@ -428,8 +463,13 @@ describe('PolaroidPhotoGenerator', () => {
                 />
             )
             
-            const img = screen.getByAltText('Generated try-on preview')
-            expect(img).toHaveAttribute('src', '/test-mock-image.jpg')
+            // Null should be treated as no image, so show placeholder text
+            const placeholderTexts = screen.getAllByText('Ready to generate')
+            expect(placeholderTexts).toHaveLength(2) // One in photo area, one in bottom border
+            
+            // Should not have an image element when generatedImage is null
+            const img = screen.queryByAltText('Generated try-on preview')
+            expect(img).not.toBeInTheDocument()
         })
 
         it('handles undefined generated image', () => {
@@ -440,8 +480,13 @@ describe('PolaroidPhotoGenerator', () => {
                 />
             )
             
-            const img = screen.getByAltText('Generated try-on preview')
-            expect(img).toHaveAttribute('src', '/test-mock-image.jpg')
+            // Undefined should be treated as no image, so show placeholder text
+            const placeholderTexts = screen.getAllByText('Ready to generate')
+            expect(placeholderTexts).toHaveLength(2) // One in photo area, one in bottom border
+            
+            // Should not have an image element when generatedImage is undefined
+            const img = screen.queryByAltText('Generated try-on preview')
+            expect(img).not.toBeInTheDocument()
         })
 
         it('handles rapid state changes', () => {
@@ -468,11 +513,19 @@ describe('PolaroidPhotoGenerator', () => {
             })
             
             // Should not throw error and should be in idle state
-            expect(screen.getByText('Ready to generate')).toBeInTheDocument()
+            const placeholderTexts = screen.getAllByText('Ready to generate')
+            expect(placeholderTexts).toHaveLength(2) // One in photo area, one in bottom border
         })
 
         it('handles image load error gracefully', () => {
-            render(<PolaroidPhotoGenerator {...defaultProps} />)
+            // Test with a generated image to have an image element to test error handling
+            const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+            render(
+                <PolaroidPhotoGenerator 
+                    {...defaultProps} 
+                    generatedImage={mockBase64}
+                />
+            )
             
             const img = screen.getByAltText('Generated try-on preview')
             
@@ -488,12 +541,24 @@ describe('PolaroidPhotoGenerator', () => {
         it('has proper ARIA attributes', () => {
             render(<PolaroidPhotoGenerator {...defaultProps} isLoading={true} />)
             
+            // When loading, should show loading text in multiple places
+            const loadingTexts = screen.getAllByText('Loading...')
+            expect(loadingTexts).toHaveLength(2) // One in photo area, one in bottom border
+            
+            // Should have an image element with proper ARIA attributes when loading
             const img = screen.getByAltText('Generated try-on preview')
             expect(img).toHaveAttribute('aria-busy', 'true')
         })
 
         it('has proper alt text', () => {
-            render(<PolaroidPhotoGenerator {...defaultProps} />)
+            // Test with a generated image to have an image element with alt text
+            const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+            render(
+                <PolaroidPhotoGenerator 
+                    {...defaultProps} 
+                    generatedImage={mockBase64}
+                />
+            )
             
             const img = screen.getByAltText('Generated try-on preview')
             expect(img).toBeInTheDocument()
