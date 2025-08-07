@@ -123,6 +123,7 @@ export function BrutalismCard({
           className="hidden"
           accept="image/*"
           onChange={handleFileChange}
+          data-test={title === "Upload Your Angle" ? "model-upload" : "apparel-upload"}
         />
 
         {/* Upload icon area - only show if no image uploaded */}

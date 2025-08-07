@@ -1,18 +1,27 @@
 import { defineConfig, devices } from '@playwright/test'
+import path from 'path'
+
+// Import the stub JSON for OpenAI responses
+const stubJson = require('./tests/fixtures/openai-edit-success.json')
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  
+  // Global setup
+  globalSetup: './tests/e2e/global-setup.ts',
+  
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
   },
 
   projects: [
@@ -56,5 +65,8 @@ export default defineConfig({
     command: 'pnpm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    env: {
+      OPENAI_API_KEY: 'dummy-key-for-testing',
+    },
   },
 })

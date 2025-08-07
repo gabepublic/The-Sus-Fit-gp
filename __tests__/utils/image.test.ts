@@ -1028,6 +1028,8 @@ describe('Image Utilities', () => {
       // Restore original atob
       global.atob = originalAtob;
     });
+
+
   });
 
   describe('Constants', () => {

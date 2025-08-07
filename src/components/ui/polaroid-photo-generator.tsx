@@ -171,6 +171,7 @@ export function PolaroidPhotoGenerator({
                                     console.error('Generated image length:', generatedImage?.length || 0)
                                 }}
                                 unoptimized
+                                data-testid="generated-image"
                             />
                         </div>
                     )}

@@ -166,6 +166,7 @@ export function HeroImageWithButton({
                         <button
                             onClick={overlayButton.onClick}
                             disabled={overlayButton.disabled}
+                            data-test="generate-button"
                             className={cn(
                                 "absolute z-20 rounded-full",
                                 "transition-all duration-150 ease-in-out",

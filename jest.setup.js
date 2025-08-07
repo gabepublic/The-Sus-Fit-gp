@@ -80,6 +80,43 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
+// Next.js response is now part of next/server, so we don't need a separate mock for next/response
+
+// Mock Next.js server (required by subtask)
+jest.mock('next/server', () => ({
+  NextRequest: class NextRequest {
+    constructor(input, init = {}) {
+      this.url = typeof input === 'string' ? input : input.url
+      this.method = init.method || 'GET'
+      this.headers = new Headers(init.headers || {})
+      this.body = init.body
+    }
+    
+    json() {
+      return Promise.resolve(JSON.parse(this.body || '{}'))
+    }
+    
+    text() {
+      return Promise.resolve(this.body || '')
+    }
+  },
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      json: () => Promise.resolve(data),
+      status: init?.status || 200,
+      headers: init?.headers || {},
+    })),
+    redirect: jest.fn((url) => ({
+      status: 302,
+      headers: { location: url },
+    })),
+    rewrite: jest.fn((url) => ({
+      status: 200,
+      headers: { 'x-rewrite-url': url },
+    })),
+  },
+}))
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
 

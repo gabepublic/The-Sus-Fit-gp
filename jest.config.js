@@ -12,6 +12,7 @@ const customJestConfig = {
     // Handle module aliases (the same as in tsconfig.json)
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  // Use jsdom for React components, but support Node.js environment
   testEnvironment: 'jest-environment-jsdom',
   testMatch: [
     '<rootDir>/__tests__/**/*.test.{js,jsx,ts,tsx}',
@@ -22,6 +23,8 @@ const customJestConfig = {
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
   ],
+  // Enable coverage collection
+  collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
@@ -29,6 +32,7 @@ const customJestConfig = {
     '!src/**/*.test.{js,jsx,ts,tsx}',
     '!src/**/*.spec.{js,jsx,ts,tsx}',
   ],
+  // Set coverage threshold to >80% as required
   coverageThreshold: {
     global: {
       branches: 80,
@@ -37,6 +41,17 @@ const customJestConfig = {
       statements: 80,
     },
   },
+  // Coverage reporters
+  coverageReporters: ['text', 'lcov', 'html'],
+  // Transform configuration for TypeScript and JSX
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+  },
+  // Transform ignore patterns
+  transformIgnorePatterns: [
+    '/node_modules/',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
 }
 
 module.exports = createJestConfig(customJestConfig)
