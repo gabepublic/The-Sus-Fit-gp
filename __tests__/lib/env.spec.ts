@@ -268,6 +268,82 @@ describe('env', () => {
         NODE_ENV: undefined,
       });
     });
+
+    // New test to cover the missing branch in the env export
+    it('should call validateEnv when NODE_ENV is not test (production)', async () => {
+      // Arrange - Set up environment for production
+      (process.env as any).NODE_ENV = 'production';
+      process.env.ANTHROPIC_API_KEY = 'prod-anthropic-key';
+      process.env.PINECONE_API_KEY = 'prod-pinecone-key';
+      process.env.PINECONE_ENVIRONMENT = 'prod-environment';
+      process.env.PINECONE_INDEX_NAME = 'prod-index';
+
+      // Act - Use dynamic import to trigger fresh module evaluation
+      jest.resetModules();
+      const { env: freshEnv } = await import('../../src/lib/env');
+
+      // Assert
+      expect(freshEnv).toEqual({
+        ANTHROPIC_API_KEY: 'prod-anthropic-key',
+        PINECONE_API_KEY: 'prod-pinecone-key',
+        PINECONE_ENVIRONMENT: 'prod-environment',
+        PINECONE_INDEX_NAME: 'prod-index',
+        LANGCHAIN_API_KEY: undefined,
+        LANGCHAIN_TRACING_V2: undefined,
+        NEXT_PUBLIC_APP_URL: undefined,
+        NODE_ENV: 'production',
+      });
+    });
+
+    it('should call validateEnv when NODE_ENV is not test (development)', async () => {
+      // Arrange - Set up environment for development
+      (process.env as any).NODE_ENV = 'development';
+      process.env.ANTHROPIC_API_KEY = 'dev-anthropic-key';
+      process.env.PINECONE_API_KEY = 'dev-pinecone-key';
+      process.env.PINECONE_ENVIRONMENT = 'dev-environment';
+      process.env.PINECONE_INDEX_NAME = 'dev-index';
+
+      // Act - Use dynamic import to trigger fresh module evaluation
+      jest.resetModules();
+      const { env: freshEnv } = await import('../../src/lib/env');
+
+      // Assert
+      expect(freshEnv).toEqual({
+        ANTHROPIC_API_KEY: 'dev-anthropic-key',
+        PINECONE_API_KEY: 'dev-pinecone-key',
+        PINECONE_ENVIRONMENT: 'dev-environment',
+        PINECONE_INDEX_NAME: 'dev-index',
+        LANGCHAIN_API_KEY: undefined,
+        LANGCHAIN_TRACING_V2: undefined,
+        NEXT_PUBLIC_APP_URL: undefined,
+        NODE_ENV: 'development',
+      });
+    });
+
+    it('should call validateEnv when NODE_ENV is undefined', async () => {
+      // Arrange - Set up environment with undefined NODE_ENV
+      delete (process.env as any).NODE_ENV;
+      process.env.ANTHROPIC_API_KEY = 'undefined-env-key';
+      process.env.PINECONE_API_KEY = 'undefined-env-pinecone';
+      process.env.PINECONE_ENVIRONMENT = 'undefined-env-environment';
+      process.env.PINECONE_INDEX_NAME = 'undefined-env-index';
+
+      // Act - Use dynamic import to trigger fresh module evaluation
+      jest.resetModules();
+      const { env: freshEnv } = await import('../../src/lib/env');
+
+      // Assert
+      expect(freshEnv).toEqual({
+        ANTHROPIC_API_KEY: 'undefined-env-key',
+        PINECONE_API_KEY: 'undefined-env-pinecone',
+        PINECONE_ENVIRONMENT: 'undefined-env-environment',
+        PINECONE_INDEX_NAME: 'undefined-env-index',
+        LANGCHAIN_API_KEY: undefined,
+        LANGCHAIN_TRACING_V2: undefined,
+        NEXT_PUBLIC_APP_URL: undefined,
+        NODE_ENV: undefined,
+      });
+    });
   });
 
   describe('TypeScript interface', () => {

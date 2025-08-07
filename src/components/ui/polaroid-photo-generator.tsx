@@ -100,7 +100,7 @@ export function PolaroidPhotoGenerator({
     }
 
     return (
-        <div className={cn("relative flex flex-col items-center", className)}>
+        <div className={cn("relative flex flex-col items-center", className)} data-testid="polaroid">
             {/* Polaroid Container */}
             <div className="relative bg-white p-6 w-[475px] h-[550px] flex flex-col shadow-lg rounded-sm">
                 {/* Photo Area */}

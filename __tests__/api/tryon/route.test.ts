@@ -27,17 +27,20 @@ jest.mock('../../../src/lib/openaiClient', () => ({
 describe('/api/tryon POST route', () => {
   const { generateTryOn } = require('../../../src/lib/openaiClient');
 
-  const createMockRequest = (body: any) => {
+  const createMockRequest = (body: any, origin?: string | null) => {
     return {
       json: jest.fn().mockResolvedValue(body),
       headers: {
-        get: jest.fn().mockReturnValue('http://localhost:3000')
+        get: jest.fn().mockReturnValue(origin)
       }
     } as any;
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset environment variables
+    delete (process.env as any).NEXT_PUBLIC_BASE_URL;
+    delete (process.env as any).NODE_ENV;
   });
 
   describe('valid requests', () => {
@@ -196,16 +199,156 @@ describe('/api/tryon POST route', () => {
         error: 'Internal Server Error'
       });
     });
+
+    // New test cases for improved branch coverage
+    describe('error handling with different NODE_ENV values', () => {
+      it('should return detailed error message in development environment', async () => {
+        (process.env as any).NODE_ENV = 'development';
+        
+        const validPayload = {
+          modelImage: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          apparelImages: ['data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+        };
+
+        (generateTryOn as jest.Mock).mockRejectedValue(new Error('Development error message'));
+
+        const request = createMockRequest(validPayload);
+        const response = await POST(request);
+
+        expect(response.status).toBe(500);
+        const responseData = await response.json();
+        expect(responseData).toMatchObject({
+          error: 'Development error message'
+        });
+      });
+
+      it('should return generic error message in production environment', async () => {
+        (process.env as any).NODE_ENV = 'production';
+        
+        const validPayload = {
+          modelImage: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          apparelImages: ['data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+        };
+
+        (generateTryOn as jest.Mock).mockRejectedValue(new Error('Production error message'));
+
+        const request = createMockRequest(validPayload);
+        const response = await POST(request);
+
+        expect(response.status).toBe(500);
+        const responseData = await response.json();
+        expect(responseData).toMatchObject({
+          error: 'Internal Server Error'
+        });
+      });
+
+      it('should return "Unknown error occurred" when error is not an Error instance in development', async () => {
+        (process.env as any).NODE_ENV = 'development';
+        
+        const validPayload = {
+          modelImage: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          apparelImages: ['data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+        };
+
+        (generateTryOn as jest.Mock).mockRejectedValue('String error');
+
+        const request = createMockRequest(validPayload);
+        const response = await POST(request);
+
+        expect(response.status).toBe(500);
+        const responseData = await response.json();
+        expect(responseData).toMatchObject({
+          error: 'Unknown error occurred'
+        });
+      });
+
+      it('should return "Unknown error occurred" when error is null in development', async () => {
+        (process.env as any).NODE_ENV = 'development';
+        
+        const validPayload = {
+          modelImage: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          apparelImages: ['data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==']
+        };
+
+        (generateTryOn as jest.Mock).mockRejectedValue(null);
+
+        const request = createMockRequest(validPayload);
+        const response = await POST(request);
+
+        expect(response.status).toBe(500);
+        const responseData = await response.json();
+        expect(responseData).toMatchObject({
+          error: 'Unknown error occurred'
+        });
+      });
+    });
+  });
+
+  describe('CORS origin handling', () => {
+    it('should use NEXT_PUBLIC_BASE_URL when origin header is null', async () => {
+      (process.env as any).NEXT_PUBLIC_BASE_URL = 'https://example.com';
+      
+      const request = createMockRequest({}, null);
+      const response = await POST(request);
+
+      expect(response.headers).toMatchObject({
+        'Access-Control-Allow-Origin': 'https://example.com'
+      });
+    });
+
+    it('should use empty string when both origin header and NEXT_PUBLIC_BASE_URL are null/undefined', async () => {
+      const request = createMockRequest({}, null);
+      const response = await POST(request);
+
+      expect(response.headers).toMatchObject({
+        'Access-Control-Allow-Origin': ''
+      });
+    });
+
+    it('should use origin header when available', async () => {
+      const request = createMockRequest({}, 'https://custom-origin.com');
+      const response = await POST(request);
+
+      expect(response.headers).toMatchObject({
+        'Access-Control-Allow-Origin': 'https://custom-origin.com'
+      });
+    });
   });
 
   describe('OPTIONS requests', () => {
     it('should return 200 for OPTIONS preflight request', async () => {
-      const request = createMockRequest({});
+      const request = createMockRequest({}, 'http://localhost:3000');
       const response = await OPTIONS(request);
 
       expect(response.status).toBe(200);
       expect(response.headers).toMatchObject({
         'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+    });
+
+    it('should use NEXT_PUBLIC_BASE_URL when origin header is null in OPTIONS', async () => {
+      (process.env as any).NEXT_PUBLIC_BASE_URL = 'https://example.com';
+      
+      const request = createMockRequest({}, null);
+      const response = await OPTIONS(request);
+
+      expect(response.status).toBe(200);
+      expect(response.headers).toMatchObject({
+        'Access-Control-Allow-Origin': 'https://example.com',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+    });
+
+    it('should use empty string when both origin header and NEXT_PUBLIC_BASE_URL are null/undefined in OPTIONS', async () => {
+      const request = createMockRequest({}, null);
+      const response = await OPTIONS(request);
+
+      expect(response.status).toBe(200);
+      expect(response.headers).toMatchObject({
+        'Access-Control-Allow-Origin': '',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       });

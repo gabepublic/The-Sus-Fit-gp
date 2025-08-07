@@ -730,6 +730,304 @@ describe('Image Utilities', () => {
       // Since the compression will fail due to null blob, it should eventually throw
       await expect(promise).rejects.toThrow(CompressionFailedError);
     });
+
+    it('should handle blob creation failure in compression loop catch block', async () => {
+      const largeBase64 = createMockBase64(2000000);
+      
+      // Mock FileReader
+      const mockFileReader = {
+        readAsDataURL: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        result: 'data:image/jpeg;base64,compressedData',
+      };
+
+      global.FileReader = jest.fn(() => mockFileReader) as any;
+
+      // Mock canvas with toBlob that throws an error
+      const mockCanvasContext = {
+        drawImage: jest.fn(),
+      };
+
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: jest.fn(() => mockCanvasContext),
+        toBlob: jest.fn((callback, format, quality) => {
+          // Simulate an error during blob creation
+          throw new Error('Canvas error');
+        }),
+      };
+
+      document.createElement = jest.fn((tag) => {
+        if (tag === 'canvas') {
+          return mockCanvas as any;
+        }
+        return originalCreateElement.call(document, tag);
+      });
+
+      // Mock Image
+      global.Image = jest.fn(() => {
+        const img = {
+          width: 800,
+          height: 600,
+          src: '',
+          onload: null as any,
+          onerror: null as any,
+        };
+        
+        setTimeout(() => {
+          if (img.onload) img.onload();
+        }, 0);
+        
+        return img as any;
+      }) as any;
+
+      const promise = compressBase64(largeBase64, 100); // Small limit to force compression
+      
+      setTimeout(() => {
+        mockFileReader.onload?.();
+      }, 10);
+
+      // Should handle the canvas error gracefully and continue with quality reduction
+      // Since the compression will fail due to canvas error, it should eventually throw
+      await expect(promise).rejects.toThrow(CompressionFailedError);
+    });
+
+    it('should handle image resizing when compression alone is insufficient', async () => {
+      // Create a base64 string that will trigger the resizing logic
+      const largeBase64 = 'data:image/jpeg;base64,' + 'A'.repeat(2000000); // Large enough to trigger resizing
+      
+      // Mock FileReader
+      const mockFileReader = {
+        readAsDataURL: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        result: 'data:image/jpeg;base64,compressedData',
+      };
+
+      global.FileReader = jest.fn(() => mockFileReader) as any;
+
+      // Mock canvas with toBlob that returns large blobs initially, then smaller ones after resize
+      let resizeAttempted = false;
+      const mockCanvasContext = {
+        drawImage: jest.fn(),
+      };
+
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: jest.fn(() => mockCanvasContext),
+        toBlob: jest.fn((callback, format, quality) => {
+          if (!resizeAttempted) {
+            // Before resize, return large blob
+            const largeBlob = new Blob(['A'.repeat(200000)], { type: format });
+            callback(largeBlob);
+            resizeAttempted = true;
+          } else {
+            // After resize, return smaller blob
+            const smallBlob = new Blob(['A'.repeat(50000)], { type: format });
+            callback(smallBlob);
+          }
+        }),
+      };
+
+      document.createElement = jest.fn((tag) => {
+        if (tag === 'canvas') {
+          return mockCanvas as any;
+        }
+        return originalCreateElement.call(document, tag);
+      });
+
+      // Mock Image
+      global.Image = jest.fn(() => {
+        const img = {
+          width: 800,
+          height: 600,
+          src: '',
+          onload: null as any,
+          onerror: null as any,
+        };
+        
+        setTimeout(() => {
+          if (img.onload) img.onload();
+        }, 0);
+        
+        return img as any;
+      }) as any;
+
+      const promise = compressBase64(largeBase64, 100); // Small limit to force resizing
+      
+      setTimeout(() => {
+        mockFileReader.onload?.();
+      }, 10);
+
+      const result = await promise;
+      expect(result).toBe('data:image/jpeg;base64,compressedData');
+      expect(mockCanvas.getContext).toHaveBeenCalledWith('2d');
+    });
+
+
+
+    it('should handle resized blob creation failure', async () => {
+      // Mock atob to return large sizes
+      const originalAtob = global.atob;
+      global.atob = jest.fn((str) => {
+        return 'A'.repeat(200000); // Always return large size
+      });
+
+      const largeBase64 = 'data:image/jpeg;base64,' + 'A'.repeat(2000000);
+      
+      // Mock FileReader
+      const mockFileReader = {
+        readAsDataURL: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        result: 'data:image/jpeg;base64,compressedData',
+      };
+
+      global.FileReader = jest.fn(() => mockFileReader) as any;
+
+      // Mock canvas with toBlob that fails during resize
+      let resizeAttempted = false;
+      const mockCanvasContext = {
+        drawImage: jest.fn(),
+      };
+
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: jest.fn(() => mockCanvasContext),
+        toBlob: jest.fn((callback, format, quality) => {
+          if (!resizeAttempted) {
+            const largeBlob = new Blob(['A'.repeat(200000)], { type: format });
+            callback(largeBlob);
+            resizeAttempted = true;
+          } else {
+            callback(null); // Fail during resize
+          }
+        }),
+      };
+
+      document.createElement = jest.fn((tag) => {
+        if (tag === 'canvas') {
+          return mockCanvas as any;
+        }
+        return originalCreateElement.call(document, tag);
+      });
+
+      // Mock Image
+      global.Image = jest.fn(() => {
+        const img = {
+          width: 800,
+          height: 600,
+          src: '',
+          onload: null as any,
+          onerror: null as any,
+        };
+        
+        setTimeout(() => {
+          if (img.onload) img.onload();
+        }, 0);
+        
+        return img as any;
+      }) as any;
+
+      const promise = compressBase64(largeBase64, 100);
+      
+      setTimeout(() => {
+        mockFileReader.onload?.();
+      }, 10);
+
+      // Should throw the specific error from the resized blob creation
+      await expect(promise).rejects.toThrow('Failed to create resized blob');
+
+      // Restore original atob
+      global.atob = originalAtob;
+    });
+
+
+
+    it('should successfully compress and resolve when resizing works', async () => {
+      // Mock atob to return small sizes after resizing
+      const originalAtob = global.atob;
+      global.atob = jest.fn((str) => {
+        if (str === 'A'.repeat(2000000)) {
+          return 'A'.repeat(2000000); // Original size
+        }
+        return 'A'.repeat(50000); // Small size after resizing
+      });
+
+      const largeBase64 = 'data:image/jpeg;base64,' + 'A'.repeat(2000000);
+      
+      // Mock FileReader
+      const mockFileReader = {
+        readAsDataURL: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        result: 'data:image/jpeg;base64,' + 'A'.repeat(50000),
+      };
+
+      global.FileReader = jest.fn(() => mockFileReader) as any;
+
+      // Mock canvas
+      let resizeAttempted = false;
+      const mockCanvasContext = {
+        drawImage: jest.fn(),
+      };
+
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: jest.fn(() => mockCanvasContext),
+        toBlob: jest.fn((callback, format, quality) => {
+          if (!resizeAttempted) {
+            const largeBlob = new Blob(['A'.repeat(200000)], { type: format });
+            callback(largeBlob);
+            resizeAttempted = true;
+          } else {
+            const smallBlob = new Blob(['A'.repeat(50000)], { type: format });
+            callback(smallBlob);
+          }
+        }),
+      };
+
+      document.createElement = jest.fn((tag) => {
+        if (tag === 'canvas') {
+          return mockCanvas as any;
+        }
+        return originalCreateElement.call(document, tag);
+      });
+
+      // Mock Image
+      global.Image = jest.fn(() => {
+        const img = {
+          width: 800,
+          height: 600,
+          src: '',
+          onload: null as any,
+          onerror: null as any,
+        };
+        
+        setTimeout(() => {
+          if (img.onload) img.onload();
+        }, 0);
+        
+        return img as any;
+      }) as any;
+
+      const promise = compressBase64(largeBase64, 100); // Small limit
+      
+      setTimeout(() => {
+        mockFileReader.onload?.();
+      }, 10);
+
+      const result = await promise;
+      expect(result).toBe('data:image/jpeg;base64,' + 'A'.repeat(50000));
+
+      // Restore original atob
+      global.atob = originalAtob;
+    });
   });
 
   describe('Constants', () => {

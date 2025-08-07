@@ -17,7 +17,7 @@ interface HeroImageProps {
     alt: string
     className?: string
     priority?: boolean
-    overlayButton?: OverlayButtonProps
+    overlayButton?: OverlayButtonProps | null
 }
 
 export function HeroImageWithButton({
@@ -133,6 +133,9 @@ export function HeroImageWithButton({
         return () => window.removeEventListener('resize', handleResize)
     }, [overlayButton, calculateButtonPositionAndSize])
 
+    // Always render button when overlayButton is provided, but apply disabled state
+    const shouldShowButton = overlayButton && isButtonReady
+
     return (
         <div className={cn(
             "relative w-full flex items-center justify-center",
@@ -151,8 +154,8 @@ export function HeroImageWithButton({
                     onLoad={handleImageLoad}
                 />
 
-                {/* Overlay Button */}
-                {overlayButton && isButtonReady && (
+                {/* Overlay Button - Only render when both images are uploaded */}
+                {shouldShowButton && (
                     <div
                         className="absolute inset-0"
                         style={{

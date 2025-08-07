@@ -79,10 +79,16 @@ export default function SusFitPage() {
     // Memoized callback functions to prevent re-rendering issues
     const handleUserFileUpload = useCallback((file: File) => {
         setUserImageFile(file)
+        // Clear any previous errors when user uploads an image
+        setShowError(false)
+        setErrorMessage('')
     }, [])
 
     const handleApparelFileUpload = useCallback((file: File) => {
         setApparelImageFile(file)
+        // Clear any previous errors when user uploads an image
+        setShowError(false)
+        setErrorMessage('')
     }, [])
 
 
@@ -186,11 +192,15 @@ export default function SusFitPage() {
         
         // Validate that both images are uploaded first
         if (!userImageFile || !apparelImageFile) {
-            const missingItems = []
-            if (!userImageFile) missingItems.push('model photo')
-            if (!apparelImageFile) missingItems.push('apparel photo')
+            let message = ''
+            if (!userImageFile && !apparelImageFile) {
+                message = 'Please upload model photo and apparel photo before generating your fit.'
+            } else if (!userImageFile) {
+                message = 'Please upload model photo'
+            } else if (!apparelImageFile) {
+                message = 'Please upload apparel photo'
+            }
             
-            const message = `Please upload ${missingItems.join(' and ')} before generating your fit.`
             setErrorMessage(message)
             setShowError(true)
             
@@ -272,7 +282,7 @@ export default function SusFitPage() {
             }
             
             // Handle AbortError (timeout)
-            if (error instanceof Error && error.name === 'AbortError') {
+            if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
                 console.error('API request timed out after 30 seconds')
                 setErrorMessage('Request timed out. Please try again.')
                 setShowError(true)
