@@ -2,7 +2,7 @@
 
 A stealth mode guerilla branding campaign for AI fun
 
-[![Coverage](https://codecov.io/gh/your-username/The-Sus-Fit-gp/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/The-Sus-Fit-gp)
+[![Coverage](https://codecov.io/gh/gabepublic/The-Sus-Fit-gp/branch/main/graph/badge.svg)](https://codecov.io/gh/gabepublic/The-Sus-Fit-gp)
 
 ## Prerequisites
 
