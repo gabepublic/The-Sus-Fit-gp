@@ -1,5 +1,31 @@
 # The-Sus-Fit
+
 A stealth mode guerilla branding campaign for AI fun
+
+[![Coverage](https://codecov.io/gh/your-username/The-Sus-Fit-gp/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/The-Sus-Fit-gp)
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** 18+ 
+- **pnpm** (preferred package manager)
+- **Git**
+
+### Installing pnpm
+
+If you don't have pnpm installed:
+
+```bash
+# Using npm
+npm install -g pnpm
+
+# Using Homebrew (macOS)
+brew install pnpm
+
+# Using Windows (PowerShell)
+iwr https://get.pnpm.io/install.ps1 -useb | iex
+```
 
 ## Environment Variables
 
@@ -7,29 +33,136 @@ This project uses environment variables to securely manage API keys and configur
 
 ### Required Environment Variables
 
-The following variables are required for the application to function:
-
-- `ANTHROPIC_API_KEY` - Your Claude API key (format: `sk-ant-api03-...`)
-- `PINECONE_API_KEY` - Your Pinecone API key
-- `PINECONE_ENVIRONMENT` - Your Pinecone environment
-- `PINECONE_INDEX_NAME` - Your Pinecone index name
+| Variable | Description | Format | Default |
+|----------|-------------|--------|---------|
+| `OPENAI_API_KEY` | OpenAI API key for image generation | `sk-proj-...` | Required |
+| `OPENAI_MODEL` | OpenAI model to use | Model name | `gpt-image-1` |
 
 ### Optional Environment Variables
 
-- `OPENAI_API_KEY` - OpenAI API key for try-on features (format: `sk-proj-...`)
-- `OPENAI_MODEL` - OpenAI model to use (defaults to `gpt-image-1`)
-- `LANGCHAIN_API_KEY` - LangChain API key for tracing
-- `LANGCHAIN_TRACING_V2` - LangChain tracing version
-- `NEXT_PUBLIC_APP_URL` - Public URL for the application
-- `NODE_ENV` - Environment mode (`development`, `production`, or `test`)
+| Variable | Description | Format | Default |
+|----------|-------------|--------|---------|
+| `NODE_ENV` | Node environment | `development`, `production`, `test` | `development` |
+| `CI` | CI environment flag | `true`/`false` | `false` |
+| `NEXT_PUBLIC_BASE_URL` | Base URL for the application | URL | None |
+| `NEXT_PUBLIC_APP_URL` | App URL for development | URL | `http://localhost:3000` |
 
 ### Environment File Setup
 
-1. **Copy the example file**: `cp .env.example .env.local`
+1. **Copy the example file**:
+   ```bash
+   cp .env.example .env.local
+   ```
+
 2. **Add your API keys**: Edit `.env.local` and add your actual API keys
+
 3. **Verify security**: Ensure `.env.local` is in your `.gitignore` and not tracked by Git
 
 > ⚠️ **Security Warning**: Never commit `.env.local` to version control. The `.env.example` file is safe to commit as it contains no real secrets.
+
+### Getting API Keys
+
+- **OpenAI API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys) to create your API key
+
+## Running Dev
+
+### Quick Start
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/The-Sus-Fit-gp.git
+   cd The-Sus-Fit-gp
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables** (choose one method):
+
+   **Method A: Using .env.local (Recommended)**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your API keys
+   ```
+
+   **Method B: Using shell environment**
+   ```bash
+   # Unix/macOS
+   export OPENAI_API_KEY="sk-proj-your-key-here"
+   
+   # Windows (Command Prompt)
+   set OPENAI_API_KEY=sk-proj-your-key-here
+   
+   # Windows (PowerShell)
+   $env:OPENAI_API_KEY="sk-proj-your-key-here"
+   ```
+
+4. **Start the development server**:
+   ```bash
+   pnpm dev
+   ```
+
+5. **Open your browser**: Navigate to `http://localhost:3000`
+
+### Development Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint |
+| `pnpm type-check` | Run TypeScript type checking |
+
+## Running Tests
+
+### Unit Tests
+
+Run all unit tests:
+```bash
+pnpm test
+```
+
+Run tests with coverage:
+```bash
+pnpm test:coverage
+```
+
+Run tests in watch mode:
+```bash
+pnpm test:watch
+```
+
+### End-to-End Tests
+
+Run Playwright E2E tests:
+```bash
+pnpm test:e2e
+```
+
+### Test Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm test` | Run all tests |
+| `pnpm test:ci` | Run tests with coverage and CI configuration |
+| `pnpm test:unit` | Run unit tests |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm test:coverage` | Run tests with coverage report |
+| `pnpm test:coverage:enforce` | Run tests with coverage enforcement |
+| `pnpm test:e2e` | Run Playwright E2E tests |
+
+### Test Coverage
+
+The project maintains a **80% coverage threshold** for:
+- Branches
+- Functions  
+- Lines
+- Statements
+
+Coverage reports are available in the `/coverage` directory and uploaded to Codecov in CI.
 
 ## OpenAI Service Wrapper
 
@@ -61,13 +194,6 @@ try {
 }
 ```
 
-### Environment Variables
-
-The OpenAI service wrapper requires the following environment variables:
-
-- `OPENAI_API_KEY` (Required): Your OpenAI API key for image generation
-- `OPENAI_MODEL` (Optional): The OpenAI model to use (defaults to `gpt-image-1`)
-
 ### API Reference
 
 #### `generateTryOn(params: TryOnParams): Promise<string>`
@@ -84,68 +210,13 @@ Generates a try-on image by combining a model image with apparel images.
 **Throws:**
 - `Error`: When validation fails, API call fails, or response is invalid
 
-#### Types and Schemas
+## CI/CD Pipeline
 
-The module exports the following types and validation schemas:
-
-- `TryOnParams`: TypeScript interface for function parameters
-- `TryOnResult`: TypeScript interface for function return value
-- `TryOnParamsSchema`: Zod schema for input validation
-- `TryOnResultSchema`: Zod schema for output validation
-- `Base64Str`: Zod schema for base64 string validation
-
-## Running in Development
-
-### Prerequisites
-
-- Node.js 18+ and pnpm installed
-- API keys configured in `.env.local` or shell environment
-
-### Quick Start
-
-1. **Install dependencies**:
-   ```bash
-   pnpm install
-   ```
-
-2. **Set up environment variables** (choose one method):
-
-   **Method A: Using .env.local (Recommended)**
-   ```bash
-   # Copy example file
-   cp .env.example .env.local
-   # Edit .env.local with your API keys
-   ```
-
-   **Method B: Using shell environment**
-   ```bash
-   # Unix/macOS
-   export OPENAI_API_KEY="sk-proj-your-key-here"
-   export ANTHROPIC_API_KEY="sk-ant-api03-your-key-here"
-   
-   # Windows (Command Prompt)
-   set OPENAI_API_KEY=sk-proj-your-key-here
-   set ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-   
-   # Windows (PowerShell)
-   $env:OPENAI_API_KEY="sk-proj-your-key-here"
-   $env:ANTHROPIC_API_KEY="sk-ant-api03-your-key-here"
-   ```
-
-3. **Start the development server**:
-   ```bash
-   pnpm run dev
-   ```
-
-   The dev script is cross-platform and will automatically handle environment variables from your shell or `.env.local` file.
-
-4. **Open your browser**: Navigate to `http://localhost:3000`
-
-### Getting API Keys
-
-- **OpenAI API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys) to create your API key
-- **Anthropic API Key**: Visit [Anthropic Console](https://console.anthropic.com/) to create your Claude API key
-- **Pinecone API Key**: Visit [Pinecone Console](https://app.pinecone.io/) to create your API key
+The project uses GitHub Actions for continuous integration:
+- **Unit Tests**: Runs on Ubuntu with Node.js 18.x and 20.x
+- **E2E Tests**: Runs on Ubuntu and Windows with comprehensive artifact uploads
+- **Build Verification**: Ensures the application builds successfully
+- **Coverage Reports**: Uploaded to Codecov and available as artifacts
 
 ## SETUP
 
