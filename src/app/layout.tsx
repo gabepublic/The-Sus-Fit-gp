@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {Montserrat_Alternates, Nabla, Fascinate} from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const montserratAlternatesSans= Montserrat_Alternates({
   variable: "--font-Montserrat-Alternates-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
       <body
         className={`${montserratAlternatesSans.variable} ${nablaSans.variable} ${fascinateSans.variable} antialiased`}
       >
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

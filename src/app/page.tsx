@@ -6,6 +6,8 @@ import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
 import { BrutalismCard } from "@/components/ui/brutalism-card"
 import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
 import { fileToBase64, compressBase64, CompressionFailedError } from "@/utils/image"
+import { useToast } from "@/hooks"
+import { errorToMessage } from "@/lib/errorToMessage"
 
 // Utility function to resize image to 1024x1536
 const resizeImageTo1024x1536 = (imageUrl: string): Promise<string> => {
@@ -60,13 +62,15 @@ export default function SusFitPage() {
     const [showPolaroid, setShowPolaroid] = useState(false)
     const [userImageFile, setUserImageFile] = useState<File | null>(null)
     const [apparelImageFile, setApparelImageFile] = useState<File | null>(null)
-    const [showError, setShowError] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
     const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+    const [hasError, setHasError] = useState(false)
     
     // Refs for upload panels to enable focus management
     const leftCardRef = useRef<HTMLDivElement>(null)
     const rightCardRef = useRef<HTMLDivElement>(null)
+    
+    // Toast hook for error notifications
+    const { showToast } = useToast()
 
     // Debug effect to log when File objects change
     React.useEffect(() => {
@@ -79,16 +83,10 @@ export default function SusFitPage() {
     // Memoized callback functions to prevent re-rendering issues
     const handleUserFileUpload = useCallback((file: File) => {
         setUserImageFile(file)
-        // Clear any previous errors when user uploads an image
-        setShowError(false)
-        setErrorMessage('')
     }, [])
 
     const handleApparelFileUpload = useCallback((file: File) => {
         setApparelImageFile(file)
-        // Clear any previous errors when user uploads an image
-        setShowError(false)
-        setErrorMessage('')
     }, [])
 
 
@@ -108,16 +106,12 @@ export default function SusFitPage() {
     }
 
     const handleRetryGeneration = () => {
-        console.log('Retrying generation')
-        
-        // Reset all relevant states
+        console.log('Retry generation clicked')
+        setHasError(false)
         setGeneratedImage(null)
-        setIsCapturing(false)
-        setShowPolaroid(false)
-        
-        // Focus the left upload panel for accessibility
+        // Use setTimeout to hide polaroid after a delay
         setTimeout(() => {
-            leftCardRef.current?.focus()
+            setShowPolaroid(false)
         }, 100)
     }
 
@@ -186,10 +180,6 @@ export default function SusFitPage() {
     const handleCameraButtonClick = async () => {
         console.log('Camera button clicked!')
         
-        // Clear any previous errors
-        setShowError(false)
-        setErrorMessage('')
-        
         // Validate that both images are uploaded first
         if (!userImageFile || !apparelImageFile) {
             let message = ''
@@ -201,21 +191,14 @@ export default function SusFitPage() {
                 message = 'Please upload apparel photo'
             }
             
-            setErrorMessage(message)
-            setShowError(true)
-            
-            // Auto-hide error after 5 seconds
-            setTimeout(() => {
-                setShowError(false)
-                setErrorMessage('')
-            }, 5000)
-            
+            showToast(message, 'warning')
             return
         }
         
         // Set loading state and show polaroid
         setIsCapturing(true)
         setShowPolaroid(true)
+        setHasError(false)
         
         // Create AbortController for 30-second timeout
         const controller = new AbortController()
@@ -272,11 +255,13 @@ export default function SusFitPage() {
             // Clear timeout to prevent memory leaks
             clearTimeout(timeoutId)
             
+            // Set error state
+            setHasError(true)
+            
             // Handle compression failures specifically
             if (error instanceof CompressionFailedError) {
                 console.error('Image compression failed - file too large even after compression')
-                setErrorMessage('Your image is still too large after compression. Please upload a smaller file.')
-                setShowError(true)
+                showToast('Your image is still too large after compression. Please upload a smaller file.', 'error')
                 setIsCapturing(false)
                 return
             }
@@ -284,15 +269,22 @@ export default function SusFitPage() {
             // Handle AbortError (timeout)
             if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
                 console.error('API request timed out after 30 seconds')
-                setErrorMessage('Request timed out. Please try again.')
-                setShowError(true)
+                showToast(errorToMessage('TIMEOUT'), 'error')
+                setIsCapturing(false)
+                return
+            }
+            
+            // Handle API errors with status codes
+            if (error instanceof Error && error.message.includes('API request failed:')) {
+                const statusMatch = error.message.match(/API request failed: (\d+)/)
+                const status = statusMatch ? parseInt(statusMatch[1]) : undefined
+                showToast(errorToMessage(status), 'error')
                 setIsCapturing(false)
                 return
             }
             
             // Handle other errors
-            setErrorMessage('Failed to generate image. Please try again.')
-            setShowError(true)
+            showToast(errorToMessage(), 'error')
             setIsCapturing(false)
         } finally {
             // Don't reset isCapturing here - let the PolaroidPhotoGenerator handle completion
@@ -353,6 +345,7 @@ export default function SusFitPage() {
                                     mockImageUrl={"/images/demo/WillShalom.jpg"}
                                     generatedImage={generatedImage || undefined}
                                     isLoading={isCapturing}
+                                    hasError={hasError}
                                 />
                             </div>
                         )}
@@ -410,22 +403,10 @@ export default function SusFitPage() {
                 </div>
             </footer>
 
-            {/* Bottom Copyright */}
-            <div className="text-center pb-8">
-                <p className="text-sm text-[#000000]">THE PRODUCT GROUP</p>
-            </div>
-
-                         {/* ERROR MESSAGE */}
-            {showError && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] animate-[slideDown_0.3s_ease-out]">
-                    <div className="flex items-center space-x-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="font-medium">{errorMessage}</span>
-                    </div>
-                </div>
-            )}
+                         {/* Bottom Copyright */}
+             <div className="text-center pb-8">
+                 <p className="text-sm text-[#000000]">THE PRODUCT GROUP</p>
+             </div>
 
                          {/* DEBUG INFO */}
               {process.env.NODE_ENV === 'development' && (
@@ -438,19 +419,7 @@ export default function SusFitPage() {
                    </div>
               )}
 
-            {/* Custom slide down animation */}
-            <style jsx>{`
-        @keyframes slideDown {
-          0% {
-            opacity: 0;
-            transform: translateX(0%) translateY(-200px) ;
-          }
-          100% {
-            opacity: 1;
-            transform: translateX(0%) translateY(0) ;
-          }
-        }
-      `}</style>
+            
         </div>
     )
 }

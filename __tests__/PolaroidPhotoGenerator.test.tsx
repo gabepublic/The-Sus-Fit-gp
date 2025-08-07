@@ -3,6 +3,21 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { PolaroidPhotoGenerator } from '../src/components/ui/polaroid-photo-generator'
 
+// Mock Next.js Image component
+jest.mock('next/image', () => ({
+    __esModule: true,
+    default: ({ src, alt, className, onLoad, onError, fill, unoptimized, ...props }: any) => (
+        <img 
+            src={src} 
+            alt={alt} 
+            className={className} 
+            onLoad={onLoad}
+            onError={onError}
+            {...props}
+        />
+    )
+}))
+
 // Mock the Button component
 jest.mock('../src/components/ui/button', () => ({
     Button: ({ children, onClick, className, ...props }: any) => (
@@ -25,6 +40,10 @@ describe('PolaroidPhotoGenerator', () => {
         jest.clearAllMocks()
         // Set up fake timers before each test
         jest.useFakeTimers()
+        // Mock console methods to reduce noise in tests
+        jest.spyOn(console, 'log').mockImplementation(() => {})
+        jest.spyOn(console, 'error').mockImplementation(() => {})
+        jest.spyOn(console, 'warn').mockImplementation(() => {})
     })
 
     afterEach(() => {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act, within } from '@/test/utils'
 import userEvent from '@testing-library/user-event'
 import SusFitPage from '@/app/page'
 
@@ -1290,7 +1290,7 @@ describe('SusFitPage - Core Functionality', () => {
       })
       
       // Expect specific error message for timeout
-      expect(screen.getByText(/Request timed out. Please try again./)).toBeInTheDocument()
+      expect(screen.getByText(/Request timed out, please retry./)).toBeInTheDocument()
       
       // Verify that isCapturing is set to false
       expect(screen.queryByText(/Generating your fit/)).not.toBeInTheDocument()

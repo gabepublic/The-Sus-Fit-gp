@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act, within } from '@/test/utils'
 import userEvent from '@testing-library/user-event'
 import SusFitPage from '@/app/page'
 
@@ -101,7 +101,7 @@ jest.mock('@/components/ui/polaroid-photo-generator', () => ({
     onClose, 
     onRetry, 
     generatedImage,
-    error
+    hasError
   }: any) => {
     React.useEffect(() => {
       if (isGenerating) {
@@ -120,7 +120,7 @@ jest.mock('@/components/ui/polaroid-photo-generator', () => ({
         <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
           <h2 className="text-xl font-bold mb-4">Generated Image</h2>
           {isGenerating && <p>Generating...</p>}
-          {error && <p className="text-red-500">{error}</p>}
+          {hasError && <p className="text-red-500">Failed to generate image</p>}
           {generatedImage && (
             <img src={generatedImage} alt="Generated" className="w-full mb-4" />
           )}
@@ -128,7 +128,7 @@ jest.mock('@/components/ui/polaroid-photo-generator', () => ({
             <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded">
               Close
             </button>
-            {error && (
+            {hasError && (
               <button onClick={onRetry} className="px-4 py-2 bg-blue-500 text-white rounded">
                 Retry
               </button>

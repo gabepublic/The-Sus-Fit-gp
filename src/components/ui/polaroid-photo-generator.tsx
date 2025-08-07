@@ -15,6 +15,7 @@ interface PolaroidPhotoGeneratorProps {
     mockImageUrl?: string
     generatedImage?: string     // base-64 PNG returned from backend
     isLoading?: boolean         // when backend call is in flight
+    hasError?: boolean          // when there's an error during generation
 }
 
 export function PolaroidPhotoGenerator({
@@ -26,7 +27,8 @@ export function PolaroidPhotoGenerator({
     isGenerating = false,
     mockImageUrl,
     generatedImage,
-    isLoading = false
+    isLoading = false,
+    hasError = false
 }: PolaroidPhotoGeneratorProps) {
     const [imgLoaded, setImgLoaded] = useState(false)
     const [showButtons, setShowButtons] = useState(false)
@@ -191,6 +193,15 @@ export function PolaroidPhotoGenerator({
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="text-gray-400 font-mono text-center">
                                 Ready to generate
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Error State */}
+                    {hasError && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-red-500 font-mono text-center">
+                                Failed to generate image
                             </div>
                         </div>
                     )}
