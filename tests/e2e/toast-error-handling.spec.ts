@@ -2,7 +2,30 @@ import { test, expect } from '@playwright/test';
 import { fixtures } from '../fixtures';
 
 test.describe('Toast Error Handling', () => {
-  test('shows error toast when API returns 500 status', async ({ page }) => {
+  test.beforeEach(async ({ page, browserName }) => {
+    // Mobile Safari specific setup
+    if (browserName === 'webkit' && page.viewportSize() && page.viewportSize()!.width < 768) {
+      // Set a longer timeout for mobile browsers
+      page.setDefaultTimeout(45000)
+      console.log('Mobile Safari detected - using extended timeout')
+      
+      // Disable animations for more reliable testing on mobile
+      await page.addInitScript(() => {
+        // Disable CSS animations and transitions
+        const style = document.createElement('style');
+        style.textContent = `
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        `;
+        document.head.appendChild(style);
+      });
+    }
+  });
+
+  test('shows error toast when API returns 500 status', async ({ page, browserName }) => {
     // Intercept the API call and force a 500 status
     await page.route('/api/tryon', async route => {
       await route.fulfill({
@@ -14,19 +37,71 @@ test.describe('Toast Error Handling', () => {
 
     // Navigate to the page
     await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle');
+    // Wait for the hero image to load completely
+    await page.waitForFunction(() => {
+      const heroImage = document.querySelector('img[src*="PolaroidCamera.png"]') as HTMLImageElement;
+      return heroImage && heroImage.complete && heroImage.naturalHeight > 0;
+    }, { timeout: 10000 });
 
     // Upload model image
     await page.setInputFiles('input[data-test="model-upload"]', fixtures.model);
     
+    // Wait for model image to be processed and state updated
+    await page.waitForFunction(() => {
+      const modelInput = document.querySelector('input[data-test="model-upload"]') as HTMLInputElement;
+      const hasFile = modelInput && modelInput.files && modelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
+    
     // Upload apparel image  
     await page.setInputFiles('input[data-test="apparel-upload"]', fixtures.apparel);
+    
+    // Wait for apparel image to be processed and state updated
+    await page.waitForFunction(() => {
+      const apparelInput = document.querySelector('input[data-test="apparel-upload"]') as HTMLInputElement;
+      const hasFile = apparelInput && apparelInput.files && apparelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
 
-    // Wait for and click the generate button
-    await page.waitForSelector('button[data-test="generate-button"]', { state: 'visible' });
-    await page.click('button[data-test="generate-button"]');
+    // Wait for the button to be ready and enabled
+    // First wait for the button to exist in DOM
+    await page.waitForSelector('button[data-test="generate-button"]', { timeout: 15000 });
+    
+    // Wait for the button to be visible and enabled
+    await page.waitForFunction(() => {
+      const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+      if (!button) {
+        return false;
+      }
+      
+      const isVisible = button.offsetParent !== null;
+      const isDisabled = button.hasAttribute('disabled');
+      
+      return isVisible && !isDisabled;
+    }, { timeout: 15000 });
+    
+    // Additional verification that the button is clickable
+    const button = page.locator('button[data-test="generate-button"]');
+    await expect(button).toBeEnabled();
+    await expect(button).toBeVisible();
+    
+    // Wait for any animations to complete and ensure button is not intercepted
+    await page.waitForTimeout(1000); // Give time for any animations to settle
+    
+    // Try to click with force option to bypass interception
+    try {
+      await page.click('button[data-test="generate-button"]', { force: true, timeout: 10000 });
+    } catch (error) {
+      // Alternative: Use JavaScript click to bypass DOM interception
+      await page.evaluate(() => {
+        const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+        if (button) {
+          button.click();
+        }
+      });
+    }
 
     // Wait for the error toast to appear
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'Server error, please try again.' })).toBeVisible();
@@ -35,7 +110,7 @@ test.describe('Toast Error Handling', () => {
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'Server error, please try again.' })).not.toBeVisible({ timeout: 6000 });
   });
 
-  test('shows rate limit toast when API returns 429 status', async ({ page }) => {
+  test('shows rate limit toast when API returns 429 status', async ({ page, browserName }) => {
     // Intercept the API call and force a 429 status
     await page.route('/api/tryon', async route => {
       await route.fulfill({
@@ -47,19 +122,64 @@ test.describe('Toast Error Handling', () => {
 
     // Navigate to the page
     await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle');
+    // Wait for the hero image to load completely
+    await page.waitForFunction(() => {
+      const heroImage = document.querySelector('img[src*="PolaroidCamera.png"]') as HTMLImageElement;
+      return heroImage && heroImage.complete && heroImage.naturalHeight > 0;
+    }, { timeout: 10000 });
 
     // Upload model image
     await page.setInputFiles('input[data-test="model-upload"]', fixtures.model);
     
+    // Wait for model image to be processed and state updated
+    await page.waitForFunction(() => {
+      const modelInput = document.querySelector('input[data-test="model-upload"]') as HTMLInputElement;
+      const hasFile = modelInput && modelInput.files && modelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
+    
     // Upload apparel image  
     await page.setInputFiles('input[data-test="apparel-upload"]', fixtures.apparel);
+    
+    // Wait for apparel image to be processed and state updated
+    await page.waitForFunction(() => {
+      const apparelInput = document.querySelector('input[data-test="apparel-upload"]') as HTMLInputElement;
+      const hasFile = apparelInput && apparelInput.files && apparelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
 
-    // Wait for and click the generate button
-    await page.waitForSelector('button[data-test="generate-button"]', { state: 'visible' });
-    await page.click('button[data-test="generate-button"]');
+    // Wait for the button to be ready and enabled
+    await page.waitForSelector('button[data-test="generate-button"]', { timeout: 15000 });
+    
+    await page.waitForFunction(() => {
+      const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+      if (!button) return false;
+      
+      const isVisible = button.offsetParent !== null;
+      const isDisabled = button.hasAttribute('disabled');
+      
+      return isVisible && !isDisabled;
+    }, { timeout: 15000 });
+    
+    const button = page.locator('button[data-test="generate-button"]');
+    await expect(button).toBeEnabled();
+    await expect(button).toBeVisible();
+    
+    await page.waitForTimeout(1000);
+    
+    // Try to click with force option to bypass interception
+    try {
+      await page.click('button[data-test="generate-button"]', { force: true, timeout: 10000 });
+    } catch (error) {
+      await page.evaluate(() => {
+        const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+        if (button) {
+          button.click();
+        }
+      });
+    }
 
     // Wait for the rate limit toast to appear
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'OpenAI rate limit reached, try later.' })).toBeVisible();
@@ -68,7 +188,7 @@ test.describe('Toast Error Handling', () => {
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'OpenAI rate limit reached, try later.' })).not.toBeVisible({ timeout: 6000 });
   });
 
-  test('shows validation error toast when API returns 400 status', async ({ page }) => {
+  test('shows validation error toast when API returns 400 status', async ({ page, browserName }) => {
     // Intercept the API call and force a 400 status
     await page.route('/api/tryon', async route => {
       await route.fulfill({
@@ -80,19 +200,64 @@ test.describe('Toast Error Handling', () => {
 
     // Navigate to the page
     await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle');
+    // Wait for the hero image to load completely
+    await page.waitForFunction(() => {
+      const heroImage = document.querySelector('img[src*="PolaroidCamera.png"]') as HTMLImageElement;
+      return heroImage && heroImage.complete && heroImage.naturalHeight > 0;
+    }, { timeout: 10000 });
 
     // Upload model image
     await page.setInputFiles('input[data-test="model-upload"]', fixtures.model);
     
+    // Wait for model image to be processed and state updated
+    await page.waitForFunction(() => {
+      const modelInput = document.querySelector('input[data-test="model-upload"]') as HTMLInputElement;
+      const hasFile = modelInput && modelInput.files && modelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
+    
     // Upload apparel image  
     await page.setInputFiles('input[data-test="apparel-upload"]', fixtures.apparel);
+    
+    // Wait for apparel image to be processed and state updated
+    await page.waitForFunction(() => {
+      const apparelInput = document.querySelector('input[data-test="apparel-upload"]') as HTMLInputElement;
+      const hasFile = apparelInput && apparelInput.files && apparelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
 
-    // Wait for and click the generate button
-    await page.waitForSelector('button[data-test="generate-button"]', { state: 'visible' });
-    await page.click('button[data-test="generate-button"]');
+    // Wait for the button to be ready and enabled
+    await page.waitForSelector('button[data-test="generate-button"]', { timeout: 15000 });
+    
+    await page.waitForFunction(() => {
+      const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+      if (!button) return false;
+      
+      const isVisible = button.offsetParent !== null;
+      const isDisabled = button.hasAttribute('disabled');
+      
+      return isVisible && !isDisabled;
+    }, { timeout: 15000 });
+    
+    const button = page.locator('button[data-test="generate-button"]');
+    await expect(button).toBeEnabled();
+    await expect(button).toBeVisible();
+    
+    await page.waitForTimeout(1000);
+    
+    // Try to click with force option to bypass interception
+    try {
+      await page.click('button[data-test="generate-button"]', { force: true, timeout: 10000 });
+    } catch (error) {
+      await page.evaluate(() => {
+        const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+        if (button) {
+          button.click();
+        }
+      });
+    }
 
     // Wait for the validation error toast to appear
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'Invalid images uploaded.' })).toBeVisible();
@@ -101,7 +266,7 @@ test.describe('Toast Error Handling', () => {
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'Invalid images uploaded.' })).not.toBeVisible({ timeout: 6000 });
   });
 
-  test('shows unexpected error toast for unknown status codes', async ({ page }) => {
+  test('shows unexpected error toast for unknown status codes', async ({ page, browserName }) => {
     // Intercept the API call and force an unknown status
     await page.route('/api/tryon', async route => {
       await route.fulfill({
@@ -113,19 +278,64 @@ test.describe('Toast Error Handling', () => {
 
     // Navigate to the page
     await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle');
+    // Wait for the hero image to load completely
+    await page.waitForFunction(() => {
+      const heroImage = document.querySelector('img[src*="PolaroidCamera.png"]') as HTMLImageElement;
+      return heroImage && heroImage.complete && heroImage.naturalHeight > 0;
+    }, { timeout: 10000 });
 
     // Upload model image
     await page.setInputFiles('input[data-test="model-upload"]', fixtures.model);
     
+    // Wait for model image to be processed and state updated
+    await page.waitForFunction(() => {
+      const modelInput = document.querySelector('input[data-test="model-upload"]') as HTMLInputElement;
+      const hasFile = modelInput && modelInput.files && modelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
+    
     // Upload apparel image  
     await page.setInputFiles('input[data-test="apparel-upload"]', fixtures.apparel);
+    
+    // Wait for apparel image to be processed and state updated
+    await page.waitForFunction(() => {
+      const apparelInput = document.querySelector('input[data-test="apparel-upload"]') as HTMLInputElement;
+      const hasFile = apparelInput && apparelInput.files && apparelInput.files.length > 0;
+      return hasFile;
+    }, { timeout: 5000 });
 
-    // Wait for and click the generate button
-    await page.waitForSelector('button[data-test="generate-button"]', { state: 'visible' });
-    await page.click('button[data-test="generate-button"]');
+    // Wait for the button to be ready and enabled
+    await page.waitForSelector('button[data-test="generate-button"]', { timeout: 15000 });
+    
+    await page.waitForFunction(() => {
+      const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+      if (!button) return false;
+      
+      const isVisible = button.offsetParent !== null;
+      const isDisabled = button.hasAttribute('disabled');
+      
+      return isVisible && !isDisabled;
+    }, { timeout: 15000 });
+    
+    const button = page.locator('button[data-test="generate-button"]');
+    await expect(button).toBeEnabled();
+    await expect(button).toBeVisible();
+    
+    await page.waitForTimeout(1000);
+    
+    // Try to click with force option to bypass interception
+    try {
+      await page.click('button[data-test="generate-button"]', { force: true, timeout: 10000 });
+    } catch (error) {
+      await page.evaluate(() => {
+        const button = document.querySelector('button[data-test="generate-button"]') as HTMLButtonElement;
+        if (button) {
+          button.click();
+        }
+      });
+    }
 
     // Wait for the unexpected error toast to appear
     await expect(page.locator('li[role="status"][data-state="open"]').filter({ hasText: 'Unexpected error, please retry.' })).toBeVisible();

@@ -9,6 +9,7 @@
 import OpenAI from 'openai';
 import { getEnv } from './getEnv';
 import { TryOnParamsSchema, TryOnResultSchema, type TryOnParams, normalizeBase64 } from './tryOnSchema';
+import * as fs from 'fs';
 
 // Retrieve and validate environment variables with fail-fast approach
 const { key, model } = getEnv();
@@ -73,6 +74,13 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
     // Convert base64 strings to File objects for OpenAI API
     const modelFile = base64ToFile(modelImage, 'model.png');
     const apparelFile = base64ToFile(apparelImages[0], 'apparel.png');
+
+    if (model == 'mock') {
+      console.log('Using mock model');
+      // Validate output using schema
+      const validatedResult = TryOnResultSchema.parse({ imgGenerated: fs.readFileSync('public/images/demo/WillShalom.jpg', { encoding: 'base64' }) });
+      return validatedResult.imgGenerated;
+    }
 
     // Call OpenAI Images Edit API
     const response = await openai.images.edit({

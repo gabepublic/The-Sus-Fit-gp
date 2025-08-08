@@ -24,7 +24,6 @@ test.describe('OpenAI Stub Verification', () => {
     
     // Verify that if any OpenAI requests were made, they would be intercepted
     // The stubbing is working if no actual requests reach the network
-    console.log('OpenAI stubbing is active - requests to api.openai.com/v1/images/edits will be intercepted')
   })
 
   test('should have correct stub response structure', async ({ page }) => {

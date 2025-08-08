@@ -39,6 +39,6 @@ describe('Single Component Test', () => {
         render(<PolaroidPhotoGenerator />)
         
         // Should render the component
-        expect(screen.getByTestId('polaroid')).toBeInTheDocument()
+        expect(screen.getByTestId('polaroid-generator')).toBeInTheDocument()
     })
 })

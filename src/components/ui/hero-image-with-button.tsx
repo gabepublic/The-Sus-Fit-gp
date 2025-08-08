@@ -167,9 +167,9 @@ export function HeroImageWithButton({
                             onClick={overlayButton.onClick}
                             disabled={overlayButton.disabled}
                             data-test="generate-button"
-                            className={cn(
-                                "absolute z-20 rounded-full",
-                                "transition-all duration-150 ease-in-out",
+                                                                                            className={cn(
+                                    "absolute z-[200] rounded-full pointer-events-auto",
+                                    "transition-all duration-150 ease-in-out",
                                 overlayButton.disabled 
                                     ? "cursor-not-allowed opacity-50" 
                                     : "hover:scale-110 active:scale-95 cursor-pointer",

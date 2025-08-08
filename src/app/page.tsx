@@ -55,6 +55,9 @@ const logImageDimensions = (imageUrl: string, cardName: string) => {
 // Compression limit constant for base64 conversion
 const B64_LIMIT_KB = 2048 // 2MB limit for compression
 
+// Timeout duration constant (60 seconds)
+const TIMEOUT_DURATION_MS = 60000
+
 export default function SusFitPage() {
     const [isCapturing, setIsCapturing] = useState(false)
     const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
@@ -202,7 +205,7 @@ export default function SusFitPage() {
         
         // Create AbortController for 30-second timeout
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 30000)
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION_MS)
         
         try {
             // Convert and compress both images concurrently with higher limit
@@ -268,7 +271,7 @@ export default function SusFitPage() {
             
             // Handle AbortError (timeout)
             if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
-                console.error('API request timed out after 30 seconds')
+                console.error(`API request timed out after ${TIMEOUT_DURATION_MS}ms`)
                 showToast(errorToMessage('TIMEOUT'), 'error')
                 setIsCapturing(false)
                 return

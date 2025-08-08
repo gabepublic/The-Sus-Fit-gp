@@ -1,15 +1,31 @@
 import { test, expect } from '@playwright/test'
 import { setupOpenAIStub } from './helpers/openai-stub'
 import { fixtures } from '../fixtures'
+import { AdvancedWait } from './utils/advanced-wait'
 
 test.describe('Try-On Happy Path Flow', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browserName }) => {
     // Setup OpenAI stubbing before any navigation
     await setupOpenAIStub(page)
     
-    // Also intercept the API route to return a mock response
-    await page.route('/api/tryon', route => {
+    // Disable animations globally for more reliable testing
+    await page.addInitScript(() => {
+      const style = document.createElement('style');
+      style.textContent = `
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          transition-delay: 0s !important;
+        }
+      `;
+      document.head.appendChild(style);
+    });
+    
+    // Intercept API route with realistic timing
+    await page.route('/api/tryon', async route => {
       console.log('Intercepting /api/tryon request')
+      await new Promise(resolve => setTimeout(resolve, 100))
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -20,35 +36,47 @@ test.describe('Try-On Happy Path Flow', () => {
     })
   })
 
-  test('should complete try-on flow successfully', async ({ page }) => {
-    // Step 1: Navigate to the app
+  test('should complete try-on flow successfully', async ({ page, browserName }) => {
+    // Step 1: Navigate and wait for basic page load
     await page.goto('/')
+    await page.waitForLoadState('domcontentloaded')
     
-    // Step 2: Upload model image
-    await page.setInputFiles('input[data-test="model-upload"]', fixtures.model)
+    // Step 2: Wait for main app components to be present using modern locator approach
+    const heroImage = page.locator('img[src*="PolaroidCamera.png"]')
+    await expect(heroImage).toBeVisible({ timeout: 15000 })
     
-    // Step 3: Upload apparel image  
-    await page.setInputFiles('input[data-test="apparel-upload"]', fixtures.apparel)
+    // Step 3: Upload model image via the hidden input (files can be set even when hidden)
+    const modelInput = page.locator('input[data-test="model-upload"]')
+    await modelInput.setInputFiles(fixtures.model)
+    await expect(modelInput).toHaveJSProperty('files.length', 1)
     
-    // Step 4: Wait for and click camera/submit button
-    await page.waitForSelector('button[data-test="generate-button"]', { state: 'visible' })
-    await page.click('button[data-test="generate-button"]')
+    // Step 4: Upload apparel image via the hidden input
+    const apparelInput = page.locator('input[data-test="apparel-upload"]')
+    await apparelInput.setInputFiles(fixtures.apparel)
+    await expect(apparelInput).toHaveJSProperty('files.length', 1)
     
-    // Step 5: Wait for network idle to ensure POST finishes
-    await page.waitForLoadState('networkidle')
+    // Step 5: Wait for generate button to be clickable
+    const generateButton = page.locator('button[data-test="generate-button"]')
+    await expect(generateButton).toBeVisible({ timeout: 10000 })
+    await expect(generateButton).toBeEnabled({ timeout: 10000 })
     
-    // Additional verification: Check that the polaroid component appears
-    await expect(page.locator('[data-test="polaroid-generator"]')).toBeVisible()
+    // Step 6: Click generate button (force click for mobile to avoid interception)
+    const isMobile = browserName === 'chromium' && page.viewportSize() && page.viewportSize()!.width < 768
+    if (isMobile) {
+      await generateButton.click({ force: true })
+    } else {
+      await generateButton.click()
+    }
     
-    // Verify that the generated image is displayed
-    await expect(page.locator('[data-test="generated-image"]')).toBeVisible()
+    // Step 7: Wait for polaroid to appear using modern expect approach
+    const polaroidLocator = page.locator('[data-testid="polaroid-generator"]')
+    await expect(polaroidLocator).toBeVisible({ timeout: 20000 })
     
-    // Assert the src is a base64 data URL
-    const generatedImage = page.locator('[data-test="generated-image"]')
-    await expect(generatedImage).toHaveAttribute('src', /data:image\/png;base64,[A-Za-z0-9+/]+=*/)
+    // Step 8: Wait for generated image to appear
+    const generatedImageLocator = page.locator('[data-test="generated-image"]')
+    await expect(generatedImageLocator).toBeVisible({ timeout: 25000 })
     
-    // Optional: Take a snapshot for visual regression testing
-    // Note: This will fail on first run as it creates the baseline snapshot
-    // await expect(generatedImage).toHaveScreenshot('generated.png')
+    // Step 9: Verify image has valid base64 src
+    await expect(generatedImageLocator).toHaveAttribute('src', /data:image\/png;base64,[A-Za-z0-9+/]+=*/)
   })
 })

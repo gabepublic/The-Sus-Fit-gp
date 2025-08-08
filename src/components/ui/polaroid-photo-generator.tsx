@@ -101,8 +101,8 @@ export function PolaroidPhotoGenerator({
         setImgLoaded(true)
     }
 
-    return (
-        <div className={cn("relative flex flex-col items-center", className)} data-testid="polaroid">
+        return (
+        <div className={cn("relative flex flex-col items-center", className)} data-testid="polaroid-generator">
             {/* Polaroid Container */}
             <div className="relative bg-white p-6 w-[475px] h-[550px] flex flex-col shadow-lg rounded-sm">
                 {/* Photo Area */}
@@ -171,7 +171,7 @@ export function PolaroidPhotoGenerator({
                                     console.error('Generated image length:', generatedImage?.length || 0)
                                 }}
                                 unoptimized
-                                data-testid="generated-image"
+                                data-test="generated-image"
                             />
                         </div>
                     )}
@@ -211,8 +211,8 @@ export function PolaroidPhotoGenerator({
                 {/* Polaroid Bottom Border */}
                 <div className="h-[70px] bg-white flex items-center justify-center">
                     <div className="text-lg text-gray-600 font-mono">
-                        {isGenerating && !generatedImage && "Processing..."}
-                        {isLoading && !generatedImage && "Loading..."}
+                        {isGenerating && !generatedImage && !isLoading && "Processing..."}
+                        {isLoading && !isGenerating && !generatedImage && "Loading..."}
                         {generatedImage && "Complete!"}
                         {!isGenerating && !isLoading && !generatedImage && "Ready to generate"}
                     </div>
@@ -255,7 +255,7 @@ export function PolaroidPhotoGenerator({
             {/* Debug Info */}
             {process.env.NODE_ENV === 'development' && (
                 <div className="mt-2 text-xs text-gray-500 font-mono text-center">
-                    Generated: {generatedImage ? '✅' : '❌'} | Loading: {imgLoaded ? '✅' : '❌'} | isGenerating: {isGenerating ? 'true' : 'false'}
+                    Loading: {isLoading ? '✅' : '❌'} | Generating: {isGenerating ? '✅' : '❌'} | Generated: {generatedImage ? '✅' : '❌'}
                 </div>
             )}
         </div>
