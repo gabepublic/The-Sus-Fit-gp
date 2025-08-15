@@ -14,7 +14,7 @@ Create comprehensive examples showing:
 
 ## DOCUMENTATION:
 
-- Next.js 14+ App Router: https://nextjs.org/docs/app
+- Next.js 15+ App Router: https://nextjs.org/docs/app
 - TypeScript: https://www.typescriptlang.org/docs/
 - Tailwind CSS: https://tailwindcss.com/docs
 - shadcn/ui: https://ui.shadcn.com/docs

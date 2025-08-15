@@ -3,666 +3,622 @@
     "tasks": [
       {
         "id": 1,
-        "title": "Configure Environment & Secrets for OpenAI",
-        "description": "Add secure, server-only storage of the OpenAI API key and model defaults required by the try-on feature.",
-        "details": "• Create .env.local with OPENAI_API_KEY and optional OPENAI_MODEL=\"gpt-image-1\".\n• Update next.config.js to ensure env vars are NOT exposed to the browser: `serverRuntimeConfig` only.\n• Add `lib/getEnv.ts` helper that throws if required env vars are missing (fail-fast).\n• Update the existing dev script in package.json so Windows/MS-DOS users can run `set OPENAI_API_KEY=xxx && npm run dev`.\n• Add .env.example stub and README snippet.\n• Pseudo-code getEnv.ts:\n```\nexport const getEnv = () => {\n  const key = process.env.OPENAI_API_KEY;\n  if (!key) throw new Error('OPENAI_API_KEY not found');\n  return { key, model: process.env.OPENAI_MODEL ?? 'gpt-image-1' };\n};\n```",
-        "testStrategy": "• Unit-test getEnv.ts with Jest: mock process.env, assert error thrown when missing.\n• Manual smoke test: start dev server without KEY → build fails; add KEY → build succeeds.",
-        "priority": "medium",
+        "title": "Setup Business Layer Foundation",
+        "description": "Create the business layer directory structure and core React Query configuration with providers",
+        "details": "Create src/business-layer/ directory structure with queries/, mutations/, providers/, config/, and types/ subdirectories. Setup QueryClient with sensible defaults (retry: 2, staleTime: 5 minutes, cacheTime: 10 minutes). Create ReactQueryProvider component with error boundaries and devtools integration. Export configured provider for app-wide usage.",
+        "testStrategy": "Unit tests for QueryClient configuration, provider mounting tests, error boundary behavior validation",
+        "priority": "high",
         "dependencies": [],
         "status": "done",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create Environment Variable Templates & Local Files",
-            "description": "Establish baseline environment-variable files and prevent accidental commits of secrets.",
+            "title": "Create directory structure and index files",
+            "description": "Set up the complete business-layer directory structure with proper index file exports",
             "dependencies": [],
-            "details": "1. Add `.env.example` with keys:\n   OPENAI_API_KEY=\"\"\n   OPENAI_MODEL=\"gpt-image-1\"  # optional default\n2. Append `.env.local` to `.gitignore` (if not already ignored).\n3. Generate a developer-only `.env.local` on first run (can be empty) and add a comment reminding devs not to check it in.\n4. Verify that `git status` shows `.env.local` as untracked after creation.\n5. Commit `.env.example` and updated `.gitignore`.\n<info added on 2025-08-03T05:03:08.508Z>\nAll checklist items are now complete and committed:\n• `.env.example` contains the required keys and helpful inline comments.  \n• `.env.local` is generated for developers and remains untracked via `.gitignore`, which now whitelists `.env.example`.  \n• Git status verifies the expected tracking/ignoring behavior, and commit history reflects the changes.\n\nThis subtask is ready to be marked as done and handed off for review.\n</info added on 2025-08-03T05:03:08.508Z>",
+            "details": "Create src/business-layer/ directory with subdirectories: queries/, mutations/, providers/, config/, and types/. Add index.ts files in each subdirectory for clean exports. Create main business-layer/index.ts that exports all public interfaces. Ensure proper TypeScript path mapping and module resolution.",
             "status": "done",
-            "testStrategy": "Manual: clone repo in a temporary directory, run `git status` → `.env.local` must be untracked; `.env.example` must exist with correct keys."
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Lock Env Vars to Server Runtime in next.config.js",
-            "description": "Configure Next.js so OpenAI secrets are only available server-side.",
+            "title": "Setup React Query client configuration",
+            "description": "Configure QueryClient with optimized defaults and create base configuration utilities",
             "dependencies": [
               "1.1"
             ],
-            "details": "1. Open `next.config.js`.\n2. Add/extend module export:\n   module.exports = {\n     serverRuntimeConfig: {\n       OPENAI_API_KEY: process.env.OPENAI_API_KEY,\n       OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-image-1',\n     },\n     publicRuntimeConfig: {}, // keep empty to avoid leaks\n   };\n3. Remove any OPENAI_* refs from `env` or `publicRuntimeConfig` sections.\n4. In TypeScript code, import config via `import getConfig from 'next/config'; const { serverRuntimeConfig } = getConfig();` when needed.\n5. Run `next build` and grep `.next/**` for `OPENAI_API_KEY` to confirm it’s absent.\n<info added on 2025-08-03T05:15:04.368Z>\nStatus: completed\n\nCompleted steps:\n1. Opened next.config.js and reviewed current configuration.\n2. Added serverRuntimeConfig with OPENAI_API_KEY and OPENAI_MODEL (default gpt-image-1).\n3. Added empty publicRuntimeConfig object to avoid leaks.\n4. Verified no OPENAI_* references remain in env or publicRuntimeConfig.\n5. Executed next build successfully.\n6. Confirmed API key only appears in server-side files (required-server-files.json) and is absent from .next/static client bundles.\n7. Ensured serverRuntimeConfig entries show correctly in build output.\n\nSecurity verification:\n- Environment variables are isolated to the server runtime.\n- No secrets are exposed to client-side JavaScript.\n- Build logs validate proper separation.\n\nConfiguration summary:\n- serverRuntimeConfig now stores the OpenAI API key and model.\n- publicRuntimeConfig remains empty to prevent accidental exposure.\n\nDeveloper note:\nImport config where needed with `import getConfig from 'next/config'; const { serverRuntimeConfig } = getConfig();` and use serverRuntimeConfig.OPENAI_API_KEY and serverRuntimeConfig.OPENAI_MODEL only in server-side code.\n</info added on 2025-08-03T05:15:04.368Z>",
+            "details": "Create config/queryClient.ts with QueryClient instance configured with retry: 2, staleTime: 5 minutes, cacheTime: 10 minutes. Add query and mutation default options. Create configuration utilities for different query types (image processing, API calls). Include proper error handling defaults and timeout configurations.",
             "status": "done",
-            "testStrategy": "Automated shell test: `next build` → `grep -R \"OPENAI_API_KEY\" .next | wc -l` should output 0."
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement getEnv.ts Helper with Fail-Fast Validation",
-            "description": "Centralize retrieval and validation of OpenAI secrets for all server code.",
+            "title": "Create ReactQueryProvider component with error boundaries",
+            "description": "Build the provider component with error boundaries and development tools integration",
             "dependencies": [
-              "1.1",
               "1.2"
             ],
-            "details": "1. Create `lib/getEnv.ts` with:\n   export const getEnv = () => {\n     const key = process.env.OPENAI_API_KEY;\n     if (!key) throw new Error('OPENAI_API_KEY not found');\n     return {\n       key,\n       model: process.env.OPENAI_MODEL ?? 'gpt-image-1',\n     };\n   };\n2. Export named/typed interface if needed.\n3. Write Jest tests in `__tests__/getEnv.spec.ts`:\n   • Mock `process.env` with/without key → expect throw/success.\n   • Assert default model value fallback.\n4. Add test script to `package.json` if missing: \"test:unit\": \"jest --runInBand\".\n<info added on 2025-08-03T05:20:44.799Z>\nImplementation completed: added src/lib/getEnv.ts containing getEnv() (fail-fast) and getEnvOptional(), both typed with the new OpenAIEnv interface and documented via JSDoc. Default model falls back to 'gpt-image-1'. Added comprehensive Jest suite in __tests__/getEnv.spec.ts covering key absence/presence, default model, optional variant, edge cases (empty/whitespace), and interface typings. package.json now includes \"test:unit\": \"jest --runInBand\". All tests pass with full coverage.\n</info added on 2025-08-03T05:20:44.799Z>",
+            "details": "Create providers/ReactQueryProvider.tsx component that wraps QueryClient.Provider. Implement ErrorBoundary component for query error handling with user-friendly error messages. Add React Query DevTools integration for development environment. Include proper TypeScript props interface and children handling.",
             "status": "done",
-            "testStrategy": "Run `npm run test:unit`; tests must pass and code coverage ≥ 90 % for `lib/getEnv.ts`."
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Make Dev Script Cross-Platform (Windows/MS-DOS)",
-            "description": "Ensure developers on Windows can start the dev server with custom env variables.",
+            "title": "Add TypeScript types and export everything properly",
+            "description": "Create comprehensive TypeScript interfaces and ensure proper module exports",
             "dependencies": [
-              "1.1"
+              "1.3"
             ],
-            "details": "Option A – Use `cross-env` (preferred):\n1. `npm i -D cross-env`.\n2. Update `package.json` → \"dev\": \"cross-env OPENAI_API_KEY=$OPENAI_API_KEY next dev\".\nOption B – Dual scripts:\n1. Keep existing Unix script.\n2. Add `\"dev:win\": \"set OPENAI_API_KEY=%OPENAI_API_KEY% && next dev\"`.\n3. Document usage in README (handled in 1.5).\nEither option must read from the developer’s shell env, not `.env.local` (letting Next.js load that automatically).\n<info added on 2025-08-03T06:00:54.478Z>\nImplementation finalized with Option A (cross-env):\n\n• Confirmed cross-env is present as a dev dependency.  \n• Updated dev script in package.json to:  \n  \"dev\": \"cross-env OPENAI_API_KEY=$OPENAI_API_KEY next dev\"  \n\nOutcome: the dev server now starts correctly on Windows, macOS, and Linux, with OPENAI_API_KEY pulled from the user’s shell environment while still allowing Next.js to auto-load .env.local. Manual test on Windows verified the script runs without additional set commands.\n</info added on 2025-08-03T06:00:54.478Z>\n<info added on 2025-08-03T06:04:42.074Z>\nTesting Correction & Final Implementation\n\nIssue Identified:\n• The documentation listed `pnpm run dev --if-present --silent`; those npm-specific flags were passed through to `next dev`, triggering unknown-option errors.\n\nResolution:\n• Replace the faulty command with the standard `pnpm run dev`.\n• Confirmed that `cross-env OPENAI_API_KEY=$OPENAI_API_KEY next dev` launches cleanly on Windows, macOS, and Linux, with the variable correctly injected.\n\nRevised Test Strategy:\n1. Run `pnpm run dev` (no extra flags) on a Windows shell.\n2. Verify the Next.js server starts without environment-related errors.\n3. With OPENAI_API_KEY set in the shell, hit any server-side endpoint and confirm the key is available via `process.env`.\n4. Unset the variable and restart; expect getEnv.ts to throw, proving fail-fast behavior.\n\nThis replaces the earlier guidance that included the `--if-present --silent` flags.\n</info added on 2025-08-03T06:04:42.074Z>",
+            "details": "Create types/index.ts with core business layer TypeScript interfaces including QueryConfig, MutationConfig, and ErrorResponse types. Add types for image processing, try-on operations, and API responses. Ensure all modules export properly through business-layer/index.ts. Validate TypeScript compilation and import paths work correctly.",
             "status": "done",
-            "testStrategy": "On Windows GitHub Actions runner: `npm run dev --if-present --silent` should start Next.js without error when `OPENAI_API_KEY` is set."
-          },
-          {
-            "id": 5,
-            "title": "Update README with Environment & Startup Instructions",
-            "description": "Document setup so new contributors can configure secrets and run the project confidently.",
-            "dependencies": [
-              "1.1",
-              "1.2",
-              "1.3",
-              "1.4"
-            ],
-            "details": "1. Add \"Environment Variables\" section:\n   • Explain `.env.local` vs `.env.example`.\n   • List required/optional vars and defaults.\n2. Add \"Running in Development\" section:\n   • Unix: `OPENAI_API_KEY=sk-xxx npm run dev`.\n   • Windows: `set OPENAI_API_KEY=sk-xxx && npm run dev` or `npm run dev:win`, depending on implementation.\n3. Include warning about never committing `.env.local`.\n4. Link to OpenAI dashboard for key generation.\n5. Commit README changes.\n<info added on 2025-08-03T06:07:50.664Z>\n✅ README update completed.\n\nImplementation Summary  \n• Added a dedicated “Environment Variables” section explaining `.env.local` vs `.env.example`, with a table of all required and optional vars, expected formats, and default values.  \n• Replaced the old `copy .env.example .env` instruction with `cp .env.example .env.local` and updated the existing SETUP section accordingly.  \n• Added cross-platform “Running in Development” guidance for Unix/macOS (`OPENAI_API_KEY=sk-xxx npm run dev`), Windows Command Prompt (`set OPENAI_API_KEY=sk-xxx && npm run dev`), and PowerShell (`$Env:OPENAI_API_KEY=\"sk-xxx\"; npm run dev`).  \n• Included prominent security warnings about never committing `.env.local` to version control.  \n• Linked directly to the OpenAI Platform, Anthropic Console, and Pinecone Console for API key creation.  \n• Added a concise Quick-Start guide enabling new contributors to reach a running dev server in under 5 minutes.\n\nAll README changes committed (README.md, .env.example).\n</info added on 2025-08-03T06:07:50.664Z>",
-            "status": "done",
-            "testStrategy": "Peer-review: ask teammate to follow README from scratch; they should reach a running dev server in ≤5 min."
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 2,
-        "title": "Implement OpenAI Service Wrapper",
-        "description": "Create a typed wrapper around the OpenAI Images Edit endpoint to isolate SDK logic.",
-        "details": "• Add `lib/openaiClient.ts`:\n```\nimport OpenAI from 'openai';\nimport { getEnv } from './getEnv';\nconst { key, model } = getEnv();\nconst openai = new OpenAI({ apiKey: key });\nexport const generateTryOn = async (modelImage: string, apparelImages: string[]) => {\n  const rsp = await openai.images.edit({\n    model,\n    image: [modelImage, apparelImages[0]],\n    prompt: 'Change the garment of the model in the first image with the garment from the second image.',\n    n: 1,\n    size: '1024x1024',\n    quality: 'low'\n  });\n  return rsp.data[0].b64_json;\n};\n```\n• Add runtime validation with Zod to ensure base64 strings.\n• Export TypeScript types for service consumers.",
-        "testStrategy": "• Jest unit test with `jest.mock('openai')` to simulate SDK response and timeout.\n• Assert that generateTryOn returns base64 string and propagates SDK errors.",
+        "title": "Create Feature Flag Configuration System",
+        "description": "Implement feature flag system for client customization and runtime feature toggles",
+        "details": "Create feature flag provider with TypeScript interfaces for flag definitions. Implement environment-based configuration loading from .env files. Support runtime feature toggles with default values. Create useFeatureFlag hook for component usage. Include feature flags for try-on functionality, image processing options, and UI variations.",
+        "testStrategy": "Unit tests for feature flag resolution, environment loading tests, hook behavior validation",
         "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Initialize OpenAI client with secure env retrieval",
-            "description": "Create the foundational SDK initialization that other subtasks build upon.",
+            "title": "Create TypeScript interfaces for feature flags",
+            "description": "Define comprehensive TypeScript interfaces and types for feature flag definitions, configurations, and runtime values",
             "dependencies": [],
-            "details": "• File: lib/openaiClient.ts\n• import { getEnv } from './getEnv';\n• Destructure { key, model } and throw explicit error if undefined (fail-fast).\n• Instantiate singleton: `const openai = new OpenAI({ apiKey: key });`\n• Export `openai` and `model` for reuse.\n• Do NOT implement generateTryOn yet; keep the file focused on client bootstrap.\n<info added on 2025-08-03T06:12:22.069Z>\nAdd Implementation Steps:\n• Create `lib/openaiClient.ts` with the following flow:\n  1. `import OpenAI from 'openai';`\n  2. `import { getEnv } from './getEnv';`\n  3. Destructure `{ key, model } = getEnv();`\n  4. Immediately throw an `Error('Missing OPENAI_API_KEY')` (or similar) if `key` is falsy to enforce fail-fast.\n  5. Instantiate a singleton: `const openai = new OpenAI({ apiKey: key });`\n  6. Export both `openai` and `model` for downstream reuse.\n\nConstraints & Notes:\n• Rely on getEnv’s existing validation; no additional env parsing logic here.\n• Keep the file strictly limited to client bootstrap—do not add `generateTryOn` or any other service logic.\n• The singleton pattern must guarantee a single OpenAI client instance across imports (module-scope initialization suffices).\n</info added on 2025-08-03T06:12:22.069Z>\n<info added on 2025-08-03T06:14:33.723Z>\nImplementation complete:\n• Added `src/lib/openaiClient.ts` implementing the singleton OpenAI client bootstrap exactly as specified, with fail-fast env validation via `getEnv()`.\n• Installed `openai` v5.11.0 dependency.\n• Exported `openai` instance and `model` constant for downstream use; no additional service logic included.\n• Included thorough JSDoc for clarity.\n• File passes TypeScript checks, confirming correct typings and module-scope initialization.\n</info added on 2025-08-03T06:14:33.723Z>",
-            "status": "done",
-            "testStrategy": "Jest unit test mocking process.env to verify getEnv throws when OPENAI_API_KEY missing and returns client instance when present."
+            "details": "Create FeatureFlag interface with properties for flag key, description, default value, and type (boolean, string, number). Define FeatureFlagConfig interface for environment-based configurations. Create specific flag interfaces for try-on functionality (enableTryon, maxConcurrentRequests), image processing options (enableCompression, maxFileSize, supportedFormats), and UI variations (showPolaroid, enablePreview). Include union types for flag categories and validation schemas.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Define TypeScript types and Zod schemas for try-on service",
-            "description": "Provide compile-time and runtime contracts for inputs and outputs of the wrapper.",
-            "dependencies": [],
-            "details": "• File: lib/tryOnSchema.ts\n• import { z } from 'zod';\n• Base64 regex: `/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/`.\n• export const Base64Str = z.string().regex(base64Regex, 'Invalid base64 image');\n• export const TryOnParamsSchema = z.object({\n    modelImage: Base64Str,\n    apparelImages: z.array(Base64Str).min(1)\n  });\n• export const TryOnResultSchema = z.object({ imgGenerated: Base64Str });\n• Infer TS types: `export type TryOnParams = z.infer<typeof TryOnParamsSchema>;` etc.\n<info added on 2025-08-03T06:15:17.960Z>\n• Annotate all exported schemas and inferred types with detailed JSDoc, including\n  – Purpose of each schema/type  \n  – Description of validation rules (e.g., base-64 regex, minimum array length)  \n  – Example of valid/invalid payloads to aid IDE IntelliSense  \n  – @see link to OpenAI Images Edit endpoint for contextual reference\n</info added on 2025-08-03T06:15:17.960Z>\n<info added on 2025-08-03T06:15:54.463Z>\n• Implementation finalized in src/lib/tryOnSchema.ts: includes Base64Str regex validator, TryOnParamsSchema, TryOnResultSchema, and inferred TS types (TryOnParams, TryOnResult).  \n• Comprehensive JSDoc added for every export, detailing validation logic, usage examples, and @see reference to OpenAI Images Edit endpoint.  \n• TypeScript compiles cleanly; schemas enforce runtime constraints and provide IntelliSense hints.  \n• Module confirmed ready for integration in Subtask 2.3 (generateTryOn).\n</info added on 2025-08-03T06:15:54.463Z>",
-            "status": "done",
-            "testStrategy": "Jest validation tests passing valid/invalid strings to ensure schema behaves as expected."
+            "title": "Create FeatureFlagProvider component",
+            "description": "Implement React context provider component for feature flag management with React Query integration",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create FeatureFlagProvider React component that wraps React Query for feature flag data fetching. Implement FeatureFlagContext with React.createContext containing flag values and loading states. Add error boundaries for graceful degradation when flag loading fails. Include provider props for custom configuration overrides and default flag values. Ensure provider supports both client-side and server-side rendering scenarios.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement generateTryOn function with validation and error handling",
-            "description": "Create the core wrapper that calls OpenAI Images Edit, validates IO, and isolates SDK specifics.",
+            "title": "Implement environment configuration loading",
+            "description": "Create configuration loading system that reads feature flags from environment variables and configuration files",
             "dependencies": [
-              "2.1",
-              "2.2"
+              "2.1"
             ],
-            "details": "• Extend lib/openaiClient.ts (from 2.1).\n• import { TryOnParamsSchema, TryOnResultSchema, TryOnParams } from './tryOnSchema';\n• `export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams): Promise<string> => {`\n    • Validate input via TryOnParamsSchema.parse.\n    • Perform `openai.images.edit({ model, image: [modelImage, apparelImages[0]], prompt: 'Change the garment ...', n:1, size:'1024x1024', quality:'low' });`\n    • Pull `b64_json` from `rsp.data[0]`.\n    • Validate output via TryOnResultSchema (wrap in object).\n    • Return `imgGenerated` string.\n    • Catch SDK errors and rethrow custom Error with context.\n  `}`\n• Ensure function is pure aside from SDK call and typed export.\n<info added on 2025-08-03T06:19:16.352Z>\nImplementation Plan:\n• Extend src/lib/openaiClient.ts to append generateTryOn.  \n• Import TryOnParamsSchema, TryOnResultSchema and TryOnParams from ./tryOnSchema.  \n• Implement generateTryOn with input validation, OpenAI Images Edit call, response extraction/validation, and custom error wrapping.  \n• Add thorough JSDoc covering params, return type, possible errors, and usage example.  \n• Keep the function side-effect-free apart from the SDK request.\n\nKey Requirements / Acceptance Criteria:\n• Signature: generateTryOn({ modelImage, apparelImages }: TryOnParams): Promise<string>.  \n• Call openai.images.edit with { model, image: [modelImage, apparelImages[0]], prompt: 'Change the garment...', n: 1, size: '1024x1024', quality: 'low' }.  \n• Extract b64_json from rsp.data[0], wrap as { imgGenerated }, validate with TryOnResultSchema, and return imgGenerated.  \n• On any SDK or schema error, throw a new Error(`generateTryOn failed: ${err.message}`) with the original error as cause.\n</info added on 2025-08-03T06:19:16.352Z>\n<info added on 2025-08-03T06:20:53.840Z>\nImplementation completed:\n• Added generateTryOn to src/lib/openaiClient.ts with the exact signature `generateTryOn({ modelImage, apparelImages }: TryOnParams): Promise<string>`.\n• Integrated TryOnParamsSchema.parse for input validation and TryOnResultSchema validation for the output.\n• Invokes `openai.images.edit` using the correct parameter set `{ model, image: [modelImage, apparelImages[0]], prompt: 'Change the garment...', n: 1, size: '1024x1024', quality: 'low' }`.\n• Safely extracts `b64_json` from `response.data[0]`, wraps as `{ imgGenerated }`, and returns `imgGenerated`.\n• Implements robust error handling that re-throws with `generateTryOn failed: …` while preserving the original error as `cause`.\n• Added full JSDoc (params, returns, examples, error cases) and resolved all TypeScript compilation issues.\n• Build passes; subtask ready for QA and integration with downstream tasks.\n</info added on 2025-08-03T06:20:53.840Z>",
-            "status": "done",
-            "testStrategy": "Covered in 2.5; function will be invoked through mocked SDK to assert behaviors."
+            "details": "Implement loadFeatureFlagConfig function that reads from process.env variables with FEATURE_FLAG_ prefix. Create configuration merging logic that combines environment variables with default values. Add support for different environments (development, staging, production) with environment-specific overrides. Include validation for flag values against TypeScript interfaces. Implement caching strategy to avoid repeated environment reads and support hot reloading in development.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Create barrel exports and developer documentation",
-            "description": "Expose a clean public API and guide future consumers.",
+            "title": "Create useFeatureFlag hook and integration",
+            "description": "Implement custom React hook for accessing feature flags with error handling and caching integration",
             "dependencies": [
-              "2.1",
               "2.2",
               "2.3"
             ],
-            "details": "• File: lib/index.ts\n  `export { generateTryOn } from './openaiClient';\n   export * from './tryOnSchema';`\n• Add JSDoc comments for generateTryOn explaining params, return type, and possible errors.\n• Update README section \"OpenAI Service Wrapper\" with usage snippet and env variable prerequisites.\n<info added on 2025-08-03T06:22:00.094Z>\nAdditional implementation notes:\n• Place barrel file at src/lib/index.ts to align with project’s absolute import paths.  \n• Document public API surface in README:  \n  - Import pattern: `import { generateTryOn, TryOnSchema } from '@/lib';`  \n  - Minimal usage example showing async call and error handling block.  \n• Add “Environment Variables” subsection outlining OPENAI_API_KEY and OPENAI_MODEL, including default model fallback behaviour if OPENAI_MODEL is omitted.  \n• Acceptance criteria:  \n  1. `npm run type-check` completes with zero errors after adding barrel export.  \n  2. README changes render correctly in GitHub preview.  \n  3. Consumers can access all try-on functionality through the single barrel import with no deep-path imports required.\n</info added on 2025-08-03T06:22:00.094Z>\n<info added on 2025-08-03T06:23:20.379Z>\n• Barrel export and documentation delivered: src/lib/index.ts now exposes generateTryOn plus all related types/schemas; generateTryOn is fully annotated with JSDoc (params, return, error cases).  \n• README \"OpenAI Service Wrapper\" section expanded with features list, TypeScript usage example, environment-variable table (OPENAI_API_KEY, optional OPENAI_MODEL), and API reference; renders cleanly in GitHub preview.  \n• Type checking passes and consumers can import entire try-on API via `@/lib` with no deep paths.\n</info added on 2025-08-03T06:23:20.379Z>",
-            "status": "done",
-            "testStrategy": "Type-check project: `tsc --noEmit` should succeed for an example import in a dummy file."
-          },
-          {
-            "id": 5,
-            "title": "Write Jest unit tests for generateTryOn wrapper",
-            "description": "Ensure the wrapper validates IO, returns expected data, and propagates errors.",
-            "dependencies": [
-              "2.3"
-            ],
-            "details": "• File: __tests__/generateTryOn.spec.ts\n• `jest.mock('openai')` to stub images.edit returning `{ data: [{ b64_json:'ZmFrZUJhc2U2NA==' }] }`.\n• Happy path: call generateTryOn with valid base64 fixtures, expect resolved string and OpenAI called once with correct args.\n• Validation failure: pass non-base64 string, expect ZodError.\n• SDK error propagation: mock images.edit to throw, expect same error instance from generateTryOn.\n• Timeout test: mock Promise that rejects after delay to ensure wrapper doesn’t swallow errors.\n<info added on 2025-08-03T06:24:03.081Z>\n• Add `__tests__/fixtures/` directory and commit `modelImage.txt` and `apparelImage.txt` containing valid base-64 strings for the happy-path test.\n\n• Configure `package.json` Jest section with  \n```\n\"coverageThreshold\": {\n  \"global\": {\n    \"branches\": 90,\n    \"functions\": 90,\n    \"lines\": 90,\n    \"statements\": 90\n  },\n  \"src/lib/openaiClient.ts\": {\n    \"branches\": 90,\n    \"functions\": 90,\n    \"lines\": 90,\n    \"statements\": 90\n  }\n}\n```\n to enforce the ≥90 % coverage requirement for `lib/openaiClient.ts`.\n\n• In `generateTryOn.spec.ts` use `jest.useFakeTimers()` and `jest.advanceTimersByTime(10_000)` inside the timeout test to guarantee deterministic rejection handling.\n\n• After each test, reset all mocks with `jest.clearAllMocks()` to prevent call-count bleed between cases; assert `OpenAI.mockClear` returns to zero before the next test.\n\n• Include an assertion on the prompt argument to ensure the wrapper passes the expected descriptive string to `images.edit`.\n</info added on 2025-08-03T06:24:03.081Z>\n<info added on 2025-08-03T06:35:23.851Z>\n• Added full test suite (15 cases) in `__tests__/generateTryOn.spec.ts` covering happy path, multi-image input, all validation branches, OpenAI error scenarios, response-shape validation, timeout behaviour, and error-context preservation  \n• Introduced `jest.mock('../src/lib/getEnv')` to stub environment retrieval alongside factory-based `jest.mock('openai')` to prevent hoisting issues  \n• Verified wrapper sends expected prompt and parameters to `openai.images.edit`, including dynamic apparel-image handling  \n• All tests pass; coverage for `src/lib/openaiClient.ts`: 91.3 % statements, 100 % branches, 100 % functions, 95.23 % lines (global thresholds met)  \n• Confirmed ZodError thrown on invalid input, original OpenAI/timeout errors propagated intact via `cause` property\n</info added on 2025-08-03T06:35:23.851Z>",
-            "status": "done",
-            "testStrategy": "Run `npm test` in CI; coverage threshold ≥ 90% lines for lib/openaiClient.ts."
+            "details": "Create useFeatureFlag hook that accepts flag key and returns flag value with loading state. Implement error handling with fallback to default values when flag loading fails. Add React Query integration for caching flag values with appropriate stale time and cache invalidation. Include TypeScript generics for type-safe flag value returns. Create utility functions like useFeatureFlagEnabled for boolean flags and batch flag checking. Add development-only logging for flag usage tracking.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 3,
-        "title": "Create /api/tryon Next.js Route",
-        "description": "Expose a POST endpoint that validates payload, calls OpenAI wrapper, and returns the generated image.",
-        "details": "• File: `app/api/tryon/route.ts`.\n• Define Zod schema matching TryonRequest.\n• Parse `await request.json()` and validate.\n• Call `generateTryOn(modelImage, apparelImages)`.\n• Return `{ img_generated }` JSON with 200, or 400/500 on error.\n• Add CORS headers for same-origin default.\n• Pseudo-code snippet:\n```\nexport async function POST(req: NextRequest) {\n  try {\n    const body = await req.json();\n    const { modelImage, apparelImages } = TryonSchema.parse(body);\n    const img_generated = await generateTryOn(modelImage, apparelImages);\n    return NextResponse.json({ img_generated });\n  } catch (e) {\n    return NextResponse.json({ error: e.message }, { status: e.code ? 400 : 500 });\n  }\n}\n```",
-        "testStrategy": "• Jest API route test with `create-mocks` package: send valid/invalid payloads.\n• Assert status codes 200/400/500 and response shape.\n• Validate that generateTryOn is invoked exactly once with correct args.",
-        "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "title": "Migrate Try-On Logic to React Query Mutation",
+        "description": "Extract try-on functionality from page component into a React Query useMutation hook with comprehensive error handling",
+        "details": "Create useTryonMutation hook in business-layer/mutations/ that wraps the existing /api/tryon endpoint. Implement retry logic with exponential backoff (3 retries, 1s, 2s, 4s delays). Add proper TypeScript typing for mutation variables and response. Include comprehensive error handling for validation, timeout, and API errors. Migrate image processing logic (resize, compression, validation) from page component.",
+        "testStrategy": "Unit tests for mutation behavior, error handling scenarios, retry mechanism testing, integration tests with mock API",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Scaffold Next.js API Route File",
-            "description": "Create the file structure and initial exports for the /api/tryon endpoint.",
+            "title": "Create Base useTryonMutation Hook Structure",
+            "description": "Set up the basic React Query mutation hook with TypeScript interfaces and endpoint integration",
             "dependencies": [],
-            "details": "• Path: app/api/tryon/route.ts\n• Export a placeholder async function POST(_: NextRequest) that currently returns NextResponse.json({ ok: true }) for compilation.\n• Import NextRequest and NextResponse from 'next/server'.\n• Add a TODO header comment referencing subsequent subtasks.\n<info added on 2025-08-03T06:41:43.148Z>\n• Scaffold completed: src/app/api/tryon/route.ts now exports an async POST(_: NextRequest) returning NextResponse.json({ ok: true }) with proper Next.js imports.  \n• Inserted TODO comment referencing subtasks 3.2–3.5.  \n• Verified `/api/tryon` builds and serves without TypeScript errors (`pnpm type-check` green); only benign ESLint unused-param warnings remain.\n</info added on 2025-08-03T06:41:43.148Z>",
-            "status": "done",
-            "testStrategy": "Run `next build` to ensure the project compiles and the route is discoverable at /api/tryon (should return { ok: true })."
+            "details": "Create useTryonMutation.ts in business-layer/mutations/ directory. Define TypeScript interfaces for TryonMutationVariables (user image, garment image, options) and TryonMutationResponse (result image, metadata, processing time). Set up basic useMutation hook that calls the existing /api/tryon endpoint. Include proper error typing for API responses.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Define and Export TryonRequest Zod Schema",
-            "description": "Create a strict Zod schema that validates the incoming payload structure.",
+            "title": "Implement Retry Logic with Exponential Backoff",
+            "description": "Add robust retry mechanism with exponential backoff for failed API calls",
             "dependencies": [
               "3.1"
             ],
-            "details": "• In route.ts (above the POST handler) or a separate app/api/tryon/schema.ts, import z from 'zod'.\n• Declare interface TryonRequest { modelImage: string; apparelImages: string[]; }\n• Create `export const TryonSchema = z.object({ modelImage: z.string().min(1, 'Missing model image'), apparelImages: z.array(z.string().min(1)).min(1, 'At least one apparel image required') });`\n• Infer the TypeScript type: `export type TryonRequest = z.infer<typeof TryonSchema>;`\n<info added on 2025-08-03T06:47:54.255Z>\nImplementation completed and verified: Zod schema (`TryonSchema`) and inferred `TryonRequest` type now live in `src/app/api/tryon/schema.ts`; route.ts imports the schema. Added comprehensive Jest test suite (7 cases) covering valid and edge-case payloads—all passing. ESLint clean. Subtask ready to mark as done.\n</info added on 2025-08-03T06:47:54.255Z>",
-            "status": "done",
-            "testStrategy": "Jest unit tests: feed valid/invalid JSON examples and assert parse success/failure with ZodError."
+            "details": "Implement retry logic with 3 attempts and exponential backoff delays (1s, 2s, 4s). Create retryConfig utility function to handle backoff calculations. Add retry conditions that distinguish between retryable errors (network, timeout, 5xx) and non-retryable errors (validation, 4xx). Include retry attempt tracking in mutation state.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement Request Parsing & Payload Validation",
-            "description": "Parse the request body, validate against TryonSchema, and short-circuit with 400 on validation errors.",
+            "title": "Extract and Integrate Image Processing Logic",
+            "description": "Move image processing functionality from page component into the mutation hook",
             "dependencies": [
-              "3.1",
-              "3.2"
+              "3.1"
             ],
-            "details": "• Inside POST, replace placeholder logic: `const body = await req.json(); const { modelImage, apparelImages } = TryonSchema.parse(body);`\n• Wrap in try/catch; on ZodError return `NextResponse.json({ error: err.message }, { status: 400 })`.\n• Ensure TypeScript recognises variables as TryonRequest fields.\n<info added on 2025-08-03T06:50:24.558Z>\nImplementation complete:\n\n• POST handler now parses `await request.json()` and validates via `TryonSchema.parse(body)`, exposing strongly-typed `modelImage` and `apparelImages` variables.  \n• Wrapped logic in try/catch with granular error handling:  \n  – Zod validation failures return `NextResponse.json({ errors }, { status: 400 })` with field-level details.  \n  – Malformed JSON triggers a 400 with descriptive message.  \n• Successful validation returns 200 with `{ ok: true, payloadSummary }`.  \n• Added explicit return type `Promise<NextResponse>` and satisfied all TypeScript checks.  \n• Added 7 Jest tests (valid + all invalid permutations) covering status codes, response shapes, and type-safety assertions; all pass.  \n• ESLint clean. The route is now ready for generateTryOn integration in subtask 3.4.\n</info added on 2025-08-03T06:50:24.558Z>",
-            "status": "done",
-            "testStrategy": "Jest API route test using create-mocks: send malformed payloads (missing fields, wrong types) → expect 400 and error string."
+            "details": "Extract resizeImageTo1024x1536, image compression, and validation logic from page component. Integrate these functions into the mutation's onMutate callback for preprocessing. Add file size validation, format checking, and dimension validation. Ensure processed images are properly formatted before API submission.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Integrate generateTryOn Call & Successful Response",
-            "description": "Invoke the OpenAI wrapper with validated inputs and return the generated image on success.",
+            "title": "Add Comprehensive Error Handling",
+            "description": "Implement detailed error handling for all failure scenarios with user-friendly messages",
             "dependencies": [
-              "3.1",
               "3.2",
               "3.3"
             ],
-            "details": "• Import `generateTryOn` from 'lib/openaiClient'.\n• After payload validation, `const img_generated = await generateTryOn(modelImage, apparelImages);`\n• Return `NextResponse.json({ img_generated }, { status: 200, headers: { 'Access-Control-Allow-Origin': req.headers.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? '' } });`\n• Ensure same-origin by default; expose wildcard only in non-prod or via env flag.\n• Add TypeScript return type `Promise<NextResponse>`.\n<info added on 2025-08-03T06:53:54.455Z>\nImplementation complete:\n• Added `generateTryOn` import and invoked `await generateTryOn({ modelImage, apparelImages })` after Zod validation.\n• Enhanced response with `{ img_generated }` payload and dynamic CORS headers (`Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`) defaulting to same-origin, falling back to `NEXT_PUBLIC_BASE_URL`.\n• Maintained explicit return type `Promise<NextResponse>`.\n• Wrote/updated 7 Jest tests to mock `generateTryOn`, cover valid/invalid payloads, and assert CORS header values—all passing.\n• Confirmed successful TypeScript compilation and ESLint clean run.\n\nSubtask ready to move to “done” and hand off to 3.5 for extended error handling and CORS optimization.\n</info added on 2025-08-03T06:53:54.455Z>",
-            "status": "done",
-            "testStrategy": "Mock generateTryOn in Jest to resolve a base64 string; assert 200 and correct body, ensure function called once with expected args."
+            "details": "Create error classification system for validation errors, timeout errors, API errors, and processing errors. Add user-friendly error messages with actionable suggestions. Implement error recovery suggestions (retry, reduce image size, check connection). Include error logging for debugging and monitoring purposes.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Finalize Error Handling, CORS Headers, and Route Tests",
-            "description": "Add generic error branch, uniform CORS headers, and comprehensive test coverage for 200/400/500 paths.",
+            "title": "Implement Share History Management",
+            "description": "Add mutation integration with share history tracking and state management",
             "dependencies": [
-              "3.1",
-              "3.2",
-              "3.3",
               "3.4"
             ],
-            "details": "• Extend catch block: if error instanceof ZodError → 400, else → 500 with `error: 'Internal Server Error'` in non-dev.\n• Standardise headers: `const corsHeaders = { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };` Apply to all responses.\n• Handle OPTIONS preflight by returning 200 with empty body & corsHeaders.\n• Jest: use supertest or create-mocks to hit POST with valid, invalid, and thrown-error scenarios (mock generateTryOn to throw) and assert status codes & headers.\n• Add test for OPTIONS request returning 200 and headers.\n<info added on 2025-08-03T07:13:11.757Z>\nImplementation completed. The /api/tryon route now includes environment-aware error handling, a centralized createCorsHeaders() helper applied to every response (POST and OPTIONS), and a dedicated OPTIONS pre-flight handler. Nine Jest tests cover success, validation failure, internal error, and CORS preflight paths—all passing with TypeScript clean. Subtask ready for closure.\n</info added on 2025-08-03T07:13:11.757Z>",
-            "status": "done",
-            "testStrategy": "Run `npm test` to execute new suites; CI should pass with 100% branch coverage for route.ts."
+            "details": "Integrate mutation with existing share history system to track successful try-on operations. Add mutation callbacks (onSuccess, onError) to update history state. Implement history entry creation with metadata (timestamp, garment details, processing time). Ensure history persistence and retrieval work seamlessly with new mutation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add Optimistic Updates and Cache Management",
+            "description": "Implement optimistic UI updates and React Query cache invalidation strategies",
+            "dependencies": [
+              "3.5"
+            ],
+            "details": "Add optimistic updates to show immediate feedback during mutation execution. Implement cache invalidation for related queries (history, user data). Add loading states and progress indicators that update during image processing. Include rollback mechanisms for failed optimistic updates.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Add Mutation Testing and Validation",
+            "description": "Create comprehensive tests for the useTryonMutation hook covering all scenarios",
+            "dependencies": [
+              "3.6"
+            ],
+            "details": "Write unit tests for mutation behavior including success, error, and retry scenarios. Test image processing integration and validation logic. Create mock API responses for different error conditions. Add performance tests for image processing operations. Test optimistic updates and cache invalidation behavior.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 4,
-        "title": "Add Base64 Image Utility Helpers",
-        "description": "Provide client-side helpers to convert File objects to base64 and enforce image size limits before upload.",
-        "details": "• File: `utils/image.ts`.\n• Functions: `fileToBase64(file: File): Promise<string>` and `compressBase64(b64: string, maxSizeKB = 1024)` using canvas.\n• Throw descriptive errors on unsupported types (>5MB, non-image).\n• Export for reuse in page.tsx upload handlers.",
-        "testStrategy": "• Jest: mock File, verify base64 output length and compression < limit.\n• Browser manual: upload 6MB image, expect compression or rejection alert.",
+        "title": "Create Image Processing Business Logic",
+        "description": "Extract and enhance image processing functionality into business layer with React Query integration",
+        "details": "Create useImageProcessing query hook for file validation, metadata extraction, and preview generation. Move resizeImageTo1024x1536 function to business layer utilities. Implement file validation (size limits, format checking, dimension validation). Add image optimization suggestions and processing status tracking. Support concurrent processing of multiple images with progress tracking.",
+        "testStrategy": "Unit tests for image processing functions, file validation tests, performance benchmarks for resize operations",
         "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Scaffold utils/image.ts with stubs & error classes",
-            "description": "Create the utility module skeleton and declare domain-specific error types to be reused by all image helpers.",
+            "title": "Setup Canvas API Infrastructure and Context",
+            "description": "Create Canvas context provider and basic Canvas API wrapper utilities for image manipulation",
             "dependencies": [],
-            "details": "1. Create src/utils/image.ts (or utils/image.ts depending on project layout).\n2. Add constants: `const IMG_SIZE_LIMIT_BYTES = 5 * 1024 * 1024; // 5 MB`.\n3. Implement helper `const isImageFile = (file: File) => file.type.startsWith('image/');`.\n4. Declare custom errors that extend Error:\n   • FileTypeNotSupportedError\n   • FileTooLargeError\n   • CompressionFailedError\n5. Export typed stubs so other files can import before full implementation:\n   ```ts\n   export async function fileToBase64(_file: File): Promise<string> {\n     throw new Error('Not implemented');\n   }\n   export async function compressBase64(_b64: string, _maxSizeKB = 1024): Promise<string> {\n     throw new Error('Not implemented');\n   }\n   export {\n     FileTypeNotSupportedError,\n     FileTooLargeError,\n     CompressionFailedError,\n     IMG_SIZE_LIMIT_BYTES,\n     isImageFile,\n   };\n   ```\n6. Add JSDoc to each symbol describing expected behaviour so IDEs autocomplete correctly.\n<info added on 2025-08-03T07:30:45.381Z>\nImplementation finished: src/utils/image.ts now defines the IMG_SIZE_LIMIT_BYTES constant, isImageFile helper, the three custom Error classes (each extending Error with proper name assignment), and typed stub functions fileToBase64 & compressBase64 that throw “Not implemented”. All exports include detailed JSDoc with parameter, return, and @throws annotations. `tsc --noEmit` completes without errors, confirming the scaffold is ready for downstream use.\n</info added on 2025-08-03T07:30:45.381Z>",
-            "status": "done",
-            "testStrategy": "Run `tsc --noEmit` to ensure type correctness after scaffolding."
+            "details": "Create CanvasProvider component with React context for managing canvas instances. Implement basic Canvas API wrapper utilities for common operations (create canvas, get context, load image). Setup canvas dimension management and device pixel ratio handling. Create hooks for accessing canvas context and utilities.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement fileToBase64 with validation",
-            "description": "Convert File objects to base64 strings while enforcing MIME-type and 5 MB size limits.",
+            "title": "Implement Core Image Processing Functions",
+            "description": "Move and enhance resizeImageTo1024x1536 function and create additional image processing utilities",
             "dependencies": [
               "4.1"
             ],
-            "details": "1. Inside utils/image.ts replace the stub:\n   ```ts\n   export async function fileToBase64(file: File): Promise<string> {\n     if (!isImageFile(file)) throw new FileTypeNotSupportedError('Only image files are allowed.');\n     if (file.size > IMG_SIZE_LIMIT_BYTES) throw new FileTooLargeError('Image exceeds 5 MB limit.');\n     return new Promise((resolve, reject) => {\n       const reader = new FileReader();\n       reader.onload = () => {\n         const result = reader.result as string;\n         resolve(result);\n       };\n       reader.onerror = () => reject(reader.error);\n       reader.readAsDataURL(file);\n     });\n   }\n   ```\n2. Ensure the function returns the full data URL (e.g., `data:image/png;base64,....`) so callers can decide whether to strip the MIME prefix.\n<info added on 2025-08-03T07:34:08.954Z>\n- Replaced the fileToBase64 stub with a full implementation in utils/image.ts  \n- Added MIME-type validation using isImageFile() and size check against IMG_SIZE_LIMIT_BYTES (5 MB)  \n- Throws FileTypeNotSupportedError or FileTooLargeError when validations fail  \n- Uses FileReader.readAsDataURL to return the complete data URL (data:image/png;base64,…)  \n- Wraps FileReader logic in a Promise for proper async/await flow and propagates errors on reader.onerror  \n- Updated JSDoc to match the actual parameter name and clarify the return format  \n- Confirmed successful TypeScript compilation and manual tests showing correct data URL output\n</info added on 2025-08-03T07:34:08.954Z>",
-            "status": "done",
-            "testStrategy": "Jest unit:\n• Pass a mocked PNG File <5 MB, expect promise resolves to string beginning with `data:image/`.\n• Pass a text/plain File, expect rejection with FileTypeNotSupportedError.\n• Pass a mocked 6 MB image File, expect FileTooLargeError."
+            "details": "Extract resizeImageTo1024x1536 from existing code to business-layer/utils/. Implement additional processing functions: image compression, format conversion, metadata extraction. Create image validation utilities for size limits, format checking, and dimension validation. Add error handling for corrupted or invalid images.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement compressBase64 using canvas",
-            "description": "Compress a base64 image so its size is below the provided kilobyte threshold (default 1024 KB).",
+            "title": "Create Text Overlay System",
+            "description": "Implement text rendering and overlay functionality on canvas with positioning and styling options",
             "dependencies": [
               "4.1"
             ],
-            "details": "1. Calculate byte limit: `const byteLimit = maxSizeKB * 1024;`.\n2. Early return: if `atob(b64.split(',')[1]).length <= byteLimit` return original string.\n3. Create an off-screen <canvas>, instantiate `const img = new Image();` and set `img.src = b64`.\n4. Wait for `img.onload` then set canvas dimensions to `img.width` / `img.height`.\n5. Begin compression loop:\n   ```ts\n   let quality = 0.9;\n   let compressed = b64;\n   while (quality > 0.3) {\n     compressed = await new Promise<string>((resolve) =>\n       canvas.toBlob(blob => resolve(URL.createObjectURL(blob!)), 'image/jpeg', quality)\n     ).then(fetch).then(r => r.blob()).then(blobToBase64);\n     if (atob(compressed.split(',')[1]).length <= byteLimit) break;\n     quality -= 0.1;\n   }\n   if (atob(compressed.split(',')[1]).length > byteLimit) {\n     throw new CompressionFailedError('Unable to compress image below limit');\n   }\n   return compressed;\n   ```\n6. Helper `blobToBase64` converts Blob->base64 using FileReader.\n7. Preserve alpha by switching to `image/png` if original had transparency, otherwise use `image/jpeg`.\n8. Clean up object URLs to avoid memory leaks.\n<info added on 2025-08-03T07:35:47.259Z>\nImplementation completed:\n\n• Replaced previous stub with full canvas-based compression logic.\n• Added `blobToBase64` helper for Blob → base64 conversion.\n• Integrated early-return check for images already under the byte limit.\n• Implemented quality-reduction loop (0.9 → 0.3) using `canvas.toBlob`, preserving transparency by switching between PNG and JPEG.\n• Introduced robust error handling—throws `CompressionFailedError` on load, canvas, blob, or size-limit failures; validates incoming base64 data.\n• Cleaned up object URLs after each compression attempt to prevent memory leaks.\n• Verified via `tsc --noEmit` and unit tests: function signature, size compliance, transparency preservation, and all error branches.\n</info added on 2025-08-03T07:35:47.259Z>",
-            "status": "done",
-            "testStrategy": "Jest with jest-canvas-mock:\n• Feed a deliberately large base64 string; assert returned string size < threshold.\n• Simulate image failing to load → expect rejection.\n• Simulate canvas loop exhausting quality to <0.3 → expect CompressionFailedError."
+            "details": "Create text overlay utilities for rendering text on canvas with customizable fonts, colors, and positioning. Implement text measurement and automatic positioning algorithms. Support multi-line text with proper wrapping and alignment. Add text styling options (bold, italic, shadows, outlines).",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Finalize public API & error routing",
-            "description": "Wire validation, compression, and error classes into a cohesive exportable API ready for consumption by page.tsx.",
+            "title": "Implement Sticker Placement Logic",
+            "description": "Create sticker management system with positioning, scaling, and rotation capabilities",
             "dependencies": [
-              "4.2",
-              "4.3"
+              "4.1"
             ],
-            "details": "1. Re-export helpers at bottom of utils/image.ts: `export { fileToBase64, compressBase64 };`.\n2. Ensure both helpers throw the custom errors created in 4.1 exclusively, allowing centralised error handling logic in Task 7.\n3. Add inline JSDoc usage examples and describe expected error types so consumers can `instanceof` check.\n4. Add TypeScript `type ImageBase64 = string` alias and re-export for strongly typed consumers.\n5. Run `tsc` and fix any strict-null or DOM lib issues (e.g., allow `DOM` lib in tsconfig if not already).\n<info added on 2025-08-03T07:37:47.683Z>\nImplementation complete:\n\n• Added comprehensive module-level JSDoc containing end-to-end usage and centralized error-handling examples  \n• Created and re-exported `ImageBase64` type alias for stronger consumer typing  \n• Expanded function-level JSDoc (@param, @returns, @throws) with detailed examples, PNG transparency notes, and `instanceof` error-checking guidance  \n• Ensured `fileToBase64` and `compressBase64` exclusively throw the custom errors from 4.1 and are re-exported at the bottom of `utils/image.ts`  \n• Verified TypeScript compilation with `tsc --noEmit` and confirmed `dom` lib availability in `tsconfig.json`  \n• All API elements now ready for downstream consumption (e.g., page.tsx) with standardized error routing\n</info added on 2025-08-03T07:37:47.683Z>",
-            "status": "done",
-            "testStrategy": "Manual smoke: import helpers in a Next.js page, select a valid image, verify successful conversion and compression; select invalid image, check thrown error type."
+            "details": "Implement sticker placement utilities with drag-and-drop positioning logic. Create sticker scaling and rotation functions with touch/mouse event handling. Implement sticker layering and z-index management. Add collision detection and snap-to-grid functionality for precise placement.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Create comprehensive Jest test suite for image utilities",
-            "description": "Write unit tests covering happy paths and all error branches for both utility functions.",
+            "title": "Create Filter Application System",
+            "description": "Implement image filter system with real-time preview and multiple filter options",
             "dependencies": [
-              "4.4"
+              "4.1",
+              "4.2"
             ],
-            "details": "1. Install dev deps: `npm i -D jest @types/jest ts-jest jest-canvas-mock`.\n2. Extend jest.config.js: add `setupFilesAfterEnv: ['jest-canvas-mock']` and transform using ts-jest.\n3. Tests for fileToBase64:\n   • Valid PNG under 5 MB resolves.\n   • Non-image MIME rejects with FileTypeNotSupportedError.\n   • >5 MB file rejects with FileTooLargeError.\n4. Tests for compressBase64:\n   • Large base64 (>1 MB) returns shorter string.\n   • Already small base64 returns identical string.\n   • Force canvas loop to fail (mock `toBlob` size constant) and expect CompressionFailedError.\n5. Use helper to mock File objects: `new File([new Uint8Array(size)], 'photo.png', { type:'image/png' })`.\n6. Add CI script `npm run test:image` if project separates test tasks.\n<info added on 2025-08-03T07:44:59.411Z>\nImplementation complete:\n\n• Added jest-canvas-mock dependency and updated Jest config with setupFilesAfterEnv entry.  \n• Implemented createMockFile and createMockBase64 helpers for reusable test data.  \n• Wrote 11 passing unit tests covering isImageFile, fileToBase64, compressBase64 (early-return branch), FileReader failures, and all custom error classes.  \n• Achieved 53.24 % statement coverage on utils/image.ts.  \n• Marked four canvas-heavy compression tests as skipped due to current jest-canvas-mock limitations; suitable for future browser-based integration tests.\n</info added on 2025-08-03T07:44:59.411Z>",
-            "status": "done",
-            "testStrategy": "Run `npm test` locally and in CI; aim for >90% branch coverage on utils/image.ts."
+            "details": "Create filter application utilities using canvas ImageData manipulation. Implement common filters: brightness, contrast, saturation, blur, sharpen. Create filter preview system with real-time canvas updates. Add filter composition and blending modes. Optimize filter performance for real-time application.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Undo/Redo Stack Management",
+            "description": "Create immutable state management system for tracking and reverting image editing operations",
+            "dependencies": [
+              "4.2",
+              "4.3",
+              "4.4",
+              "4.5"
+            ],
+            "details": "Implement immutable state stack for undo/redo functionality using canvas snapshots or operation logs. Create state management utilities for tracking image editing operations. Implement efficient snapshot storage with compression. Add undo/redo hooks with keyboard shortcuts support and operation limits.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Create useImageProcessing React Query Hook",
+            "description": "Implement React Query integration for image processing operations with progress tracking",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Create useImageProcessing query hook that wraps image processing utilities. Implement progress tracking for long-running operations like resizing and compression. Add concurrent processing support for multiple images with queue management. Include proper error handling and retry logic for processing failures.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Implement Image Export and Optimization",
+            "description": "Create final image export system with format optimization and quality controls",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.6"
+            ],
+            "details": "Implement image export utilities with multiple format support (PNG, JPEG, WebP). Create quality optimization algorithms for different use cases (web, print, social media). Add batch export functionality for multiple processed images. Implement download triggers and file naming conventions with metadata preservation.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 5,
-        "title": "Integrate Client-Side API Call in handleCameraButtonClick",
-        "description": "Modify page.tsx logic to gather user + apparel images, hit /api/tryon, and manage loading states.",
-        "details": "• Refactor existing `handleCameraButtonClick` to:\n  1. Convert File inputs using image utils.\n  2. `setIsCapturing(true)`.\n  3. `fetch('/api/tryon', {...})` with JSON body.\n  4. On success, store `img_generated` in React state.\n  5. On error, bubble to error handler.\n• Ensure request headers `Content-Type: application/json`.\n• AbortController with 30s timeout to cancel hung requests.",
-        "testStrategy": "• React Testing Library unit test: mock fetch, assert state transitions and JSON payload.\n• Manual: Click generate, observe spinner, network call, and state update.",
-        "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "title": "Implement Bridge Layer Custom Hooks",
+        "description": "Create UI-friendly custom hooks that coordinate business logic and manage component state",
+        "details": "Create useTryonWorkflow hook in src/hooks/ that coordinates the complete try-on generation process. Implement useImageUpload hooks for file upload handling with validation and preview URL management. Create clean interfaces that abstract business logic complexity from UI components. Maintain backward compatibility with existing page component state structure (isCapturing, showPolaroid, generatedImage, hasError).",
+        "testStrategy": "Integration tests for hook coordination, UI state management tests, component interface compatibility validation",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Extract & Convert Image Inputs to Base64",
-            "description": "Inside page.tsx, extend handleCameraButtonClick to collect the File objects for the user snapshot and the selected apparel image, validate they are images ≤5 MB, and convert them to base-64 strings for transmission.",
+            "title": "Create useTryonWorkflow hook for coordinating complete workflow",
+            "description": "Implement the main workflow coordination hook that manages the entire try-on generation process from start to finish",
             "dependencies": [],
-            "details": "• Read File objects from component state/refs (e.g., userImageFile, apparelImageFile).\n• If either is missing, early-return with a descriptive error.\n• Use utils/fileToBase64(file) then utils/compressBase64(b64) (from Task 4) to obtain modelB64 and apparelB64 strings.\n• Wrap conversions in try/catch; on failure, forward error to the global error handler (e.g., onError prop).\n• Keep both base-64 strings in local variables so later subtasks can embed them in the fetch payload.\n<info added on 2025-08-04T22:13:25.283Z>\n• Augment BrutalismCard: add an optional onFileUpload(file: File) prop and invoke it in the input’s onChange handler after basic file-type/size validation, keeping existing URL callback untouched.  \n• In page.tsx create React state hooks:  \n  const [userImageFile, setUserImageFile] = useState<File | null>(null);  \n  const [apparelImageFile, setApparelImageFile] = useState<File | null>(null);  \n  Pass these setters to the corresponding BrutalismCard instances via onFileUpload.  \n• Inside handleCameraButtonClick, insert guard clauses that surface “Both a model photo and an apparel photo are required” via onError when either state value is null.  \n• Add per-file checks before conversion:  \n  – file.type must start with \"image/\"  \n  – file.size ≤ 5 * 1024 * 1024 bytes  \n  Throw descriptive errors when a check fails.  \n• Convert and compress the images concurrently with  \n  const [modelB64, apparelB64] = await Promise.all([fileToBase64(userImageFile).then(compressBase64), fileToBase64(apparelImageFile).then(compressBase64)]);  \n• Wrap the entire validation + conversion block in a single try/catch that forwards caught errors to onError.  \n• Persist modelB64 and apparelB64 in local variables (or a ref) so the upcoming API-fetch subtask can include them in the request without repeating conversions.  \n• Testing additions: RTL test to assert onFileUpload is triggered and invalid files propagate an error; unit test for parallel Promise.all path ensuring both images yield compressed strings.\n</info added on 2025-08-04T22:13:25.283Z>\n<info added on 2025-08-04T22:14:53.870Z>\n• BrutalismCard enhanced with an optional onFileUpload(file) prop; after type (image/*) and size (≤ 5 MB) checks, the callback fires from both input change and drag-drop paths.  \n• page.tsx now maintains userImageFile and apparelImageFile state, passing their setters to the corresponding BrutalismCard instances.  \n• handleCameraButtonClick converted to an async function that:  \n  – aborts early with “Both a model photo and an apparel photo are required” when either File state is null;  \n  – executes parallel conversion/compression via  \n    const [modelB64, apparelB64] = await Promise.all([fileToBase64(userImageFile).then(compressBase64), fileToBase64(apparelImageFile).then(compressBase64)]);  \n  – wraps the entire flow in a try/catch block and logs (temporarily via console.error) any thrown validation or conversion errors.  \n• The generated modelB64 and apparelB64 strings are retained in local scope for the upcoming API-fetch subtask and are trimmed in debug logs to avoid console bloat.  \n• RTL tests confirm onFileUpload invocation and error propagation for invalid files; unit tests validate the Promise.all conversion path.\n</info added on 2025-08-04T22:14:53.870Z>\n<info added on 2025-08-04T22:19:33.898Z>\n• Bump the compression ceiling: when calling utils/compressBase64, explicitly pass a maxSizeKB of 2048 so the invocation becomes  \n  fileToBase64(file).then(b64 => compressBase64(b64, 2048))  \n  (extract 2048 into a `const B64_LIMIT_KB = 2048` near the top of the module for clarity).\n\n• Extend the surrounding try/catch to detect `instanceof CompressionFailedError`; if triggered, surface a user-friendly toast such as “Your image is still too large after compression. Please upload a smaller file.” via the shared onError handler and abort further execution.\n\n• Add a Jest unit test that mocks compressBase64 to throw CompressionFailedError and asserts that handleCameraButtonClick stops before the fetch step and the error message propagates.\n\n• Update the existing “valid images” test to verify compressBase64 receives the new 2048 limit argument.\n</info added on 2025-08-04T22:19:33.898Z>\n<info added on 2025-08-04T22:22:07.879Z>\n• Import `CompressionFailedError` in page.tsx to satisfy the new instanceof guard.  \n• utils/compressBase64 has been upgraded with 0.05 quality decrements, up to 15 passes, and a final dimension-reduction fallback; handleCameraButtonClick’s existing logic already benefits from these improvements.  \n• Added unit tests in utils/image.test.ts to cover the extended compression loop and dimension fallback, asserting that a true over-limit image still triggers CompressionFailedError after all attempts.\n</info added on 2025-08-04T22:22:07.879Z>",
-            "status": "done",
-            "testStrategy": "Jest unit test: create mock File objects, stub fileToBase64, assert that handleCameraButtonClick resolves with two non-empty base-64 strings or throws if validation fails."
+            "details": "Create useTryonWorkflow hook in src/hooks/ that coordinates between image upload, processing, API calls, and state management. Should integrate with the useTryonMutation from task 3 and useImageProcessing from task 4. Include workflow state management (idle, uploading, processing, generating, complete, error) and provide clean API for UI components to consume.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Introduce isCapturing Loading State",
-            "description": "Create and wire a React state flag that signals UI loading while the try-on request is in flight.",
+            "title": "Create useImageUpload hooks for file handling",
+            "description": "Implement specialized hooks for handling file upload operations with validation and preview management",
             "dependencies": [
               "5.1"
             ],
-            "details": "• Add const [isCapturing, setIsCapturing] = useState(false) in page.tsx.\n• At the very top of handleCameraButtonClick, call setIsCapturing(true).\n• Render a spinner/disabled state on the camera button whenever isCapturing is true (can reuse existing Spinner component).\n• Ensure subsequent subtasks reset this flag in a finally block.\n<info added on 2025-08-04T22:25:41.497Z>\n• Relocate the existing `setIsCapturing(true)` call from `handlePhotoCapture()` to the very first line of `handleCameraButtonClick`.  \n• Wrap the entire logic inside `handleCameraButtonClick` in a `try { … } finally { setIsCapturing(false); }` block to guarantee state reset on success, error, or abort.  \n• Remove the 2-second timeout and any remaining `setIsCapturing` logic from `handlePhotoCapture()`; that file no longer manages the loading state.  \n• Pass `isCapturing` down to `HeroImageWithButton` (or the camera button component) and render it with `disabled={isCapturing}` plus the existing `Spinner` whenever the flag is `true`.  \n• Unit test: mock promise resolution/rejection to assert that the button is disabled while the request is in flight and re-enabled afterward.\n</info added on 2025-08-04T22:25:41.497Z>\n<info added on 2025-08-04T22:27:06.066Z>\nImplementation completed. `isCapturing` now controls a disabled state and spinner on the camera button end-to-end. Redundant `setIsCapturing` calls were purged from all other handlers, and the loading flag is guaranteed to reset via a try/finally in `handleCameraButtonClick`. `HeroImageWithButton` accepts a new `disabled` prop to surface the state, with Tailwind opacity and cursor styles applied. Unit tests verify that the button is disabled during the fetch flow and re-enabled afterward.\n</info added on 2025-08-04T22:27:06.066Z>",
-            "status": "done",
-            "testStrategy": "React Testing Library: simulate click, assert button is disabled and spinner visible while mocked fetch promise is pending."
+            "details": "Create useImageUpload and related hooks for file upload handling including drag-and-drop support, file validation, preview URL generation, and upload progress tracking. Should integrate with the image processing business logic and provide validation feedback to UI components. Include error handling for invalid file types, size limits, and upload failures.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Dispatch /api/tryon Request with 30 s AbortController",
-            "description": "Send a POST request containing the prepared images, with automatic cancellation after 30 seconds.",
+            "title": "Create clean component interfaces abstracting business complexity",
+            "description": "Design and implement clean, UI-friendly interfaces that hide business logic complexity from React components",
             "dependencies": [
+              "5.1",
               "5.2"
             ],
-            "details": "• Inside handleCameraButtonClick, create const controller = new AbortController();\n• const timeoutId = setTimeout(() => controller.abort(), 30000);\n• Call fetch('/api/tryon', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ model_image: modelB64, apparel_image: apparelB64 }),\n    signal: controller.signal\n  });\n• After fetch resolves (success or error), clearTimeout(timeoutId) to avoid leaks.\n<info added on 2025-08-04T22:59:12.365Z>\nImplementation completed:\n\n• Added 30-second AbortController timeout and ensured clearTimeout in both success and error paths.  \n• fetch now posts `{ modelImage: modelB64, apparelImages: [apparelB64] }` with `Content-Type: application/json` and `signal: controller.signal`.  \n• Wrapped call in try/finally to guarantee `setIsCapturing(false)` after completion.  \n• Implemented detailed error handling: AbortError (timeout), CompressionFailedError, and generic fallback—each routed through the existing toast system.  \n• Inserted verbose console logging for request lifecycle and error diagnostics.\n</info added on 2025-08-04T22:59:12.365Z>",
-            "status": "done",
-            "testStrategy": "Jest fake timers: advance time to 29 s (request alive) then 31 s (AbortError thrown). Assert controller.abort was invoked and fetch promise rejected with AbortError."
+            "details": "Create abstraction layer interfaces that provide simple, declarative APIs for UI components. Design hook interfaces that expose only necessary state and actions while hiding complex business logic implementation details. Include proper TypeScript typing for all interfaces and ensure consistent error handling patterns across all bridge layer hooks.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Process Response & Update Generated Image State",
-            "description": "Handle success and failure paths, store the generated image, and always clean up loading state.",
+            "title": "Ensure backward compatibility with existing page component state",
+            "description": "Maintain compatibility with current page component state structure and provide migration path",
             "dependencies": [
+              "5.1",
+              "5.2",
               "5.3"
             ],
-            "details": "• Await the fetch response; if !response.ok, throw new Error(await response.text()).\n• const { img_generated } = await response.json();\n• setGeneratedImage(img_generated) where generatedImage is a new useState<string | null>.\n• In catch blocks, forward error to onError or showToast; separately detect AbortError to display a timeout-specific message.\n• In finally { setIsCapturing(false); } to complete the loading cycle.\n<info added on 2025-08-04T23:00:54.630Z>\nImplementation completed:\n• Added `generatedImage` state and corresponding `setGeneratedImage` call in the success path.  \n• Confirmed `img_generated` is now correctly consumed, eliminating lint warnings.  \n• Included dev-mode debug output showing generated-image lifecycle.  \n• State now holds the returned image and is ready for consumption by `PolaroidPhotoGenerator` in Task 6.\n</info added on 2025-08-04T23:00:54.630Z>",
-            "status": "done",
-            "testStrategy": "Mock successful JSON: assert generatedImage state equals stub value and isCapturing toggles back to false. Mock failed fetch: assert error bubble and generatedImage remains null."
-          },
-          {
-            "id": 5,
-            "title": "Write Comprehensive Unit Tests for handleCameraButtonClick",
-            "description": "Validate all critical paths—success, network failure, and timeout—using Jest and React Testing Library.",
-            "dependencies": [
-              "5.4"
-            ],
-            "details": "• Mock utils/fileToBase64 to return deterministic base-64 strings.\n• Mock fetch globally with jest.fn():\n  – Success path returns { ok: true, json: () => ({ img_generated: 'b64generated' }) }.\n  – Error path returns { ok: false, text: () => 'Bad request' }.\n  – Timeout path: return new Promise(() => {}) and advance timers.\n• Mount page.tsx, trigger click, and assert:\n  – JSON payload contains both base-64 strings.\n  – isCapturing flag transitions correctly.\n  – generatedImage state updates or remains null based on scenario.\n  – AbortController.abort called after 30 s in timeout case.\n• Snapshot UI before & after to detect regressions.\n<info added on 2025-08-04T23:04:48.536Z>\nImplementation complete:\n\n• Added `__tests__/components/page.test.tsx` containing a full suite of Jest + React-Testing-Library tests covering success, error, and timeout flows for `handleCameraButtonClick`.\n• Expanded mocks to include `compressBase64`, `AbortController`, global `setTimeout/clearTimeout`, `File` constructor, and `console` methods alongside existing `fetch` and `fileToBase64` stubs.\n• Utilised `jest.useFakeTimers()` and `advanceTimersByTime(30000)` to assert `AbortController.abort` fires exactly at the 30 s mark and cleans up timers.\n• Assertions verify:\n  – Correct JSON body with both deterministic base-64 strings.\n  – `isCapturing` state toggles from `false → true → false`.\n  – `generatedImage` updates on success and remains `null` on failure paths.\n  – Proper error messages are rendered for missing files, compression issues, fetch failures, and timeouts.\n• Added UI snapshots before and after the camera button click to guard against visual regressions.\n• Resulting test coverage: 97 % lines, 95 % branches for `page.tsx`.\n</info added on 2025-08-04T23:04:48.536Z>\n<info added on 2025-08-04T23:22:09.534Z>\n• Added missing browser-API mocks in jest.setup.js (ResizeObserver, IntersectionObserver, matchMedia, window.scrollTo) to eliminate environment errors.  \n• Refactored tests by extracting core logic into a pure helper processImagesAndCallAPI, enabling logic-level assertions without rendering the full page component.  \n• Reworked timer handling with jest.spyOn on setTimeout/clearTimeout and jest.clearAllTimers() to stabilise timeout assertions.  \n• Entire test suite now green: 135 tests across 12 suites (0 failures, 3.448 s), covering success, failure, timeout, image processing, and JSON payload validation for handleCameraButtonClick.\n</info added on 2025-08-04T23:22:09.534Z>",
-            "status": "done",
-            "testStrategy": "CI workflow runs `npm test` with jest.useFakeTimers(); all three scenarios must pass for PR to merge."
+            "details": "Ensure new hook interfaces maintain backward compatibility with existing page component state structure (isCapturing, showPolaroid, generatedImage, hasError). Create compatibility layer that maps new hook state to existing component expectations. Provide gradual migration path and deprecation warnings for old state patterns while maintaining full functionality.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 6,
-        "title": "Render Generated Image in PolaroidPhotoGenerator",
-        "description": "Display the composite image returned from the backend, replacing the mock image placeholder.",
-        "details": "• Update PolaroidPhotoGenerator props to accept `generatedImage` string.\n• Use `<img src={generatedImage ? `data:image/png;base64,${generatedImage}` : mockImageUrl} />`.\n• Add fade-in animation on load and a retry button that clears state and focus to upload panels.",
-        "testStrategy": "• Component snapshot test for states: loading, success, retry.\n• Manual UX smoke test: image appears crisp at 1024×1024 and scales in Tailwind container.",
+        "title": "Integrate Providers into App Layout",
+        "description": "Update app layout to include React Query and feature flag providers while maintaining existing functionality",
+        "details": "Modify src/app/layout.tsx to wrap the application with ReactQueryProvider and FeatureFlagProvider. Ensure proper provider nesting order and error boundary placement. Maintain existing ToastProvider integration. Add React Query devtools for development environment. Test that existing functionality remains unchanged after provider integration.",
+        "testStrategy": "Integration tests for provider setup, existing functionality regression tests, devtools availability validation",
         "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Refactor component interface to accept generatedImage & callbacks",
-            "description": "Introduce new props to PolaroidPhotoGenerator so that it can receive the base-64 image string and expose a retry callback to its parent.",
+            "title": "Update layout.tsx with provider integration",
+            "description": "Modify src/app/layout.tsx to wrap the application with ReactQueryProvider and FeatureFlagProvider",
             "dependencies": [],
-            "details": "• In `components/PolaroidPhotoGenerator.tsx`, extend the props interface to include:\n  ```ts\n  generatedImage?: string;     // base-64 PNG returned from backend\n  isLoading?: boolean;         // when backend call is in flight\n  onRetry?: () => void;        // clears state in parent\n  ```\n• Mark existing props (`mockImageUrl`, etc.) as required/optional as needed.\n• Update every place the component is rendered (likely the upload wizard page) to pass the new props, wiring `generatedImage` from state that is currently holding the backend response.\n• Ensure TypeScript passes and commit the prop refactor separately for an easy review diff.\n<info added on 2025-08-04T23:25:38.957Z>\nRefactor complete:\n\n• Added `generatedImage?: string` and `isLoading?: boolean` to `PolaroidPhotoGeneratorProps`, retained `onRetry`, kept `mockImageUrl` optional.  \n• Centralised selection logic via `imageToDisplay`, replacing hard-coded mock reference throughout animations and `startGenerationSequence`.  \n• Updated `useEffect` hooks and dependency arrays to respect new props and preserve existing behaviour.  \n• Passed `generatedImage` and `isLoading` from page state in all component call-sites, converting nullable values to `undefined` for strict TS compliance.  \n• Ran `yarn type-check` and `next build`—both succeed with zero warnings.  \n• Verified UI states: loading spinner, image fade-in, retry flow all operate with real backend output.  \n\nSubtask can be marked done; changes pushed in commit `feat(polaroid): accept generatedImage & loading state`.\n</info added on 2025-08-04T23:25:38.957Z>",
-            "status": "done",
-            "testStrategy": "Compile-time checks (tsc) should pass with no implicit any errors. Run Storybook (or the page) with mock props to confirm the component mounts."
+            "details": "Import ReactQueryProvider and FeatureFlagProvider components. Update the layout component to wrap children with these providers in the correct nesting order. Ensure ReactQueryProvider is the outermost provider, followed by FeatureFlagProvider, maintaining existing ToastProvider placement.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement dynamic image rendering with placeholder fallback",
-            "description": "Render the generated image when available or fall back to the existing mock image while retaining Tailwind sizing and aspect ratio.",
+            "title": "Ensure proper provider nesting and error boundaries",
+            "description": "Configure correct provider hierarchy and implement error boundary placement for robust error handling",
             "dependencies": [
               "6.1"
             ],
-            "details": "• Inside the component JSX, replace the hard-coded placeholder `<img>` with:\n  ```tsx\n  <img\n    src={generatedImage ? `data:image/png;base64,${generatedImage}` : mockImageUrl}\n    alt=\"Generated try-on preview\"\n    className=\"w-full h-auto object-cover select-none rounded-lg opacity-0 transition-opacity duration-500\" // opacity controlled in 6.3\n    onLoad={() => setLoaded(true)}\n  />\n  ```\n• Wrap the `<img>` in a responsive Tailwind container (e.g., `relative w-full aspect-square`) to keep the Polaroid layout intact.\n• Add an `imgLoaded` `useState<boolean>` hook to track when the image has finished loading (used in 6.3).\n• Keep accessibility: if `generatedImage` is missing, set `aria-busy` to `true` while loading.\n<info added on 2025-08-04T23:28:12.773Z>\n• Integrated `const [imgLoaded, setImgLoaded] = useState(false)` and a `handleImageLoad` callback to toggle load state once the `<img>` fires `onLoad`.\n\n• Removed the now-redundant `generatedImageUrl` state; the component relies solely on the new `<img>` element with its dynamic `src`.\n\n• Updated `resetPolaroid()` and `startGenerationSequence()` to call `setImgLoaded(false)` so each new generation begins with a clean loading state.\n\n• Added `aria-busy={!imgLoaded && (isLoading || isGenerating)}` to announce loading status for assistive technologies.\n\n• Appended `select-none` to the image’s Tailwind classes to prevent drag/selection while preserving existing slide-in/fade-in animations.\n\n• Build & verification: TypeScript passes, Next.js warns (expected for base64), UX tests confirm no layout shift, accessibility attributes read correctly.\n</info added on 2025-08-04T23:28:12.773Z>",
-            "status": "done",
-            "testStrategy": "Manual: With `generatedImage` undefined, the component should render the mock image instantly. Provide a base-64 string via devtools → the component should swap images without layout shift."
+            "details": "Establish proper nesting order: ReactQueryProvider > FeatureFlagProvider > ToastProvider > children. Add or verify error boundary components around provider stack to catch and handle provider initialization errors. Ensure error boundaries don't interfere with existing error handling mechanisms.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Add fade-in animation on successful image load",
-            "description": "Visually polish the component so that the generated image fades in smoothly once the browser fires the `onLoad` event.",
+            "title": "Add React Query devtools for development",
+            "description": "Integrate React Query devtools for development environment debugging and monitoring",
             "dependencies": [
               "6.2"
             ],
-            "details": "• Extend the `imgLoaded` state from 6.2.\n  ```tsx\n  const [loaded, setLoaded] = useState(false);\n  const handleLoad = () => setLoaded(true);\n  ```\n• Bind `onLoad={handleLoad}` to `<img>`.\n• Toggle class names: `className={clsx(baseClasses, loaded ? 'opacity-100' : 'opacity-0')}` where `baseClasses` holds the Tailwind sizing.\n• Ensure `transition-opacity duration-500` is present for 0.5-second fade.\n• Add a subtle skeleton shimmer background behind the image using a pseudo-element or an extra div while `!loaded && isLoading`.\n<info added on 2025-08-04T23:52:18.446Z>\n• Fade-in animation finalized: `<img>` now transitions from `opacity-0` to `opacity-100` on `imgLoaded`, retaining `transition-opacity duration-500` for a 0.5 s effect.  \n• Introduced skeleton shimmer (`bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse`) that renders while `!imgLoaded && (isLoading || isGenerating)`, positioned behind the image for seamless hand-off.  \n• Existing slide-in transform, gray placeholder overlay, Polaroid layout, and aspect ratio all preserved.  \n• Build & type checks clean; component remains backward-compatible and verified in browser—no layout shift, shimmer disappears on load, fade-in is smooth.\n</info added on 2025-08-04T23:52:18.446Z>",
-            "status": "done",
-            "testStrategy": "Use React Testing Library to render the component with a mocked `Image` load event and assert that `opacity-100` class is applied after `fireEvent.load`."
+            "details": "Import and conditionally render ReactQueryDevtools component only in development environment. Configure devtools with appropriate settings (initialIsOpen: false, position: 'bottom-right'). Ensure devtools don't appear in production builds and don't impact performance.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Introduce retry button that resets state and focuses upload panels",
-            "description": "Provide UX affordance to regenerate the image by clearing relevant states and moving keyboard focus back to the upload section.",
+            "title": "Test provider integration and existing functionality compatibility",
+            "description": "Validate that provider integration doesn't break existing functionality and all features work correctly",
             "dependencies": [
-              "6.2"
+              "6.3"
             ],
-            "details": "• Place a Tailwind-styled `<button>` (e.g., small pill in the bottom-right overlay or below the Polaroid) visible when `generatedImage` is truthy.\n  ```tsx\n  <button onClick={onRetry} className=\"mt-4 text-sm underline text-blue-600 hover:text-blue-800 focus:outline-none\">\n    Try another outfit\n  </button>\n  ```\n• In the parent container (wizard page), implement `handleRetry` that:\n  1. `setGeneratedImage(undefined)`\n  2. `setIsLoading(false)`\n  3. Calls `uploadPanelRef.current?.focus()` to shift focus for accessibility\n• Pass `handleRetry` down via the `onRetry` prop introduced in 6.1.\n• Guard the button with `aria-live=\"polite\"` to inform screen readers that new interactive content appeared.\n<info added on 2025-08-04T23:54:44.753Z>\n• The retry flow is now fully wired: `handleRetryGeneration` clears `generatedImage`, stops capture (`setIsCapturing(false)`), hides the polaroid (`setShowPolaroid(false)`), and after a 100 ms timeout moves focus to `leftCardRef.current?.focus()`.  \n• Upload panels are focusable via `tabIndex={-1}` and exposed through `leftCardRef` / `rightCardRef` so keyboard users land back at the first panel when retrying.  \n• PolaroidPhotoGenerator shows a Tailwind-styled, underline “Try another outfit” button only when `generatedImage` is truthy; it carries `aria-live=\"polite\"` and `focus:ring-2 focus:ring-blue-500` for accessible feedback and calls `onRetry`.  \n• Implementation compiles, passes tests, and satisfies WCAG focus-management guidelines—subtask ready to close.\n</info added on 2025-08-04T23:54:44.753Z>",
-            "status": "done",
-            "testStrategy": "Integration test with RTL: render full page, click retry → expect generated image to be removed, mock upload input receives focus (`document.activeElement === uploadInput`)."
-          },
-          {
-            "id": 5,
-            "title": "Write Jest & RTL tests covering loading, success and retry flows",
-            "description": "Ensure >80% line coverage for the PolaroidPhotoGenerator logic added in subtasks 6.1-6.4.",
-            "dependencies": [
-              "6.3",
-              "6.4"
-            ],
-            "details": "• Create `__tests__/PolaroidPhotoGenerator.test.tsx`.\n• Test cases:\n  1. Renders placeholder while `generatedImage` undefined.\n  2. Displays generated image (with correct base-64 prefix) and fade-in class after `fireEvent.load`.\n  3. Retry button resets UI: simulate click and assert placeholder back.\n  4. Accessibility: ensures `alt` attribute and focus transfer.\n• Use Jest snapshots for DOM in each state to catch regressions.\n• Mock `next/image` if used, and mock parent callbacks with `jest.fn()`.\n• Add `npm run test:watch` entry if missing.\n<info added on 2025-08-07T03:22:46.069Z>\nExecute `npm test -- --coverage` and document current metrics.  \nIf line coverage < 80 %, extend `PolaroidPhotoGenerator.test.tsx` with:  \n• negative path when `generatedImage` is malformed or empty string (expect fallback placeholder).  \n• keyboard-only interaction: press Enter on Retry button and assert focus/placeholder reset.  \n• repeated retries (simulate two consecutive clicks) to ensure state remains deterministic.  \nUpdate `package.json` with `\"test:coverage\": \"jest --coverage\"` and add Jest `coverageThreshold` (80 % lines/branches/functions) in `jest.config.ts` so CI fails on regressions.  \nCommit refreshed snapshots and verify all suites pass with coverage ≥ 80 %.\n</info added on 2025-08-07T03:22:46.069Z>\n<info added on 2025-08-07T03:28:31.000Z>\n• Introduced `__mocks__/next/image.tsx` that returns a passthrough `<img>` component to unblock Jest from processing Next.js’ native Image optimization.  \n• Added console stubs in `jest.setup.ts` (`jest.spyOn(console, 'error' | 'warn' | 'info')`) to silence expected React warnings during snapshot rendering.  \n• Isolated failing behaviour with a minimal “renders placeholder” test, confirming the root cause was the missing Image mock; suite now executes without runtime errors.  \n• Action items:  \n  1. Re-enable the full test file and verify all assertions pass.  \n  2. Run `npm run test:coverage` and raise coverage to ≥ 80 %—extend tests for malformed `generatedImage`, keyboard retry, and repeated retries if necessary.  \n  3. Commit updated snapshots, ensure CI passes with new `coverageThreshold` gates.\n</info added on 2025-08-07T03:28:31.000Z>",
-            "status": "done",
-            "testStrategy": "Run `npm test -- --coverage` → verify coverage report shows >90% for this component file. CI must pass."
+            "details": "Test application startup and provider initialization. Verify existing ToastProvider functionality remains intact. Test React Query devtools availability in development. Run existing tests to ensure no regressions. Validate error boundaries trigger correctly for provider errors.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 7,
-        "title": "Global Error Handling & Toast Notifications",
-        "description": "Provide user-friendly feedback for timeouts, invalid images, and quota errors.",
-        "details": "• Install @radix-ui/react-toast if not already.\n• Create `components/ToastProvider.tsx` and context to trigger messages.\n• In API call catch block, map errors:\n  • 400 → \"Invalid images uploaded.\"\n  • 429 → \"OpenAI rate limit reached, try later.\"\n  • default → \"Unexpected error, please retry.\"\n• Auto-dismiss after 5s with pause-on-hover.",
-        "testStrategy": "• Unit test toast context triggers.\n• E2E Playwright: intercept /api/tryon with 500, assert toast rendered with retry CTA.",
-        "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "title": "Migrate Page Component to Use New Architecture",
+        "description": "Refactor src/app/page.tsx to use bridge layer hooks while preserving exact UI behavior and functionality",
+        "details": "Replace direct API calls and complex state management in page component with bridge layer hooks. Update handleCameraButtonClick to use useTryonWorkflow hook. Replace file upload handlers with useImageUpload hooks. Maintain exact same UI behavior, loading states, error handling, and user experience. Remove redundant state management code while preserving all existing functionality.",
+        "testStrategy": "End-to-end tests for complete user workflow, UI behavior regression tests, performance comparison with original implementation",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Install Radix Toast library and base styles",
-            "description": "Add the Radix UI Toast package to the project and ensure global styles are ready for toast components.",
+            "title": "Extract Direct API Calls to useTryonWorkflow Hook",
+            "description": "Replace handleCameraButtonClick and direct API calls with useTryonWorkflow hook integration",
             "dependencies": [],
-            "details": "1. Run `npm i @radix-ui/react-toast` (or `yarn add`).\n2. In `global.css` (or Tailwind base), import Radix toast primitives:\n   `@import '@radix-ui/themes/styles.css';`\n   `@import '@radix-ui/react-toast/dist/index.css';` if separate.\n3. Verify build compiles without type errors (`tsc --noEmit`).\n4. Commit lock-file changes.\n<info added on 2025-08-07T04:02:03.126Z>\nInstallation and base style setup verified complete:\n\n• Installed @radix-ui/react-toast v1.2.14 via pnpm and committed updated pnpm-lock.yaml  \n• Added `@import '@radix-ui/react-toast/styles.css';` to src/app/globals.css immediately after existing Tailwind imports  \n• Full build (`pnpm run build`) and TypeScript check (`npx tsc --noEmit`) succeed with zero errors; no console warnings in dev  \n\nSubtask 7.1 can be marked done—proceed to 7.2 (ToastProvider + context implementation).\n</info added on 2025-08-07T04:02:03.126Z>",
-            "status": "done",
-            "testStrategy": "Run `npm run build` to confirm type safety and that CSS is bundled; open dev server and ensure no console errors."
+            "details": "Identify all direct API calls in page.tsx and replace with useTryonWorkflow hook. Update handleCameraButtonClick to use the hook's mutation function. Ensure proper loading states and error handling are maintained through the hook's return values.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Create ToastProvider and context with auto-dismiss logic",
-            "description": "Implement a React context exposing a `showToast` function backed by Radix ToastProvider, supporting 5 s auto-dismiss and pause-on-hover.",
+            "title": "Migrate File Upload Handlers to useImageUpload Hooks",
+            "description": "Replace existing file upload state management with useImageUpload bridge layer hooks",
             "dependencies": [
               "7.1"
             ],
-            "details": "1. Create `components/ToastProvider.tsx`.\n2. Inside, wrap children with `<RadixToast.Provider swipeDirection=\"right\">`.\n3. Maintain local state array of toasts using `useState<{id:string,msg:string}>`.\n4. Implement `showToast(message, variant='error')` that pushes a new toast object with unique `id`.\n5. Render `<RadixToast.Root>` for each item, wiring `open` prop and `onOpenChange` to remove after close.\n6. Set `duration={5000}` and `pauseOnHover` via `providerProps`.\n7. Export `ToastContext` & `useToast` hook.\n<info added on 2025-08-07T04:07:52.582Z>\nImplementation finished and verified. Key points:\n\n• Added `src/components/ToastProvider.tsx` wrapping children in Radix `<Toast.Provider swipeDirection=\"right\" duration={5000} pauseOnHover />`, managing toast list with `useState<ToastItem[]>`, unique IDs, and cleanup via `onOpenChange`.  \n• Exported `ToastContext` and `useToast` hook with guard for usage outside provider.  \n• `showToast(message, variant = 'error')` now supports `error`, `success`, `info`, and `warning`, applying variant-specific classes.  \n• Introduced slide-in/out animations (`slideUp`, `slideDown`) and added corresponding utilities in `globals.css`.  \n• Comprehensive Jest suite (6 tests) confirms rendering, variant styling, auto-dismiss after 5 s, swipe-to-dismiss, and context error handling — all tests pass.\n</info added on 2025-08-07T04:07:52.582Z>",
-            "status": "done",
-            "testStrategy": "Jest/RTL: render provider, call `act(() => showToast('Hello'))`, assert text appears then disappears after fake timers advance 5 s."
+            "details": "Replace all file upload handlers, validation logic, and state management with useImageUpload hooks. Maintain existing drag-and-drop functionality, file type validation, and preview generation while using the new hook architecture.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Inject ToastProvider into application root",
-            "description": "Make the toast system globally available by wrapping the Next.js root layout (or _app) with ToastProvider.",
-            "dependencies": [
-              "7.2"
-            ],
-            "details": "1. Open `app/layout.tsx` (or `pages/_app.tsx`).\n2. Import `{ ToastProvider }` and wrap the returned JSX root.\n3. Ensure no hydration mismatch by placing provider outside of any client-only boundaries.\n4. Re-export `useToast` from a barrel file `hooks/index.ts` for convenient import.\n<info added on 2025-08-07T05:42:51.389Z>\n• Completed integration:\n  – Added `src/hooks/` directory with `index.ts` barrel exporting `useToast`.\n  – Root layout (`src/app/layout.tsx`) now wrapped with `<ToastProvider>` and positioned to avoid hydration mismatch.\n  – Removed unsupported `pauseOnHover` prop from Radix `<Toast.Provider>` to resolve build failure.\n• `pnpm run build` passes; toast system is globally accessible.\n• Developers can import the hook via `@/hooks` or `@/components/ToastProvider` in any client component.\n</info added on 2025-08-07T05:42:51.389Z>",
-            "status": "done",
-            "testStrategy": "Manual: start dev server, call `useToast().showToast('Test')` from browser console inside a page component and verify toast appears."
+            "title": "Refactor Modal State Management",
+            "description": "Extract modal visibility and state management to use bridge layer hooks",
+            "dependencies": [],
+            "details": "Replace local modal state management with bridge layer modal hooks. Ensure modal opening, closing, and data passing behaviors remain exactly the same while using the new architecture.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement central error mapping and trigger toasts in API catch blocks",
-            "description": "Create a utility to translate HTTP errors/timeouts to friendly messages and invoke the toast context from all client-side API interactions.",
+            "title": "Migrate Canvas Preview Component Integration",
+            "description": "Update Canvas preview rendering to use bridge layer hooks for real-time updates",
             "dependencies": [
-              "7.3"
+              "7.2"
             ],
-            "details": "1. Add `lib/errorToMessage.ts`:\n   ```ts\n   export const errorToMessage = (status?: number): string => {\n     switch (status) {\n       case 400: return 'Invalid images uploaded.';\n       case 429: return 'OpenAI rate limit reached, try later.';\n       case 'TIMEOUT': return 'Request timed out, please retry.';\n       default: return 'Unexpected error, please retry.';\n     }\n   };\n   ```\n2. Update `lib/openaiClient.ts` and any `fetch('/api/tryon')` calls:\n   - Wrap with `try/catch`.\n   - On `catch`, determine status (use `e.name==='AbortError'` for timeout → 'TIMEOUT').\n   - `const { showToast } = useToast(); showToast(errorToMessage(status));`\n3. Ensure AbortController 30 s timeout sets correct status flag.\n4. Verify TypeScript generics still compile.\n<info added on 2025-08-07T05:50:05.030Z>\n• Extended `src/lib/errorToMessage.ts` with additional mappings:\n  – 500 → \"Server error, please try again.\"\n  – 503 → \"Service temporarily unavailable.\"\n• Refactored `src/app/page.tsx` to fully adopt the toast system:\n  – Imported `useToast` and `errorToMessage`\n  – Removed obsolete `showError` / `errorMessage` state and related UI\n  – Inside `handleCameraButtonClick`, routed all failure paths through `showToast`, selecting `warning` for client-side validation issues and `error` for API, timeout, or compression failures\n• Verified build: TypeScript compilation succeeds with zero errors\n</info added on 2025-08-07T05:50:05.030Z>",
-            "status": "done",
-            "testStrategy": "RTL test for `handleCameraButtonClick`: mock `fetch` to reject with 400, assert `showToast` called with 'Invalid images uploaded.'"
+            "details": "Refactor Canvas preview component integration to use bridge layer hooks for image rendering, zoom controls, and real-time preview updates. Maintain performance characteristics and user interaction responsiveness.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Write unit and E2E tests for global toast error handling",
-            "description": "Ensure the toast system works end-to-end, including context triggering and UI visibility across pages.",
+            "title": "Extract Text Overlay Editor State Management",
+            "description": "Migrate text overlay editing functionality to bridge layer hooks",
+            "dependencies": [
+              "7.3"
+            ],
+            "details": "Replace local text overlay state management with bridge layer hooks. Maintain text editing, positioning, styling, and persistence functionality while using the new architecture pattern.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Refactor Sticker Library and Drag-Drop Logic",
+            "description": "Migrate sticker library and drag-and-drop functionality to use bridge layer hooks",
             "dependencies": [
               "7.4"
             ],
-            "details": "1. Unit: `toastProvider.test.tsx` uses Jest fake timers to validate auto-dismiss and pause-on-hover (simulate `mouseEnter` to keep toast open >5 s).\n2. Unit: `errorToMessage.test.ts` verifies correct mapping for 400, 429, timeout, default.\n3. E2E (Playwright):\n   - Intercept `/api/tryon` and force 500 status.\n   - Visit page, click generate, assert toast with 'Unexpected error' text appears and auto-dismisses.\n   - Repeat with 429.\n4. Add CI step in GitHub Actions to run tests.\n<info added on 2025-08-07T06:31:10.358Z>\n• Implemented full test suite as outlined, covering toast rendering, styling, auto-dismiss, provider error handling, and exhaustive error-code mapping (400/429/500/503/TIMEOUT/unknown, incl. numeric strings and edge cases).  \n• Added Playwright spec `e2e/toast-error-handling.spec.ts` intercepting `/api/tryon` to simulate 500, 429, 400, and arbitrary codes; asserts toast content, styling, and 5-second auto-dismiss.  \n• Patched `errorToMessage.ts` to coerce string status codes to numbers before comparison.  \n• Integrated new Jest + Playwright jobs into GitHub Actions workflow; CI now runs unit and E2E suites on every push/PR with all checks green.\n</info added on 2025-08-07T06:31:10.358Z>",
-            "status": "done",
-            "testStrategy": "See details section; passing unit tests and green Playwright run confirm completion."
+            "details": "Extract sticker library state management, drag-and-drop interactions, and positioning logic to bridge layer hooks. Ensure smooth drag interactions and accurate positioning are preserved.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Update Undo/Redo and Export Functionality",
+            "description": "Migrate undo/redo operations and export functionality to bridge layer architecture",
+            "dependencies": [
+              "7.5",
+              "7.6"
+            ],
+            "details": "Replace local undo/redo state management and export functionality with bridge layer hooks. Maintain action history, state restoration, and export format optimization while using the new architecture.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Remove Redundant State and Perform Integration Testing",
+            "description": "Clean up redundant state management code and validate complete migration",
+            "dependencies": [
+              "7.7"
+            ],
+            "details": "Remove all redundant local state management, dead code, and unused imports. Perform comprehensive testing to ensure exact UI behavior preservation, loading states, error handling, and user experience match the original implementation.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 8,
-        "title": "Write Jest Unit Tests for Backend & Utilities",
-        "description": "Achieve >90% coverage on service wrapper, API route, and image utils.",
-        "details": "• Mock OpenAI SDK; assert correct params.\n• Use supertest with Next.js test utils to hit /api/tryon.\n• Snapshot Zod validation errors.\n• Add `npm run test:ci` script executed in GitHub Actions (already wired).",
-        "testStrategy": "• `npm test -- --coverage`, ensure reporters highlight uncovered lines.\n• CI fails if coverage <90%.",
+        "title": "Add Comprehensive Testing Framework",
+        "description": "Implement testing strategy for the new three-layer architecture with unit, integration, and end-to-end tests",
+        "details": "Create test utilities for React Query testing with mock providers. Add unit tests for all business layer hooks and mutations. Implement integration tests for bridge layer hook coordination. Add performance benchmarks comparing old vs new architecture. Create mock strategies for OpenAI API calls in tests. Document testing patterns for future feature development.",
+        "testStrategy": "Comprehensive test coverage for all layers, performance regression testing, mock API behavior validation, CI/CD integration tests",
         "priority": "medium",
-        "dependencies": [],
-        "status": "done",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Configure Jest & Coverage Enforcement",
-            "description": "Establish a unified Jest setup that enforces >80% coverage and supports Node + Next.js environment.",
+            "title": "Set up testing infrastructure and configuration",
+            "description": "Configure Jest, React Testing Library, and test utilities for the three-layer architecture",
             "dependencies": [],
-            "details": "• Extend/modify jest.config.ts: include `testEnvironment: \"jest-environment-node\"`, add `setupFilesAfterEnv: [\"<rootDir>/jest.setup.ts\"]` if not present.\n• Add `collectCoverage: true` and `coverageThreshold: { global: { branches: 90, functions: 90, lines: 90, statements: 90 } }`.\n• Configure moduleNameMapper for `^@/(.*)$` → `<rootDir>/src/$1` and Next.js aliases.\n• In `jest.setup.ts`, mock `next/response`, `next/server`, and global fetch if needed.\n• Verify `npm test -- --coverage` produces LCOV & text reports.",
-            "status": "done",
-            "testStrategy": "Run `npm test` on an untouched branch; ensure the command exits non-zero due to missing coverage, confirming the threshold gate is active."
+            "details": "Install and configure testing dependencies including Jest, React Testing Library, MSW for API mocking, and React Query testing utilities. Set up test configuration files, custom render functions with providers, and establish testing file structure. Configure test scripts in package.json and ensure proper TypeScript support for tests.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Unit Test OpenAI Service Wrapper",
-            "description": "Mock the OpenAI SDK and fully test `generateTryOn` happy-path & failure scenarios.",
-            "dependencies": [],
-            "details": "• In `__mocks__/openai.ts`, export a class with `images = { edit: jest.fn() }`.\n• Use `jest.mock('openai')` in `lib/__tests__/openaiClient.test.ts`.\n• Test cases:\n  1. Resolves base64 URL when SDK returns `{ data: [{ b64_json: 'abc==' }] }`.\n  2. Passes correct params (`model`, `image`, `prompt`, `n`, `size`).\n  3. Propagates SDK rejection (use `mockRejectedValueOnce`).\n• Use `expect(openai.images.edit).toHaveBeenCalledWith(expect.objectContaining({...}))`.\n• Aim for 100% branch/line coverage on wrapper file.",
-            "status": "done",
-            "testStrategy": "Run test file alone with `--coverage --collectCoverageFrom=lib/openaiClient.ts`; inspect coverage report to confirm full coverage."
+            "title": "Create React Query testing utilities and mock providers",
+            "description": "Build reusable test utilities for testing React Query hooks and mutations",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create custom testing utilities including QueryClient wrapper, mock provider setup, and helper functions for testing async hooks. Implement utilities for mocking React Query cache, testing loading states, error states, and success scenarios. Establish patterns for testing mutations with optimistic updates.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Unit Test Image Utility Functions",
-            "description": "Write pure-function tests for helper utilities that convert files to base64, resize images, or sanitize inputs.",
-            "dependencies": [],
-            "details": "• Locate utilities under `lib/imageUtils.ts` (or similar).\n• Create `lib/__tests__/imageUtils.test.ts`.\n• Use Node `fs.readFileSync` with fixture JPEG/PNG files placed in `__fixtures__/` to generate deterministic inputs.\n• Validate:\n  - `fileToBase64` returns expected base64 string (use snapshot to avoid long literals).\n  - `resizeImage` outputs buffer with width==target.\n  - Edge cases: unsupported MIME type throws, empty buffer handled.\n• Mock `sharp` if used, via `jest.mock('sharp')` to supply predictable buffers.",
-            "status": "done",
-            "testStrategy": "`npm test` should show ≥90% coverage on utils directory; add `jest --watch` locally for TDD."
+            "title": "Implement unit tests for business layer hooks and mutations",
+            "description": "Write comprehensive unit tests for all business layer React Query hooks",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Create unit tests for useTryonMutation, useImageProcessing, and other business layer hooks. Test individual hook behavior including success scenarios, error handling, retry logic, and state management. Mock external dependencies like OpenAI API calls and ensure proper isolation of business logic.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Integration Tests for /api/tryon Route",
-            "description": "Exercise the Next.js route with Supertest, covering success, validation error, and internal error paths, plus Zod snapshot.",
-            "dependencies": [],
-            "details": "• Use `next-test-api-route-handler` or `next-router-mock`.\n• Import route handler: `import { POST } from '@/app/api/tryon/route';`.\n• Success case: send JSON `{ modelImage: 'data:image/png;base64,AAA', apparelImages: ['data:image/png;base64,BBB'] }`, mock `generateTryOn` to resolve `'img123'`; expect 200 and `{ img_generated: 'img123' }`.\n• Validation case: omit `apparelImages`; expect 400 and snapshot the Zod error message (`toMatchSnapshot()`).\n• Internal error: mock `generateTryOn` to throw; expect 500.\n• Ensure `generateTryOn` called once per request with correct args.\n• Achieve 100% line coverage on route file.",
-            "status": "done",
-            "testStrategy": "Run with `NODE_ENV=test`; Supertest should wrap handler via `createRequest`/`createResponse`. Inspect coverage report for route file."
+            "title": "Create mock strategies for external API calls",
+            "description": "Implement comprehensive mocking for OpenAI API and other external services",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Set up MSW (Mock Service Worker) handlers for OpenAI API endpoints. Create mock response scenarios for success, error, timeout, and rate limiting cases. Implement mock strategies for file upload endpoints and image processing APIs. Ensure mocks are realistic and match actual API behavior.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add test:ci Script & Validate GitHub Actions",
-            "description": "Wire a dedicated npm script that exits on <80% coverage and confirm the existing GitHub Action runs it.",
-            "dependencies": [],
-            "details": "• In package.json: `\"test:ci\": \"jest --ci --coverage\"`.\n• Push branch; observe GitHub Action job `npm test:ci` executes.\n• If workflow file missing step, add under `jobs.test.steps`: `- run: npm run test:ci`.\n• Ensure artifacts upload coverage (`actions/upload-artifact@v3`).\n• Fail build intentionally (e.g., skip a test) to verify action blocks merge when coverage <90%.",
-            "status": "done",
-            "testStrategy": "Create PR with deliberate coverage drop; CI should fail. Revert change and confirm green build."
-          }
-        ]
-      },
-      {
-        "id": 9,
-        "title": "Implement Playwright End-to-End Flow",
-        "description": "Automate the full happy-path: upload images → generate → view result.",
-        "details": "• Add `tests/e2e/tryon.spec.ts`.\n• Steps: navigate /, set file inputs with sample fixtures, click camera button, wait for network idle, assert generated image `<img>` has base64 src.\n• Use Playwright `route.fulfill()` to stub OpenAI response for consistency.",
-        "testStrategy": "• Run `npx playwright test` on Windows CI matrix.\n• Capture screenshot on failure for debugging.",
-        "priority": "medium",
-        "dependencies": [],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Add image fixtures and OpenAI stub payload",
-            "description": "Create deterministic assets used by the happy-path E2E test and by the network stub that will replace real OpenAI responses.",
-            "dependencies": [],
-            "details": "• Create tests/fixtures directory.\n• Copy two royalty-free JPGs into the folder and rename to model.jpg and apparel.jpg.\n• Generate a short (≤10 KB) base64 PNG string with any image tool and save it to tests/fixtures/generated_base64.txt.\n• Build a JSON file tests/fixtures/openai-edit-success.json with schema:\n  {\n    \"created\": 1234567890,\n    \"data\": [ { \"b64_json\": \"<contents of generated_base64.txt>\" } ]\n  }\n• Export the absolute paths from a helper (tests/fixtures/index.ts) so test code can import:\n  export const fixtures = { model: path.resolve(__dirname, 'model.jpg'), apparel: path.resolve(__dirname, 'apparel.jpg'), stub: require('./openai-edit-success.json') };",
-            "status": "done",
-            "testStrategy": "Run `cat tests/fixtures/openai-edit-success.json | jq '.data[0].b64_json'` and verify it matches the text file to confirm no formatting loss."
+            "title": "Implement integration tests for bridge layer coordination",
+            "description": "Test the coordination between business layer hooks and bridge layer custom hooks",
+            "dependencies": [
+              "8.3",
+              "8.4"
+            ],
+            "details": "Create integration tests for useTryonWorkflow and useImageUpload hooks that verify proper coordination with business layer. Test complete workflows including file upload, validation, processing, and API calls. Verify error propagation and state synchronization across layers.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
-            "id": 2,
-            "title": "Configure Playwright to stub OpenAI requests",
-            "description": "Extend Playwright config so every test run intercepts the OpenAI Images Edit endpoint and returns the static fixture defined in 9.1.",
+            "id": 6,
+            "title": "Add performance benchmarks and architecture comparison tests",
+            "description": "Create performance tests comparing old vs new three-layer architecture",
             "dependencies": [
-              "9.1"
+              "8.5"
             ],
-            "details": "• Open playwright.config.ts.\n• In `testDir` point to `tests/e2e`.\n• Add a `use` block with `{ screenshot: 'only-on-failure', trace: 'retain-on-failure' }`.\n• Implement `globalSetup` (or per-test `page.route`) that does:\n  await page.route('https://api.openai.com/v1/images/edits', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(stubJson) }));\n  – stubJson is imported from tests/fixtures/openai-edit-success.json.\n• Ensure the route interception runs **before** the page navigates by placing it at the top of each test’s body or via `test.beforeEach` hook.\n• Expose environment variable OPENAI_API_KEY with dummy value inside config to satisfy runtime code.",
-            "status": "done",
-            "testStrategy": "Run `npx playwright test --list` to confirm config loads; execute one dry test and inspect `playwright.trace.zip` to verify the route was fulfilled."
+            "details": "Implement performance benchmarks for image processing, API calls, and rendering. Create tests that measure load times, memory usage, and processing speed for both architectures. Set up automated performance regression testing and establish performance baselines for CI/CD integration.",
+            "status": "pending",
+            "testStrategy": ""
           },
           {
-            "id": 3,
-            "title": "Implement `tests/e2e/tryon.spec.ts` happy-path flow",
-            "description": "Write the Playwright scenario that covers navigating the app, uploading images, triggering generation, and waiting for the backend response.",
+            "id": 7,
+            "title": "Create end-to-end tests and testing documentation",
+            "description": "Implement E2E tests for complete user workflows and document testing patterns",
             "dependencies": [
-              "9.2"
+              "8.6"
             ],
-            "details": "• Create file tests/e2e/tryon.spec.ts.\n• Import `{ test, expect }` from '@playwright/test' and fixtures from tests/fixtures.\n• Test steps:\n  1. `await page.goto('/')`.\n  2. `await page.setInputFiles('input[data-test=\"model-upload\"]', fixtures.model)`.\n  3. `await page.setInputFiles('input[data-test=\"apparel-upload\"]', fixtures.apparel)`.\n  4. Click camera/submit button using locator `button[data-test=\"generate-button\"]`.\n  5. `await page.waitForLoadState('networkidle')` to ensure the POST finishes (intercepted by 9.2).\n• Export the page reference for reuse in 9.4 if desired.",
-            "status": "done",
-            "testStrategy": "Add `console.log` in route.fulfill to ensure the interception fires exactly once; run the test with `DEBUG=pw:api` to observe network silence after generation click."
-          },
-          {
-            "id": 4,
-            "title": "Assert generated image appears with base64 source",
-            "description": "Extend the E2E test with strict checks that a data-URL image is rendered after generation completes.",
-            "dependencies": [
-              "9.3"
-            ],
-            "details": "• In tryon.spec.ts, locate the generated `<img>` element via `page.locator('img[data-test=\"generated-image\"]')` or generic `[alt=\"Generated image\"]`.\n• Use `await expect(img).toBeVisible()`.\n• Assert the `src` is a base64 data URL: `await expect(img).toHaveAttribute('src', /data:image\\/png;base64,[A-Za-z0-9+/]+=*/)`.\n• (Optional) take a snapshot: `await expect(img).toHaveScreenshot('generated.png')` for visual diffing.\n• Commit the updated test.",
-            "status": "done",
-            "testStrategy": "Intentionally change the stubbed base64 string and rerun the test to ensure the assertion fails, capturing the regression."
-          },
-          {
-            "id": 5,
-            "title": "Integrate Playwright E2E suite into CI pipeline",
-            "description": "Run the new end-to-end test on the Windows matrix and collect diagnostics on failure.",
-            "dependencies": [
-              "9.4"
-            ],
-            "details": "• Update .github/workflows/ci.yml:\n  - Add step `npx playwright install --with-deps` before tests.\n  - Execute `npx playwright test`.\n• Ensure matrix includes `windows-latest` alongside existing OSes.\n• Configure artefact upload:\n  if: failure() → upload `playwright-report`, `test-results`, and any *.png screenshots.\n• Add badge or job to README if desired.\n• Verify `package.json` has script: \"test:e2e\": \"playwright test\" and that lint/test jobs depend on build if required.",
-            "status": "done",
-            "testStrategy": "Push a branch with a failing assertion (e.g., expect false) to validate workflow uploads the HTML report and screenshots; then revert and merge when green."
-          }
-        ]
-      },
-      {
-        "id": 10,
-        "title": "Documentation & MS-DOS Run Scripts",
-        "description": "Update README with setup steps and provide batch script for Windows developers.",
-        "details": "• README sections: Prerequisites, Environment Variables, Running Dev, Running Tests.\n• Add `dev.bat`:\n```\n@echo off\nif \"%OPENAI_API_KEY%\"==\"\" (\n  echo OPENAI_API_KEY not set & exit /b 1\n)\ncall npm run dev\n```\n• Commit .env.example and coverage badges.",
-        "testStrategy": "• Peer review the README; copy-paste commands in fresh Windows VM to ensure they work.\n• Ensure dev.bat exits with error when env var missing.",
-        "priority": "medium",
-        "dependencies": [],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Gather project setup information",
-            "description": "Audit the existing repository to collect all data needed for documentation and scripts: required Node/NPM versions, additional tooling (e.g., git, pnpm), environment variables used in code, common dev/test commands, and current coverage report location or badge URL from CI (e.g., Codecov). Store findings in a temporary notes file that subsequent subtasks can reference.",
-            "dependencies": [],
-            "details": "Search the codebase for `process.env.` and `.env` usages to compile the variable list; run `npm run` to enumerate scripts; open the CI config to find coverage artifact path or badge link. Save everything to `docs/setup-notes.md` (not committed in final PR).\n<info added on 2025-08-07T08:42:18.704Z>\nInformation gathering completed; results saved to docs/setup-notes.md\n\nEnvironment variables\n• Required: OPENAI_API_KEY, OPENAI_MODEL (default gpt-image-1)\n• Optional: NODE_ENV, CI, NEXT_PUBLIC_BASE_URL, NEXT_PUBLIC_APP_URL\n• Environment files: .env.local (ignored), .env.example (committed)\n\nPackage manager and key dependency versions\n• Preferred manager: pnpm (lockfile pnpm-lock.yaml)\n• Next.js 15.3.3, React 19.0.0, TypeScript 5.3.3, Tailwind CSS 4.1.11\n\nNPM scripts\n• Development: dev, build, start, lint, type-check\n• Testing: test, test:ci, test:unit, test:coverage, test:e2e\n\nCI/CD\n• Workflow file: .github/workflows/ci.yml\n• Codecov integration with 80 % coverage threshold; artifacts uploaded\n• Coverage outputs: ./coverage/lcov.info plus HTML and text reports\n\nTesting setup\n• Jest: jsdom environment, canvas mocks, 80 % threshold\n• Playwright: CI-aware E2E configuration\n\nPurpose\n• docs/setup-notes.md now holds all variables, dependencies, scripts, CI/CD and testing details for downstream documentation and script-generation subtasks\n</info added on 2025-08-07T08:42:18.704Z>",
-            "status": "done",
-            "testStrategy": "N/A (information-gathering step)"
-          },
-          {
-            "id": 2,
-            "title": "Draft updated README with setup & run sections",
-            "description": "Create a new README draft that includes the four required sections—Prerequisites, Environment Variables, Running Dev, Running Tests—using the information gathered in 10.1. Provide copy-paste friendly commands and explanatory text for each step. Leave placeholder links where .env.example and coverage badge will be added in later subtasks.",
-            "dependencies": [
-              "10.1"
-            ],
-            "details": "Start from the current README.md, restructure headings, and add code fences around commands (`npm install`, `npm run dev`, `npm run test`). Use markdown tables or bullet lists to describe each variable. Commit changes to a feature branch but do not merge yet.\n<info added on 2025-08-07T08:44:05.603Z>\nREADME restructure finished: added required four sections with tables, cross-platform code blocks, script reference tables, coverage badge placeholder, and notes on 80 % threshold. Changes staged on feature branch; formatting verified in VS Code preview. Subtask ready to hand off for 10.3 (.env.example and live badge).\n</info added on 2025-08-07T08:44:05.603Z>",
-            "status": "done",
-            "testStrategy": "Render the README in VS Code preview to ensure headings hierarchy and code block formatting look correct."
-          },
-          {
-            "id": 3,
-            "title": "Add .env.example file and integrate coverage badges",
-            "description": "Create `.env.example` containing all variables identified in 10.1 with empty values or sample placeholders. Update the README draft from 10.2 to link to this file and embed the coverage badge markdown pointing to the CI provider. Ensure badge renders correctly in the repo’s Git viewer.",
-            "dependencies": [
-              "10.1",
-              "10.2"
-            ],
-            "details": "Place comments in .env.example explaining each variable. For badges, copy the markdown generated by Codecov (or similar) and insert at the top of the README under the title. Commit both the new file and README adjustments.\n<info added on 2025-08-07T08:53:13.199Z>\nImplemented .env.example with grouped Required and Optional sections, inline comments, default placeholders, and links for API key generation. Updated README.md to embed live Codecov badge (https://codecov.io/gh/gabepublic/The-Sus-Fit-gp/branch/main/graph/badge.svg) and reference the example env file. Changes committed on branch THOS-3-api-tryon with message “feat: add .env.example file and update coverage badge URL” (40 insertions, 9 deletions). Verified .env.example is tracked and badge renders on GitHub. Subtask deliverables complete; ready for validation in 10.5.\n</info added on 2025-08-07T08:53:13.199Z>",
-            "status": "done",
-            "testStrategy": "Open the repository on GitHub to verify that the badge is visible and that `.env.example` is present but not listed in `.gitignore`."
-          },
-          {
-            "id": 4,
-            "title": "Implement Windows dev.bat script",
-            "description": "Add `dev.bat` at the project root to simplify development on Windows. The script should check for `OPENAI_API_KEY` (and any other critical vars from 10.1) and forward to `npm run dev`, exiting with a non-zero code and message when vars are missing.",
-            "dependencies": [
-              "10.1"
-            ],
-            "details": "@echo off\nif \"%OPENAI_API_KEY%\"==\"\" (\n  echo OPENAI_API_KEY not set & exit /b 1\n)\ncall npm run dev\n<info added on 2025-08-07T08:55:24.344Z>\nWindows dev.bat script fully implemented with enhanced validation and developer guidance.\n\nKey features implemented:\n• Checks that OPENAI_API_KEY exists and roughly matches the sk-proj-* pattern; exits /b 1 otherwise.  \n• Prints clear, color-less error/help messages including examples for set, setx, and .env.local.  \n• Supplies link to OpenAI dashboard for key creation.  \n• Calls pnpm run dev (falls back to npm run dev if pnpm not installed) and propagates its exit code.  \n• Warns and continues when key format looks incorrect instead of halting.  \n• Consolidated in project root as dev.bat.\n\nUsage examples:\n```\nREM Expected failure\ndev.bat\n\nREM One-shot session\nset OPENAI_API_KEY=sk-proj-your-key && dev.bat\n\nREM Persistent (cmd)\nsetx OPENAI_API_KEY \"sk-proj-your-key\"\n```\n\nTesting performed:\n1. No key → script terminates with exit code 1 and help text.  \n2. Bad prefix → warning displayed, server starts.  \n3. Valid key → server starts; Ctrl+C stops as expected; exit code mirrors dev server.\n\nSubtask ready for promotion to “done” and for verification in subtask 10.5.\n</info added on 2025-08-07T08:55:24.344Z>",
-            "status": "done",
-            "testStrategy": "On a Windows shell, run `dev.bat` with and without the environment variable set; assert that the script starts the dev server in the first case and exits with code 1 in the second (`echo %ERRORLEVEL%`)."
-          },
-          {
-            "id": 5,
-            "title": "Validate documentation and script in a clean Windows environment",
-            "description": "Spin up a fresh Windows VM or container, clone the repository, follow the README instructions verbatim, and use `dev.bat` to launch the dev server. Note any discrepancies and iterate until the process is smooth. Submit a pull request for peer review once validation passes.",
-            "dependencies": [
-              "10.2",
-              "10.3",
-              "10.4"
-            ],
-            "details": "Record any amendments needed while testing and push fixes. Request at least one teammate to perform a spot-check using the updated README before merging.",
-            "status": "done",
-            "testStrategy": "Checklist: (1) README commands execute without error, (2) `dev.bat` fails gracefully when vars missing, (3) UI starts at http://localhost:3000, (4) tests run and coverage badge updates after CI pipeline. All items must pass before closing Task 10."
+            "details": "Create end-to-end tests using Playwright for complete try-on workflows including file upload, processing, and result display. Test error scenarios and edge cases in browser environment. Document testing patterns, best practices, and guidelines for future feature development. Create testing runbook for CI/CD integration.",
+            "status": "pending",
+            "testStrategy": ""
           }
         ]
       }
     ],
     "metadata": {
-      "created": "2025-08-03T01:57:18.422Z",
-      "updated": "2025-08-07T08:57:26.972Z",
+      "created": "2025-08-15T00:44:33.282Z",
+      "updated": "2025-08-15T04:33:02.594Z",
       "description": "Tasks for master context"
     }
   }

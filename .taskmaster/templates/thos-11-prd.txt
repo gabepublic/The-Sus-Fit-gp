@@ -1,0 +1,578 @@
+# Social Sharing Module PRD
+
+## Executive Summary
+
+Extend the existing virtual try-on platform with comprehensive social sharing capabilities, enabling users to customize and distribute their AI-generated polaroid images across major social platforms. This module maintains strict architectural separation between presentation, business logic, and data access layers while ensuring full test coverage.
+
+## Current State Analysis
+
+### Existing Architecture
+- **Presentation**: React components with Shadcn/UI + TailwindCSS 4
+- **Business Logic**: Custom hooks + React Query for state management
+- **Data Layer**: Next.js API routes + OpenAI integration
+- **Testing**: Jest + Testing Library setup (existing)
+- **Styling**: Color brutalism aesthetic established
+
+### Core Functionality (Complete)
+- ✅ Dual image upload (selfie + garment)
+- ✅ AI-powered virtual try-on generation
+- ✅ Polaroid-style result display
+- ✅ File processing and compression utilities
+- ✅ Error handling with toast notifications
+
+## Feature Requirements
+
+### Phase 1: Core Social Sharing
+- Social platform selection tray
+- Pre-share image customization
+- Platform-optimized sharing
+- Share analytics tracking
+
+### Phase 2: Enhanced Customization
+- Advanced text styling options
+- Sticker library integration
+- Filter effects system
+- Template-based layouts
+
+## Technical Architecture
+
+### Layer Separation Strategy
+
+#### 1. Presentation Layer (`/src/components/`)
+**Responsibility**: Pure UI components, user interactions, visual state
+**Dependencies**: Business layer hooks only, no direct API calls
+**Testing**: Component rendering, user interactions, accessibility
+
+```typescript
+// Components consume business logic via hooks
+const SocialSharingTray = () => {
+  const { platforms, isLoading } = useSocialPlatforms()
+  const { shareImage } = useSocialShare()
+  // Pure UI logic only
+}
+```
+
+#### 2. Business Layer (`/src/hooks/` + `/src/lib/`)
+**Responsibility**: Application logic, state management, data transformation
+**Dependencies**: React Query for server state, utility functions
+**Testing**: Hook behavior, state transitions, business rules
+
+```typescript
+// Hooks abstract away API complexity
+const useSocialShare = () => {
+  const mutation = useMutation({
+    mutationFn: (config: ShareConfig) => socialApiClient.share(config)
+  })
+  // Business logic for validation, formatting, error handling
+}
+```
+
+#### 3. Data/API Layer (`/src/app/api/` + `/src/lib/clients/`)
+**Responsibility**: External service integration, data persistence
+**Dependencies**: Platform SDKs, image processing libraries
+**Testing**: API integration, data transformation, error scenarios
+
+```typescript
+// API routes handle external service communication
+export async function POST(request: NextRequest) {
+  const shareRequest = await validateShareRequest(request)
+  const result = await platformClient.share(shareRequest)
+  return NextResponse.json(result)
+}
+```
+
+## Component Specifications
+
+### 1. Social Sharing Tray
+**File**: `/src/components/ui/social-sharing-tray.tsx`
+**Purpose**: Platform selection interface
+**Dependencies**: `useSocialPlatforms()`, `useSocialShare()`
+
+#### Props Interface
+```typescript
+interface SocialSharingTrayProps {
+  image: string
+  onPlatformSelect: (platform: SocialPlatform) => void
+  isVisible: boolean
+  className?: string
+}
+```
+
+#### Features
+- Platform availability checking
+- Loading states during share operations
+- Error handling with user feedback
+- Accessibility compliance (ARIA labels, keyboard navigation)
+
+#### Testing Requirements
+- Platform button rendering
+- Click event handling
+- Loading state display
+- Error state recovery
+- Keyboard navigation
+- Screen reader compatibility
+
+### 2. Share Customization Modal
+**File**: `/src/components/ui/share-customization-modal.tsx`
+**Purpose**: Pre-share image editing interface
+**Dependencies**: `useImageCustomization()`, `useSocialShare()`
+
+#### Props Interface
+```typescript
+interface ShareCustomizationModalProps {
+  isOpen: boolean
+  onClose: () => void
+  originalImage: string
+  platform: SocialPlatform
+  onShare: (customizedImage: string) => void
+}
+```
+
+#### Features
+- Real-time image preview
+- Text overlay editor
+- Sticker placement system
+- Platform-specific format optimization
+- Undo/redo functionality
+
+#### Testing Requirements
+- Modal open/close behavior
+- Image customization controls
+- Real-time preview updates
+- Platform format compliance
+- Undo/redo operations
+- Form validation
+
+### 3. Social Platform Button
+**File**: `/src/components/ui/social-platform-button.tsx`
+**Purpose**: Individual platform selection control
+**Dependencies**: None (pure component)
+
+#### Props Interface
+```typescript
+interface SocialPlatformButtonProps {
+  platform: SocialPlatform
+  onClick: () => void
+  isLoading?: boolean
+  isAvailable?: boolean
+  className?: string
+}
+```
+
+## Business Layer Specifications
+
+### 1. Social Platform Management Hook
+**File**: `/src/hooks/useSocialPlatforms.ts`
+**Purpose**: Platform availability and configuration management
+
+#### Interface
+```typescript
+interface UseSocialPlatformsReturn {
+  platforms: SocialPlatform[]
+  isLoading: boolean
+  error: Error | null
+  checkAvailability: (platform: SocialPlatform) => boolean
+  getPlatformConfig: (platform: SocialPlatform) => PlatformConfig
+}
+```
+
+#### React Query Integration
+```typescript
+const useSocialPlatforms = () => {
+  const { data: platforms, isLoading, error } = useQuery({
+    queryKey: ['social-platforms'],
+    queryFn: () => socialPlatformsApi.getAvailable(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2
+  })
+
+  // Business logic for platform filtering, sorting
+}
+```
+
+#### Testing Requirements
+- Platform data fetching
+- Availability checking logic
+- Configuration retrieval
+- Error state handling
+- Cache behavior validation
+
+### 2. Social Sharing Hook
+**File**: `/src/hooks/useSocialShare.ts`
+**Purpose**: Share operation management and state tracking
+
+#### Interface
+```typescript
+interface UseSocialShareReturn {
+  shareImage: (config: ShareConfig) => Promise<ShareResult>
+  isSharing: boolean
+  shareHistory: ShareRecord[]
+  error: Error | null
+  reset: () => void
+}
+```
+
+#### React Query Integration
+```typescript
+const useSocialShare = () => {
+  const shareMutation = useMutation({
+    mutationFn: (config: ShareConfig) => socialShareApi.share(config),
+    onSuccess: (result) => {
+      // Update share history cache
+      queryClient.setQueryData(['share-history'], prev => [...prev, result])
+    },
+    onError: (error) => {
+      // Error tracking and user notification
+    }
+  })
+
+  // Business logic for share validation, tracking
+}
+```
+
+#### Testing Requirements
+- Share operation success/failure
+- Share history management
+- Error handling and recovery
+- Validation logic
+- Cache updates on successful shares
+
+### 3. Image Customization Hook
+**File**: `/src/hooks/useImageCustomization.ts`
+**Purpose**: Image editing state and operations management
+
+#### Interface
+```typescript
+interface UseImageCustomizationReturn {
+  customizedImage: string | null
+  addTextOverlay: (text: TextOverlay) => void
+  addSticker: (sticker: Sticker) => void
+  applyFilter: (filter: FilterType) => void
+  undo: () => void
+  redo: () => void
+  reset: () => void
+  exportImage: (format: ImageFormat) => Promise<string>
+}
+```
+
+#### Testing Requirements
+- Image modification operations
+- Undo/redo functionality
+- Export format handling
+- State consistency
+- Performance with large images
+
+## API Layer Specifications
+
+### 1. Social Platform APIs
+**Files**: `/src/app/api/social/[platform]/route.ts`
+**Purpose**: Platform-specific sharing implementations
+
+#### Instagram Stories API
+```typescript
+// POST /api/social/instagram
+interface InstagramShareRequest {
+  image: string // base64
+  customizations: ImageCustomizations
+  storyType: 'image' | 'video'
+}
+```
+
+#### TikTok Share API
+```typescript
+// POST /api/social/tiktok
+interface TikTokShareRequest {
+  image: string
+  caption?: string
+  hashtags?: string[]
+}
+```
+
+#### Twitter/X API
+```typescript
+// POST /api/social/twitter
+interface TwitterShareRequest {
+  image: string
+  text?: string
+  altText?: string
+}
+```
+
+#### Testing Requirements
+- API endpoint functionality
+- Platform-specific request formatting
+- Error response handling
+- Rate limiting compliance
+- Authentication token management
+
+### 2. Image Processing API
+**File**: `/src/app/api/image/customize/route.ts`
+**Purpose**: Server-side image manipulation
+
+#### Request Interface
+```typescript
+interface ImageCustomizeRequest {
+  originalImage: string
+  customizations: ImageCustomizations
+  outputFormat: 'jpeg' | 'png' | 'webp'
+  platform: SocialPlatform // for optimization
+}
+```
+
+#### Features
+- Text overlay rendering
+- Sticker composition
+- Filter application
+- Format optimization
+- Compression for platform limits
+
+#### Testing Requirements
+- Image processing accuracy
+- Output format compliance
+- Performance benchmarks
+- Memory usage optimization
+- Error handling for invalid inputs
+
+## Data Models
+
+### Core Types
+```typescript
+type SocialPlatform = 'instagram' | 'tiktok' | 'twitter' | 'facebook' | 'snapchat'
+
+interface ShareConfig {
+  platform: SocialPlatform
+  image: string
+  customizations?: ImageCustomizations
+  caption?: string
+  hashtags?: string[]
+}
+
+interface ImageCustomizations {
+  textOverlays: TextOverlay[]
+  stickers: Sticker[]
+  filter?: FilterType
+  crop?: CropArea
+}
+
+interface TextOverlay {
+  id: string
+  text: string
+  position: { x: number; y: number }
+  style: TextStyle
+}
+
+interface Sticker {
+  id: string
+  type: string
+  position: { x: number; y: number }
+  scale: number
+  rotation: number
+}
+
+interface ShareResult {
+  success: boolean
+  platform: SocialPlatform
+  shareUrl?: string
+  error?: string
+  timestamp: Date
+}
+```
+
+## Testing Strategy
+
+### Unit Testing Requirements
+
+#### Component Tests
+```typescript
+// Example: SocialSharingTray.test.tsx
+describe('SocialSharingTray', () => {
+  it('renders all available platforms', () => {})
+  it('handles platform selection', () => {})
+  it('displays loading states correctly', () => {})
+  it('shows error messages appropriately', () => {})
+  it('supports keyboard navigation', () => {})
+})
+```
+
+#### Hook Tests
+```typescript
+// Example: useSocialShare.test.ts
+describe('useSocialShare', () => {
+  it('initiates share process correctly', () => {})
+  it('handles share success', () => {})
+  it('manages error states', () => {})
+  it('updates share history', () => {})
+  it('validates share configurations', () => {})
+})
+```
+
+#### API Tests
+```typescript
+// Example: social/instagram/route.test.ts
+describe('/api/social/instagram', () => {
+  it('processes valid share requests', () => {})
+  it('validates request payloads', () => {})
+  it('handles Instagram API errors', () => {})
+  it('respects rate limits', () => {})
+})
+```
+
+### Coverage Requirements
+- **Components**: 90% line coverage minimum
+- **Hooks**: 95% line coverage minimum
+- **API Routes**: 85% line coverage minimum
+- **Utilities**: 100% line coverage required
+
+### Test Categories
+1. **Unit Tests**: Individual component/function testing
+2. **Integration Tests**: Hook + API integration testing
+3. **E2E Tests**: Complete share workflow testing
+4. **Performance Tests**: Image processing benchmarks
+5. **Accessibility Tests**: Screen reader compatibility
+
+## Integration Points
+
+### Existing Component Modifications
+
+#### PolaroidPhotoGenerator Enhancement
+```typescript
+// Add to existing props
+interface PolaroidPhotoGeneratorProps {
+  // ... existing props
+  onShareRequest?: (image: string) => void
+  enableSocialSharing?: boolean
+}
+```
+
+#### Page Component Updates
+```typescript
+// src/app/page.tsx modifications
+const [showSocialTray, setShowSocialTray] = useState(false)
+const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | null>(null)
+
+// Integration with existing polaroid workflow
+const handleGenerationComplete = (imageUrl: string) => {
+  setGeneratedImage(imageUrl)
+  setIsCapturing(false)
+  setShowSocialTray(true) // NEW: Show social sharing options
+}
+```
+
+## Performance Considerations
+
+### Image Processing Optimization
+- Client-side canvas operations for real-time preview
+- Server-side processing for final export quality
+- Progressive image loading for large files
+- Memory management for multiple customizations
+
+### Caching Strategy
+- Platform configurations cached for 5 minutes
+- Share history cached locally
+- Image customizations cached during session
+- API responses cached appropriately
+
+### Bundle Size Management
+- Lazy loading of customization components
+- Platform SDK dynamic imports
+- Image processing libraries code splitting
+
+## Security Requirements
+
+### Data Protection
+- Image data encryption in transit
+- Temporary file cleanup on server
+- No persistent storage of user images
+- Platform token secure handling
+
+### API Security
+- Request rate limiting
+- Input validation and sanitization
+- CORS configuration
+- Error message sanitization
+
+## Error Handling Strategy
+
+### User-Facing Errors
+- Network connectivity issues
+- Platform API failures
+- Image processing errors
+- Quota/rate limit exceeded
+
+### Error Recovery
+- Automatic retry with exponential backoff
+- Graceful degradation for offline scenarios
+- User notification with actionable guidance
+- Error reporting for debugging
+
+## Success Metrics
+
+### Technical Metrics
+- Share completion rate > 85%
+- Image processing time < 3 seconds
+- API response time < 2 seconds
+- Error rate < 5%
+
+### User Experience Metrics
+- Time to complete share < 30 seconds
+- Customization tool usage rate
+- Platform preference distribution
+- User retention after sharing
+
+## Implementation Timeline
+
+### Sprint 1 (Week 1-2): Foundation
+- Core data models and types
+- Basic social sharing hook
+- Platform button component
+- Unit test setup
+
+### Sprint 2 (Week 3-4): Core Features
+- Social sharing tray component
+- Basic customization modal
+- Instagram API integration
+- Component integration tests
+
+### Sprint 3 (Week 5-6): Enhanced Features
+- Advanced customization tools
+- Additional platform APIs
+- Performance optimizations
+- E2E test coverage
+
+### Sprint 4 (Week 7-8): Polish & Launch
+- Error handling refinement
+- Accessibility improvements
+- Performance monitoring
+- Production deployment
+
+## Risk Mitigation
+
+### Technical Risks
+- **Platform API Changes**: Implement adapter pattern for API abstraction
+- **Image Processing Performance**: Use Web Workers for heavy operations
+- **Third-party Dependencies**: Maintain fallback implementations
+
+### User Experience Risks
+- **Complex Customization UI**: Provide preset templates and tutorials
+- **Platform Authentication**: Implement seamless OAuth flows
+- **Mobile Performance**: Optimize for lower-end devices
+
+## Future Considerations
+
+### Advanced Features
+- AI-powered caption generation
+- Automatic hashtag suggestions
+- Scheduled posting capabilities
+- Analytics dashboard
+
+### Platform Expansion
+- LinkedIn integration
+- WhatsApp Status sharing
+- Telegram integration
+- Custom webhook support
+
+### Enterprise Features
+- Brand asset integration
+- Team collaboration tools
+- Usage analytics
+- White-label customization
