@@ -8,34 +8,34 @@ The application follows a strict three-layer separation of concerns pattern to m
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                Presentation Layer                                                        │
-│  Components, Pages, UI Logic, Event Handlers                               │
-│                                                                                                   │
-│  Dependencies: hooks/ only                                                          │
+│                Presentation Layer               │
+│  Components, Pages, UI Logic, Event Handlers   │
+│                                                 │
+│  Dependencies: hooks/ only                      │
 └─────────────────────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────┐
-│                 Bridge Layer                                                                │
-│     Custom Hooks (UI ↔ Business Logic)                                         │
-│                                                                                                   │
-│  Dependencies: business-layer/ only                                              │
+│                 Bridge Layer                    │
+│     Custom Hooks (UI ↔ Business Logic)         │
+│                                                 │
+│  Dependencies: business-layer/ only             │
 └─────────────────────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────┐
-│                Business Layer                                                             │
-│   React Query + Business Logic + State Mgmt                                │
-│                                                                                                   │
-│  Dependencies: lib/, app/api/ only                                                 │
+│                Business Layer                   │
+│   React Query + Business Logic + State Mgmt    │
+│                                                 │
+│  Dependencies: lib/, app/api/ only              │
 └─────────────────────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────┐
-│                  Data Layer                                                                 │
-│        API Routes, External Services                                                │
-│                                                                                                   │
-│  Dependencies: lib/ only                                                               │
+│                  Data Layer                     │
+│        API Routes, External Services            │
+│                                                 │
+│  Dependencies: lib/ only                        │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -68,7 +68,7 @@ src/
 2. **Business Logic Centralization**: All business logic lives in business-layer/
 3. **UI Isolation**: Components know nothing about React Query or API details
 4. **Testability**: Each layer can be tested independently
-5. **Reusability**: Business layer git works with any UI implementation
+5. **Reusability**: Business layer works with any UI implementation
 
 ## Communication Flow
 
