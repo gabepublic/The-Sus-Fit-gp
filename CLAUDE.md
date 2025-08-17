@@ -412,6 +412,72 @@ These commands make AI calls and may take up to a minute:
 - Provides more informed task creation and updates
 - Recommended for complex technical tasks
 
+## Quality Assurance Standards
+
+### Mandatory QA Steps for Every Task
+
+**IMPORTANT**: Every subtask must complete ALL of the following QA steps before being marked as complete:
+
+#### 1. Unit Testing Requirements
+- Write comprehensive unit tests covering all new functionality
+- Test both success and error scenarios  
+- Include edge cases and boundary conditions
+- Achieve minimum 90% test coverage for new code
+- Use Jest and React Testing Library for React components
+- Mock external dependencies appropriately
+
+#### 2. Type Safety Validation
+```bash
+pnpm type-check  # Must pass with zero errors
+```
+- All new interfaces and types must be properly defined
+- No `any` types allowed without explicit justification
+- Ensure proper TypeScript compilation
+
+#### 3. Code Quality Standards
+```bash
+pnpm lint        # Must pass with zero errors
+```
+- Code must pass ESLint and Prettier formatting
+- Follow existing code conventions and patterns
+- Maintain consistent naming and structure
+
+#### 4. Integration Validation
+```bash
+pnpm test        # All tests must pass
+```
+- No breaking changes to existing functionality
+- Performance regression testing where applicable
+- End-to-end workflow validation
+
+#### 5. Test Strategy Documentation
+Each subtask must include detailed `testStrategy` specifying:
+- Specific test cases to be written
+- Mock strategies for external dependencies
+- Performance benchmarks (where applicable)
+- Integration test scenarios
+
+### QA Checklist Template
+
+For each subtask, verify:
+- [ ] Unit tests written and passing
+- [ ] `pnpm type-check` passes 
+- [ ] `pnpm lint` passes
+- [ ] `pnpm test` passes (all tests)
+- [ ] Test coverage >= 90% for new code
+- [ ] No breaking changes introduced
+- [ ] Performance benchmarks met
+- [ ] Documentation updated if needed
+
+### Non-Compliance Policy
+
+**Subtasks cannot be marked complete without passing ALL QA steps.** If any QA step fails:
+1. Fix the issues immediately
+2. Re-run all QA validation steps
+3. Only then mark the subtask as complete
+
+This ensures code quality, maintainability, and reliability throughout the development process.
+
 ---
 
 _This guide ensures Claude Code has immediate access to Task Master's essential functionality for agentic development workflows._

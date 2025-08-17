@@ -1,0 +1,61 @@
+ed9166f5b536d0437cfeb0e4d6853c95
+// Business Layer Mutation Types
+// Types for React Query mutations and state management
+"use strict";
+
+/* istanbul ignore next */
+function cov_1nqvs51hlz() {
+  var path = "/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/mutation.types.ts";
+  var hash = "449cf29954970c7806375f4a0d10a2ee5958a9b9";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/mutation.types.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 4,
+          column: 0
+        },
+        end: {
+          line: 6,
+          column: 3
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    inputSourceMap: {
+      version: 3,
+      sources: ["/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/mutation.types.ts"],
+      sourcesContent: ["// Business Layer Mutation Types\n// Types for React Query mutations and state management\n\nimport type { \n  TryonRequest, \n  TryonResponse, \n  ImageProcessingOptions, \n  ProcessedImage \n} from './api.types';\nimport type { BusinessLayerError } from './error.types';\n\n// Try-on mutation types\nexport interface TryonMutationVariables extends TryonRequest {\n  options?: {\n    retryOnFailure?: boolean;\n    timeout?: number;\n    processingOptions?: ImageProcessingOptions;\n  };\n}\n\nexport interface TryonMutationData extends TryonResponse {\n  metadata?: {\n    startTime: string;\n    endTime: string;\n    processingDuration: number;\n    retryCount: number;\n  };\n}\n\n// Image upload mutation types\nexport interface ImageUploadVariables {\n  file: File;\n  options?: {\n    maxSize?: number; // bytes\n    allowedTypes?: string[];\n    resize?: {\n      width: number;\n      height: number;\n      maintainAspectRatio?: boolean;\n    };\n    quality?: number; // 0-100\n  };\n}\n\nexport interface ImageUploadData {\n  imageData: string; // base64 encoded\n  metadata: {\n    originalName: string;\n    size: number;\n    type: string;\n    width: number;\n    height: number;\n    uploadedAt: string;\n  };\n  processed?: ProcessedImage;\n}\n\n// Generic mutation state types\nexport interface MutationState<TData = unknown, TError = BusinessLayerError> {\n  isLoading: boolean;\n  isError: boolean;\n  isSuccess: boolean;\n  error: TError | null;\n  data: TData | undefined;\n}\n\n// Mutation options type for configuration\nexport interface BusinessMutationOptions<TData, TVariables, TError = BusinessLayerError> {\n  onSuccess?: (data: TData, variables: TVariables) => void | Promise<void>;\n  onError?: (error: TError, variables: TVariables) => void | Promise<void>;\n  onSettled?: (data: TData | undefined, error: TError | null, variables: TVariables) => void | Promise<void>;\n  onMutate?: (variables: TVariables) => Promise<unknown> | unknown;\n  retry?: number | boolean | ((failureCount: number, error: TError) => boolean);\n  retryDelay?: number | ((retryAttempt: number, error: TError) => number);\n}\n\n// Export commonly used mutation variable and data types\nexport type { \n  TryonMutationVariables as TryonVariables,\n  TryonMutationData as TryonData,\n  ImageUploadVariables as UploadVariables,\n  ImageUploadData as UploadData\n};"],
+      names: [],
+      mappings: "AAAA,gCAAgC;AAChC,uDAAuD"
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "449cf29954970c7806375f4a0d10a2ee5958a9b9"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_1nqvs51hlz = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1nqvs51hlz();
+cov_1nqvs51hlz().s[0]++;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiL1VzZXJzL3dpbGxzdHJlZXRlci9XZWJzdG9ybVByb2plY3RzL3ZpYmUtY29kaW5nL3Rob3NlLXBlb3BsZS9UaGUtU3VzLUZpdC1ncC9zcmMvYnVzaW5lc3MtbGF5ZXIvdHlwZXMvbXV0YXRpb24udHlwZXMudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQnVzaW5lc3MgTGF5ZXIgTXV0YXRpb24gVHlwZXNcbi8vIFR5cGVzIGZvciBSZWFjdCBRdWVyeSBtdXRhdGlvbnMgYW5kIHN0YXRlIG1hbmFnZW1lbnRcblxuaW1wb3J0IHR5cGUgeyBcbiAgVHJ5b25SZXF1ZXN0LCBcbiAgVHJ5b25SZXNwb25zZSwgXG4gIEltYWdlUHJvY2Vzc2luZ09wdGlvbnMsIFxuICBQcm9jZXNzZWRJbWFnZSBcbn0gZnJvbSAnLi9hcGkudHlwZXMnO1xuaW1wb3J0IHR5cGUgeyBCdXNpbmVzc0xheWVyRXJyb3IgfSBmcm9tICcuL2Vycm9yLnR5cGVzJztcblxuLy8gVHJ5LW9uIG11dGF0aW9uIHR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIFRyeW9uTXV0YXRpb25WYXJpYWJsZXMgZXh0ZW5kcyBUcnlvblJlcXVlc3Qge1xuICBvcHRpb25zPzoge1xuICAgIHJldHJ5T25GYWlsdXJlPzogYm9vbGVhbjtcbiAgICB0aW1lb3V0PzogbnVtYmVyO1xuICAgIHByb2Nlc3NpbmdPcHRpb25zPzogSW1hZ2VQcm9jZXNzaW5nT3B0aW9ucztcbiAgfTtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBUcnlvbk11dGF0aW9uRGF0YSBleHRlbmRzIFRyeW9uUmVzcG9uc2Uge1xuICBtZXRhZGF0YT86IHtcbiAgICBzdGFydFRpbWU6IHN0cmluZztcbiAgICBlbmRUaW1lOiBzdHJpbmc7XG4gICAgcHJvY2Vzc2luZ0R1cmF0aW9uOiBudW1iZXI7XG4gICAgcmV0cnlDb3VudDogbnVtYmVyO1xuICB9O1xufVxuXG4vLyBJbWFnZSB1cGxvYWQgbXV0YXRpb24gdHlwZXNcbmV4cG9ydCBpbnRlcmZhY2UgSW1hZ2VVcGxvYWRWYXJpYWJsZXMge1xuICBmaWxlOiBGaWxlO1xuICBvcHRpb25zPzoge1xuICAgIG1heFNpemU/OiBudW1iZXI7IC8vIGJ5dGVzXG4gICAgYWxsb3dlZFR5cGVzPzogc3RyaW5nW107XG4gICAgcmVzaXplPzoge1xuICAgICAgd2lkdGg6IG51bWJlcjtcbiAgICAgIGhlaWdodDogbnVtYmVyO1xuICAgICAgbWFpbnRhaW5Bc3BlY3RSYXRpbz86IGJvb2xlYW47XG4gICAgfTtcbiAgICBxdWFsaXR5PzogbnVtYmVyOyAvLyAwLTEwMFxuICB9O1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIEltYWdlVXBsb2FkRGF0YSB7XG4gIGltYWdlRGF0YTogc3RyaW5nOyAvLyBiYXNlNjQgZW5jb2RlZFxuICBtZXRhZGF0YToge1xuICAgIG9yaWdpbmFsTmFtZTogc3RyaW5nO1xuICAgIHNpemU6IG51bWJlcjtcbiAgICB0eXBlOiBzdHJpbmc7XG4gICAgd2lkdGg6IG51bWJlcjtcbiAgICBoZWlnaHQ6IG51bWJlcjtcbiAgICB1cGxvYWRlZEF0OiBzdHJpbmc7XG4gIH07XG4gIHByb2Nlc3NlZD86IFByb2Nlc3NlZEltYWdlO1xufVxuXG4vLyBHZW5lcmljIG11dGF0aW9uIHN0YXRlIHR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIE11dGF0aW9uU3RhdGU8VERhdGEgPSB1bmtub3duLCBURXJyb3IgPSBCdXNpbmVzc0xheWVyRXJyb3I+IHtcbiAgaXNMb2FkaW5nOiBib29sZWFuO1xuICBpc0Vycm9yOiBib29sZWFuO1xuICBpc1N1Y2Nlc3M6IGJvb2xlYW47XG4gIGVycm9yOiBURXJyb3IgfCBudWxsO1xuICBkYXRhOiBURGF0YSB8IHVuZGVmaW5lZDtcbn1cblxuLy8gTXV0YXRpb24gb3B0aW9ucyB0eXBlIGZvciBjb25maWd1cmF0aW9uXG5leHBvcnQgaW50ZXJmYWNlIEJ1c2luZXNzTXV0YXRpb25PcHRpb25zPFREYXRhLCBUVmFyaWFibGVzLCBURXJyb3IgPSBCdXNpbmVzc0xheWVyRXJyb3I+IHtcbiAgb25TdWNjZXNzPzogKGRhdGE6IFREYXRhLCB2YXJpYWJsZXM6IFRWYXJpYWJsZXMpID0+IHZvaWQgfCBQcm9taXNlPHZvaWQ+O1xuICBvbkVycm9yPzogKGVycm9yOiBURXJyb3IsIHZhcmlhYmxlczogVFZhcmlhYmxlcykgPT4gdm9pZCB8IFByb21pc2U8dm9pZD47XG4gIG9uU2V0dGxlZD86IChkYXRhOiBURGF0YSB8IHVuZGVmaW5lZCwgZXJyb3I6IFRFcnJvciB8IG51bGwsIHZhcmlhYmxlczogVFZhcmlhYmxlcykgPT4gdm9pZCB8IFByb21pc2U8dm9pZD47XG4gIG9uTXV0YXRlPzogKHZhcmlhYmxlczogVFZhcmlhYmxlcykgPT4gUHJvbWlzZTx1bmtub3duPiB8IHVua25vd247XG4gIHJldHJ5PzogbnVtYmVyIHwgYm9vbGVhbiB8ICgoZmFpbHVyZUNvdW50OiBudW1iZXIsIGVycm9yOiBURXJyb3IpID0+IGJvb2xlYW4pO1xuICByZXRyeURlbGF5PzogbnVtYmVyIHwgKChyZXRyeUF0dGVtcHQ6IG51bWJlciwgZXJyb3I6IFRFcnJvcikgPT4gbnVtYmVyKTtcbn1cblxuLy8gRXhwb3J0IGNvbW1vbmx5IHVzZWQgbXV0YXRpb24gdmFyaWFibGUgYW5kIGRhdGEgdHlwZXNcbmV4cG9ydCB0eXBlIHsgXG4gIFRyeW9uTXV0YXRpb25WYXJpYWJsZXMgYXMgVHJ5b25WYXJpYWJsZXMsXG4gIFRyeW9uTXV0YXRpb25EYXRhIGFzIFRyeW9uRGF0YSxcbiAgSW1hZ2VVcGxvYWRWYXJpYWJsZXMgYXMgVXBsb2FkVmFyaWFibGVzLFxuICBJbWFnZVVwbG9hZERhdGEgYXMgVXBsb2FkRGF0YVxufTsiXSwibWFwcGluZ3MiOiJBQUFBO0FBQ0EiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -1,0 +1,173 @@
+251c151c08e65c4a3163b3c231cfd539
+/**
+ * OpenAI Client Initialization and Try-On Service
+ * 
+ * Provides a singleton OpenAI client instance with secure environment variable retrieval
+ * and implements the core try-on functionality using OpenAI Images Edit API.
+ * This module handles the foundational SDK initialization and service wrapper logic.
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    generateTryOn: function() {
+        return generateTryOn;
+    },
+    model: function() {
+        return model;
+    },
+    openai: function() {
+        return openai;
+    }
+});
+const _openai = /*#__PURE__*/ _interop_require_default(require("openai"));
+const _getEnv = require("./getEnv");
+const _tryOnSchema = require("./tryOnSchema");
+const _fs = /*#__PURE__*/ _interop_require_wildcard(require("fs"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+// Retrieve and validate environment variables with fail-fast approach
+const { key, model } = (0, _getEnv.getEnv)();
+// Instantiate singleton OpenAI client
+const openai = new _openai.default({
+    apiKey: key
+});
+/**
+ * Convert base64 string to File object for OpenAI API
+ * 
+ * @param base64String - Base64 encoded image string (with or without data URL prefix)
+ * @param filename - Name for the file (default: 'image.png')
+ * @returns File object suitable for OpenAI API
+ */ const base64ToFile = (base64String, filename = 'image.png')=>{
+    // Normalize base64 (strip data URL prefix if present)
+    const normalizedBase64 = (0, _tryOnSchema.normalizeBase64)(base64String);
+    // Convert base64 to binary data using Node.js Buffer
+    const buffer = Buffer.from(normalizedBase64, 'base64');
+    // KEEP for TESTING; DO NOT REMOVE
+    // Save file to local drive
+    //const fs = require('fs');
+    //const path = require('path');
+    //const savePath = path.join(process.cwd(), 'uploads', filename);
+    //fs.mkdirSync(path.dirname(savePath), { recursive: true });
+    //fs.writeFileSync(savePath, buffer);
+    // Create blob and file
+    const blob = new Blob([
+        buffer
+    ], {
+        type: 'image/png'
+    });
+    return new File([
+        blob
+    ], filename, {
+        type: 'image/png'
+    });
+};
+const generateTryOn = async ({ modelImage, apparelImages })=>{
+    try {
+        // Validate input parameters
+        _tryOnSchema.TryOnParamsSchema.parse({
+            modelImage,
+            apparelImages
+        });
+        // Convert base64 strings to File objects for OpenAI API
+        const modelFile = base64ToFile(modelImage, 'model.png');
+        const apparelFile = base64ToFile(apparelImages[0], 'apparel.png');
+        if (model == 'mock') {
+            console.log('Using mock model');
+            // Validate output using schema
+            const validatedResult = _tryOnSchema.TryOnResultSchema.parse({
+                imgGenerated: _fs.readFileSync('public/images/demo/WillShalom.jpg', {
+                    encoding: 'base64'
+                })
+            });
+            return validatedResult.imgGenerated;
+        }
+        // Call OpenAI Images Edit API
+        const response = await openai.images.edit({
+            model,
+            image: [
+                modelFile,
+                apparelFile
+            ],
+            prompt: 'Change the garment of the model in the first image with the garment from the second image.',
+            n: 1,
+            size: '1024x1024',
+            quality: 'low'
+        });
+        // Extract and validate the generated image
+        if (!response.data || response.data.length === 0) {
+            throw new Error('No response data received from OpenAI API');
+        }
+        const b64Json = response.data[0]?.b64_json;
+        if (!b64Json) {
+            throw new Error('No image data received from OpenAI API');
+        }
+        console.log('Generated image length: ', b64Json.length);
+        // KEEP for TESTING; DO NOT REMOVE
+        // Save generated image to file
+        //const generatedImageFile = base64ToFile(b64Json, 'generated.png');
+        // Validate output using schema
+        const validatedResult = _tryOnSchema.TryOnResultSchema.parse({
+            imgGenerated: b64Json
+        });
+        return validatedResult.imgGenerated;
+    } catch (error) {
+        // Re-throw with custom context while preserving original error
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        const customError = new Error(`generateTryOn failed: ${errorMessage}`);
+        customError.cause = error; // Set cause property for error chaining
+        throw customError;
+    }
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy93aWxsc3RyZWV0ZXIvV2Vic3Rvcm1Qcm9qZWN0cy92aWJlLWNvZGluZy90aG9zZS1wZW9wbGUvVGhlLVN1cy1GaXQtZ3Avc3JjL2xpYi9vcGVuYWlDbGllbnQudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBPcGVuQUkgQ2xpZW50IEluaXRpYWxpemF0aW9uIGFuZCBUcnktT24gU2VydmljZVxuICogXG4gKiBQcm92aWRlcyBhIHNpbmdsZXRvbiBPcGVuQUkgY2xpZW50IGluc3RhbmNlIHdpdGggc2VjdXJlIGVudmlyb25tZW50IHZhcmlhYmxlIHJldHJpZXZhbFxuICogYW5kIGltcGxlbWVudHMgdGhlIGNvcmUgdHJ5LW9uIGZ1bmN0aW9uYWxpdHkgdXNpbmcgT3BlbkFJIEltYWdlcyBFZGl0IEFQSS5cbiAqIFRoaXMgbW9kdWxlIGhhbmRsZXMgdGhlIGZvdW5kYXRpb25hbCBTREsgaW5pdGlhbGl6YXRpb24gYW5kIHNlcnZpY2Ugd3JhcHBlciBsb2dpYy5cbiAqL1xuXG5pbXBvcnQgT3BlbkFJIGZyb20gJ29wZW5haSc7XG5pbXBvcnQgeyBnZXRFbnYgfSBmcm9tICcuL2dldEVudic7XG5pbXBvcnQgeyBUcnlPblBhcmFtc1NjaGVtYSwgVHJ5T25SZXN1bHRTY2hlbWEsIHR5cGUgVHJ5T25QYXJhbXMsIG5vcm1hbGl6ZUJhc2U2NCB9IGZyb20gJy4vdHJ5T25TY2hlbWEnO1xuaW1wb3J0ICogYXMgZnMgZnJvbSAnZnMnO1xuXG4vLyBSZXRyaWV2ZSBhbmQgdmFsaWRhdGUgZW52aXJvbm1lbnQgdmFyaWFibGVzIHdpdGggZmFpbC1mYXN0IGFwcHJvYWNoXG5jb25zdCB7IGtleSwgbW9kZWwgfSA9IGdldEVudigpO1xuXG4vLyBJbnN0YW50aWF0ZSBzaW5nbGV0b24gT3BlbkFJIGNsaWVudFxuY29uc3Qgb3BlbmFpID0gbmV3IE9wZW5BSSh7IGFwaUtleToga2V5IH0pO1xuXG4vLyBFeHBvcnQgYm90aCB0aGUgY2xpZW50IGluc3RhbmNlIGFuZCBtb2RlbCBmb3IgcmV1c2UgYnkgb3RoZXIgbW9kdWxlc1xuZXhwb3J0IHsgb3BlbmFpLCBtb2RlbCB9O1xuXG4vKipcbiAqIENvbnZlcnQgYmFzZTY0IHN0cmluZyB0byBGaWxlIG9iamVjdCBmb3IgT3BlbkFJIEFQSVxuICogXG4gKiBAcGFyYW0gYmFzZTY0U3RyaW5nIC0gQmFzZTY0IGVuY29kZWQgaW1hZ2Ugc3RyaW5nICh3aXRoIG9yIHdpdGhvdXQgZGF0YSBVUkwgcHJlZml4KVxuICogQHBhcmFtIGZpbGVuYW1lIC0gTmFtZSBmb3IgdGhlIGZpbGUgKGRlZmF1bHQ6ICdpbWFnZS5wbmcnKVxuICogQHJldHVybnMgRmlsZSBvYmplY3Qgc3VpdGFibGUgZm9yIE9wZW5BSSBBUElcbiAqL1xuY29uc3QgYmFzZTY0VG9GaWxlID0gKGJhc2U2NFN0cmluZzogc3RyaW5nLCBmaWxlbmFtZTogc3RyaW5nID0gJ2ltYWdlLnBuZycpOiBGaWxlID0+IHtcbiAgLy8gTm9ybWFsaXplIGJhc2U2NCAoc3RyaXAgZGF0YSBVUkwgcHJlZml4IGlmIHByZXNlbnQpXG4gIGNvbnN0IG5vcm1hbGl6ZWRCYXNlNjQgPSBub3JtYWxpemVCYXNlNjQoYmFzZTY0U3RyaW5nKTtcbiAgXG4gIC8vIENvbnZlcnQgYmFzZTY0IHRvIGJpbmFyeSBkYXRhIHVzaW5nIE5vZGUuanMgQnVmZmVyXG4gIGNvbnN0IGJ1ZmZlciA9IEJ1ZmZlci5mcm9tKG5vcm1hbGl6ZWRCYXNlNjQsICdiYXNlNjQnKTtcblxuICAvLyBLRUVQIGZvciBURVNUSU5HOyBETyBOT1QgUkVNT1ZFXG4gIC8vIFNhdmUgZmlsZSB0byBsb2NhbCBkcml2ZVxuICAvL2NvbnN0IGZzID0gcmVxdWlyZSgnZnMnKTtcbiAgLy9jb25zdCBwYXRoID0gcmVxdWlyZSgncGF0aCcpO1xuICAvL2NvbnN0IHNhdmVQYXRoID0gcGF0aC5qb2luKHByb2Nlc3MuY3dkKCksICd1cGxvYWRzJywgZmlsZW5hbWUpO1xuICAvL2ZzLm1rZGlyU3luYyhwYXRoLmRpcm5hbWUoc2F2ZVBhdGgpLCB7IHJlY3Vyc2l2ZTogdHJ1ZSB9KTtcbiAgLy9mcy53cml0ZUZpbGVTeW5jKHNhdmVQYXRoLCBidWZmZXIpO1xuICBcbiAgLy8gQ3JlYXRlIGJsb2IgYW5kIGZpbGVcbiAgY29uc3QgYmxvYiA9IG5ldyBCbG9iKFtidWZmZXJdLCB7IHR5cGU6ICdpbWFnZS9wbmcnIH0pO1xuICByZXR1cm4gbmV3IEZpbGUoW2Jsb2JdLCBmaWxlbmFtZSwgeyB0eXBlOiAnaW1hZ2UvcG5nJyB9KTtcbn07XG5cbi8qKlxuICogR2VuZXJhdGUgYSB0cnktb24gaW1hZ2UgYnkgY29tYmluaW5nIGEgbW9kZWwgaW1hZ2Ugd2l0aCBhcHBhcmVsIGltYWdlc1xuICogXG4gKiBUaGlzIGZ1bmN0aW9uIHVzZXMgT3BlbkFJJ3MgSW1hZ2VzIEVkaXQgQVBJIHRvIGNyZWF0ZSBhIHZpcnR1YWwgdHJ5LW9uIGVmZmVjdCxcbiAqIHdoZXJlIHRoZSBtb2RlbCdzIGdhcm1lbnQgaXMgcmVwbGFjZWQgd2l0aCB0aGUgcHJvdmlkZWQgYXBwYXJlbCBpbWFnZS5cbiAqIFxuICogQHBhcmFtIHBhcmFtcyAtIE9iamVjdCBjb250YWluaW5nIG1vZGVsSW1hZ2UgKGJhc2U2NCkgYW5kIGFwcGFyZWxJbWFnZXMgYXJyYXkgKGJhc2U2NClcbiAqIEByZXR1cm5zIFByb21pc2U8c3RyaW5nPiAtIEJhc2U2NCBlbmNvZGVkIGdlbmVyYXRlZCBpbWFnZVxuICogQHRocm93cyBFcnJvciAtIFdoZW4gdmFsaWRhdGlvbiBmYWlscywgQVBJIGNhbGwgZmFpbHMsIG9yIHJlc3BvbnNlIGlzIGludmFsaWRcbiAqIFxuICogQGV4YW1wbGVcbiAqIGBgYHR5cGVzY3JpcHRcbiAqIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGdlbmVyYXRlVHJ5T24oe1xuICogICBtb2RlbEltYWdlOiBcImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQUVBQUFBQkNBWUFBQUFmRmNTSkFBQUFEVWxFUVZSNDJtTmtZUGhmRHdBQ2h3R0E2MGU2a2dBQUFBQkpSVTVFcmtKZ2dnPT1cIixcbiAqICAgYXBwYXJlbEltYWdlczogW1wiZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFBRUFBQUFCQ0FZQUFBQWZGY1NKQUFBQURVbEVRVlI0Mm1Oa1lQaGZEd0FDaHdHQTYwZTZrZ0FBQUFCSlJVNUVya0pnZ2c9PVwiXVxuICogfSk7XG4gKiAvLyBSZXR1cm5zOiBcImlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFBRUFBQUFCQ0FZQUFBQWZGY1NKQUFBQURVbEVRVlI0Mm1Oa1lQaGZEd0FDaHdHQTYwZTZrZ0FBQUFCSlJVNUVya0pnZ2c9PVwiXG4gKiBgYGBcbiAqL1xuZXhwb3J0IGNvbnN0IGdlbmVyYXRlVHJ5T24gPSBhc3luYyAoeyBtb2RlbEltYWdlLCBhcHBhcmVsSW1hZ2VzIH06IFRyeU9uUGFyYW1zKTogUHJvbWlzZTxzdHJpbmc+ID0+IHtcbiAgdHJ5IHtcbiAgICAvLyBWYWxpZGF0ZSBpbnB1dCBwYXJhbWV0ZXJzXG4gICAgVHJ5T25QYXJhbXNTY2hlbWEucGFyc2UoeyBtb2RlbEltYWdlLCBhcHBhcmVsSW1hZ2VzIH0pO1xuXG4gICAgLy8gQ29udmVydCBiYXNlNjQgc3RyaW5ncyB0byBGaWxlIG9iamVjdHMgZm9yIE9wZW5BSSBBUElcbiAgICBjb25zdCBtb2RlbEZpbGUgPSBiYXNlNjRUb0ZpbGUobW9kZWxJbWFnZSwgJ21vZGVsLnBuZycpO1xuICAgIGNvbnN0IGFwcGFyZWxGaWxlID0gYmFzZTY0VG9GaWxlKGFwcGFyZWxJbWFnZXNbMF0sICdhcHBhcmVsLnBuZycpO1xuXG4gICAgaWYgKG1vZGVsID09ICdtb2NrJykge1xuICAgICAgY29uc29sZS5sb2coJ1VzaW5nIG1vY2sgbW9kZWwnKTtcbiAgICAgIC8vIFZhbGlkYXRlIG91dHB1dCB1c2luZyBzY2hlbWFcbiAgICAgIGNvbnN0IHZhbGlkYXRlZFJlc3VsdCA9IFRyeU9uUmVzdWx0U2NoZW1hLnBhcnNlKHsgaW1nR2VuZXJhdGVkOiBmcy5yZWFkRmlsZVN5bmMoJ3B1YmxpYy9pbWFnZXMvZGVtby9XaWxsU2hhbG9tLmpwZycsIHsgZW5jb2Rpbmc6ICdiYXNlNjQnIH0pIH0pO1xuICAgICAgcmV0dXJuIHZhbGlkYXRlZFJlc3VsdC5pbWdHZW5lcmF0ZWQ7XG4gICAgfVxuXG4gICAgLy8gQ2FsbCBPcGVuQUkgSW1hZ2VzIEVkaXQgQVBJXG4gICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBvcGVuYWkuaW1hZ2VzLmVkaXQoe1xuICAgICAgbW9kZWwsXG4gICAgICBpbWFnZTogW21vZGVsRmlsZSwgYXBwYXJlbEZpbGVdLFxuICAgICAgcHJvbXB0OiAnQ2hhbmdlIHRoZSBnYXJtZW50IG9mIHRoZSBtb2RlbCBpbiB0aGUgZmlyc3QgaW1hZ2Ugd2l0aCB0aGUgZ2FybWVudCBmcm9tIHRoZSBzZWNvbmQgaW1hZ2UuJyxcbiAgICAgIG46IDEsXG4gICAgICBzaXplOiAnMTAyNHgxMDI0JyxcbiAgICAgIHF1YWxpdHk6ICdsb3cnXG4gICAgfSk7XG5cbiAgICAvLyBFeHRyYWN0IGFuZCB2YWxpZGF0ZSB0aGUgZ2VuZXJhdGVkIGltYWdlXG4gICAgaWYgKCFyZXNwb25zZS5kYXRhIHx8IHJlc3BvbnNlLmRhdGEubGVuZ3RoID09PSAwKSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoJ05vIHJlc3BvbnNlIGRhdGEgcmVjZWl2ZWQgZnJvbSBPcGVuQUkgQVBJJyk7XG4gICAgfVxuICAgIFxuICAgIGNvbnN0IGI2NEpzb24gPSByZXNwb25zZS5kYXRhWzBdPy5iNjRfanNvbjtcbiAgICBpZiAoIWI2NEpzb24pIHtcbiAgICAgIHRocm93IG5ldyBFcnJvcignTm8gaW1hZ2UgZGF0YSByZWNlaXZlZCBmcm9tIE9wZW5BSSBBUEknKTtcbiAgICB9XG4gICAgY29uc29sZS5sb2coJ0dlbmVyYXRlZCBpbWFnZSBsZW5ndGg6ICcsIGI2NEpzb24ubGVuZ3RoKTtcbiAgICBcbiAgICAvLyBLRUVQIGZvciBURVNUSU5HOyBETyBOT1QgUkVNT1ZFXG4gICAgLy8gU2F2ZSBnZW5lcmF0ZWQgaW1hZ2UgdG8gZmlsZVxuICAgIC8vY29uc3QgZ2VuZXJhdGVkSW1hZ2VGaWxlID0gYmFzZTY0VG9GaWxlKGI2NEpzb24sICdnZW5lcmF0ZWQucG5nJyk7XG5cbiAgICAvLyBWYWxpZGF0ZSBvdXRwdXQgdXNpbmcgc2NoZW1hXG4gICAgY29uc3QgdmFsaWRhdGVkUmVzdWx0ID0gVHJ5T25SZXN1bHRTY2hlbWEucGFyc2UoeyBpbWdHZW5lcmF0ZWQ6IGI2NEpzb24gfSk7XG5cbiAgICByZXR1cm4gdmFsaWRhdGVkUmVzdWx0LmltZ0dlbmVyYXRlZDtcbiAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICAvLyBSZS10aHJvdyB3aXRoIGN1c3RvbSBjb250ZXh0IHdoaWxlIHByZXNlcnZpbmcgb3JpZ2luYWwgZXJyb3JcbiAgICBjb25zdCBlcnJvck1lc3NhZ2UgPSBlcnJvciBpbnN0YW5jZW9mIEVycm9yID8gZXJyb3IubWVzc2FnZSA6ICdVbmtub3duIGVycm9yIG9jY3VycmVkJztcbiAgICBjb25zdCBjdXN0b21FcnJvciA9IG5ldyBFcnJvcihgZ2VuZXJhdGVUcnlPbiBmYWlsZWQ6ICR7ZXJyb3JNZXNzYWdlfWApO1xuICAgIChjdXN0b21FcnJvciBhcyBFcnJvciAmIHsgY2F1c2U/OiB1bmtub3duIH0pLmNhdXNlID0gZXJyb3I7IC8vIFNldCBjYXVzZSBwcm9wZXJ0eSBmb3IgZXJyb3IgY2hhaW5pbmdcbiAgICB0aHJvdyBjdXN0b21FcnJvcjtcbiAgfVxufTsgIl0sIm5hbWVzIjpbImdlbmVyYXRlVHJ5T24iLCJtb2RlbCIsIm9wZW5haSIsImtleSIsImdldEVudiIsIk9wZW5BSSIsImFwaUtleSIsImJhc2U2NFRvRmlsZSIsImJhc2U2NFN0cmluZyIsImZpbGVuYW1lIiwibm9ybWFsaXplZEJhc2U2NCIsIm5vcm1hbGl6ZUJhc2U2NCIsImJ1ZmZlciIsIkJ1ZmZlciIsImZyb20iLCJibG9iIiwiQmxvYiIsInR5cGUiLCJGaWxlIiwibW9kZWxJbWFnZSIsImFwcGFyZWxJbWFnZXMiLCJUcnlPblBhcmFtc1NjaGVtYSIsInBhcnNlIiwibW9kZWxGaWxlIiwiYXBwYXJlbEZpbGUiLCJjb25zb2xlIiwibG9nIiwidmFsaWRhdGVkUmVzdWx0IiwiVHJ5T25SZXN1bHRTY2hlbWEiLCJpbWdHZW5lcmF0ZWQiLCJmcyIsInJlYWRGaWxlU3luYyIsImVuY29kaW5nIiwicmVzcG9uc2UiLCJpbWFnZXMiLCJlZGl0IiwiaW1hZ2UiLCJwcm9tcHQiLCJuIiwic2l6ZSIsInF1YWxpdHkiLCJkYXRhIiwibGVuZ3RoIiwiRXJyb3IiLCJiNjRKc29uIiwiYjY0X2pzb24iLCJlcnJvciIsImVycm9yTWVzc2FnZSIsIm1lc3NhZ2UiLCJjdXN0b21FcnJvciIsImNhdXNlIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0NBTUM7Ozs7Ozs7Ozs7O0lBOERZQSxhQUFhO2VBQWJBOztJQWhESUMsS0FBSztlQUFMQTs7SUFBUkMsTUFBTTtlQUFOQTs7OytEQVpVO3dCQUNJOzZCQUNpRTs0REFDcEU7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBRXBCLHNFQUFzRTtBQUN0RSxNQUFNLEVBQUVDLEdBQUcsRUFBRUYsS0FBSyxFQUFFLEdBQUdHLElBQUFBLGNBQU07QUFFN0Isc0NBQXNDO0FBQ3RDLE1BQU1GLFNBQVMsSUFBSUcsZUFBTSxDQUFDO0lBQUVDLFFBQVFIO0FBQUk7QUFLeEM7Ozs7OztDQU1DLEdBQ0QsTUFBTUksZUFBZSxDQUFDQyxjQUFzQkMsV0FBbUIsV0FBVztJQUN4RSxzREFBc0Q7SUFDdEQsTUFBTUMsbUJBQW1CQyxJQUFBQSw0QkFBZSxFQUFDSDtJQUV6QyxxREFBcUQ7SUFDckQsTUFBTUksU0FBU0MsT0FBT0MsSUFBSSxDQUFDSixrQkFBa0I7SUFFN0Msa0NBQWtDO0lBQ2xDLDJCQUEyQjtJQUMzQiwyQkFBMkI7SUFDM0IsK0JBQStCO0lBQy9CLGlFQUFpRTtJQUNqRSw0REFBNEQ7SUFDNUQscUNBQXFDO0lBRXJDLHVCQUF1QjtJQUN2QixNQUFNSyxPQUFPLElBQUlDLEtBQUs7UUFBQ0o7S0FBTyxFQUFFO1FBQUVLLE1BQU07SUFBWTtJQUNwRCxPQUFPLElBQUlDLEtBQUs7UUFBQ0g7S0FBSyxFQUFFTixVQUFVO1FBQUVRLE1BQU07SUFBWTtBQUN4RDtBQXFCTyxNQUFNakIsZ0JBQWdCLE9BQU8sRUFBRW1CLFVBQVUsRUFBRUMsYUFBYSxFQUFlO0lBQzVFLElBQUk7UUFDRiw0QkFBNEI7UUFDNUJDLDhCQUFpQixDQUFDQyxLQUFLLENBQUM7WUFBRUg7WUFBWUM7UUFBYztRQUVwRCx3REFBd0Q7UUFDeEQsTUFBTUcsWUFBWWhCLGFBQWFZLFlBQVk7UUFDM0MsTUFBTUssY0FBY2pCLGFBQWFhLGFBQWEsQ0FBQyxFQUFFLEVBQUU7UUFFbkQsSUFBSW5CLFNBQVMsUUFBUTtZQUNuQndCLFFBQVFDLEdBQUcsQ0FBQztZQUNaLCtCQUErQjtZQUMvQixNQUFNQyxrQkFBa0JDLDhCQUFpQixDQUFDTixLQUFLLENBQUM7Z0JBQUVPLGNBQWNDLElBQUdDLFlBQVksQ0FBQyxxQ0FBcUM7b0JBQUVDLFVBQVU7Z0JBQVM7WUFBRztZQUM3SSxPQUFPTCxnQkFBZ0JFLFlBQVk7UUFDckM7UUFFQSw4QkFBOEI7UUFDOUIsTUFBTUksV0FBVyxNQUFNL0IsT0FBT2dDLE1BQU0sQ0FBQ0MsSUFBSSxDQUFDO1lBQ3hDbEM7WUFDQW1DLE9BQU87Z0JBQUNiO2dCQUFXQzthQUFZO1lBQy9CYSxRQUFRO1lBQ1JDLEdBQUc7WUFDSEMsTUFBTTtZQUNOQyxTQUFTO1FBQ1g7UUFFQSwyQ0FBMkM7UUFDM0MsSUFBSSxDQUFDUCxTQUFTUSxJQUFJLElBQUlSLFNBQVNRLElBQUksQ0FBQ0MsTUFBTSxLQUFLLEdBQUc7WUFDaEQsTUFBTSxJQUFJQyxNQUFNO1FBQ2xCO1FBRUEsTUFBTUMsVUFBVVgsU0FBU1EsSUFBSSxDQUFDLEVBQUUsRUFBRUk7UUFDbEMsSUFBSSxDQUFDRCxTQUFTO1lBQ1osTUFBTSxJQUFJRCxNQUFNO1FBQ2xCO1FBQ0FsQixRQUFRQyxHQUFHLENBQUMsNEJBQTRCa0IsUUFBUUYsTUFBTTtRQUV0RCxrQ0FBa0M7UUFDbEMsK0JBQStCO1FBQy9CLG9FQUFvRTtRQUVwRSwrQkFBK0I7UUFDL0IsTUFBTWYsa0JBQWtCQyw4QkFBaUIsQ0FBQ04sS0FBSyxDQUFDO1lBQUVPLGNBQWNlO1FBQVE7UUFFeEUsT0FBT2pCLGdCQUFnQkUsWUFBWTtJQUNyQyxFQUFFLE9BQU9pQixPQUFPO1FBQ2QsK0RBQStEO1FBQy9ELE1BQU1DLGVBQWVELGlCQUFpQkgsUUFBUUcsTUFBTUUsT0FBTyxHQUFHO1FBQzlELE1BQU1DLGNBQWMsSUFBSU4sTUFBTSxDQUFDLHNCQUFzQixFQUFFSSxjQUFjO1FBQ3BFRSxZQUE0Q0MsS0FBSyxHQUFHSixPQUFPLHdDQUF3QztRQUNwRyxNQUFNRztJQUNSO0FBQ0YifQ==

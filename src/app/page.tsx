@@ -1,299 +1,46 @@
 "use client"
 
-import React, { useState, useCallback, useRef } from "react"
+import React, { useRef } from "react"
 import {SaucyTicker} from  "@/components/ui/saucy-ticker"
 import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
 import { BrutalismCard } from "@/components/ui/brutalism-card"
 import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
-import { fileToBase64, compressBase64, CompressionFailedError } from "@/utils/image"
-import { useToast } from "@/hooks"
-import { errorToMessage } from "@/lib/errorToMessage"
+import { usePageComponentState } from "@/hooks"
 
-// Utility function to resize image to 1024x1536
-const resizeImageTo1024x1536 = (imageUrl: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const img = new Image()
-        img.crossOrigin = "anonymous"
-        img.onload = () => {
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-            
-            if (!ctx) {
-                reject(new Error('Could not get canvas context'))
-                return
-            }
-            
-            // Set canvas dimensions to target size
-            canvas.width = 1024
-            canvas.height = 1536
-            
-            // Draw the image resized to fit the canvas
-            ctx.drawImage(img, 0, 0, 1024, 1536)
-            
-            // Convert to data URL
-            const resizedImageUrl = canvas.toDataURL('image/jpeg', 0.9)
-            resolve(resizedImageUrl)
-        }
-        
-        img.onerror = () => {
-            reject(new Error('Failed to load image for resizing'))
-        }
-        
-        img.src = imageUrl
-    })
-}
-
-// Utility function moved outside the component
-const logImageDimensions = (imageUrl: string, cardName: string) => {
-    const img = new Image()
-    img.src = imageUrl
-    img.onload = () => {
-        console.log(`${cardName} image dimensions:`, { width: img.width, height: img.height })
-    }
-}
-
-// Compression limit constant for base64 conversion
-const B64_LIMIT_KB = 2048 // 2MB limit for compression
-
-// Timeout duration constant (60 seconds)
-const TIMEOUT_DURATION_MS = 60000
 
 export default function SusFitPage() {
-    const [isCapturing, setIsCapturing] = useState(false)
-    const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
-    const [rightCardImage, setRightCardImage] = useState<string | null>(null)
-    const [showPolaroid, setShowPolaroid] = useState(false)
-    const [userImageFile, setUserImageFile] = useState<File | null>(null)
-    const [apparelImageFile, setApparelImageFile] = useState<File | null>(null)
-    const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-    const [hasError, setHasError] = useState(false)
+    // Replace all local state management with bridge layer hook
+    const {
+        isCapturing,
+        leftCardImage,
+        rightCardImage,
+        showPolaroid,
+        userImageFile,
+        apparelImageFile,
+        generatedImage,
+        hasError,
+        handleUserFileUpload,
+        handleApparelFileUpload,
+        handleLeftCardImageUpload,
+        handleRightCardImageUpload,
+        handleCameraButtonClick,
+        handleGenerationStart,
+        handleGenerationComplete,
+        handleClosePolaroid,
+        handleRetryGeneration
+    } = usePageComponentState()
     
     // Refs for upload panels to enable focus management
     const leftCardRef = useRef<HTMLDivElement>(null)
     const rightCardRef = useRef<HTMLDivElement>(null)
-    
-    // Toast hook for error notifications
-    const { showToast } = useToast()
 
-    // Debug effect to log when File objects change
+    // Debug effect to log when File objects change (keeping for debugging)
     React.useEffect(() => {
         console.log('File objects updated:', {
             userImageFile: userImageFile ? `File: ${userImageFile.name} (${userImageFile.size} bytes)` : 'null',
             apparelImageFile: apparelImageFile ? `File: ${apparelImageFile.name} (${apparelImageFile.size} bytes)` : 'null'
         })
     }, [userImageFile, apparelImageFile])
-
-    // Memoized callback functions to prevent re-rendering issues
-    const handleUserFileUpload = useCallback((file: File) => {
-        setUserImageFile(file)
-    }, [])
-
-    const handleApparelFileUpload = useCallback((file: File) => {
-        setApparelImageFile(file)
-    }, [])
-
-
-    const handleGenerationStart = () => {
-        console.log('Generation started')
-    }
-
-    const handleGenerationComplete = (imageUrl: string) => {
-        console.log('Generation complete:', imageUrl)
-        // This is now handled directly in the API response
-        // No need to reset isCapturing here anymore
-    }
-
-    const handleClosePolaroid = () => {
-        console.log('Closing Polaroid')
-        setShowPolaroid(false)
-    }
-
-    const handleRetryGeneration = () => {
-        console.log('Retry generation clicked')
-        setHasError(false)
-        setGeneratedImage(null)
-        // Use setTimeout to hide polaroid after a delay
-        setTimeout(() => {
-            setShowPolaroid(false)
-        }, 100)
-    }
-
-    const handleLeftCardImageUpload = async (imageUrl: string) => {
-        try {
-            console.log('Left card image uploaded: (original):', imageUrl)
-            logImageDimensions(imageUrl, 'Left card (original)')
-            
-            // Resize the image to 1024x1536
-            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
-            
-            setLeftCardImage(resizedImageUrl)
-            console.log('Left card image resized to 1024x1536:', resizedImageUrl)
-            logImageDimensions(resizedImageUrl, 'Left card (resized)')
-            
-            // Create a File object from the base64 data URL as backup
-            // This ensures we have a File object even if onFileUpload doesn't work
-            try {
-                const response = await fetch(imageUrl)
-                const blob = await response.blob()
-                const file = new File([blob], 'user-image.jpg', { type: 'image/jpeg' })
-                console.log('Created backup File object for left card:', file.name, file.size)
-                setUserImageFile(file)
-            } catch (fileError) {
-                console.error('Failed to create backup File object:', fileError)
-            }
-        } catch (error) {
-            console.error('Error resizing image:', error)
-            // Fallback to original image if resizing fails
-            setLeftCardImage(imageUrl)
-            console.log('Using original image due to resize error')
-        }
-    }
-
-    const handleRightCardImageUpload = async (imageUrl: string) => {
-        try {
-            console.log('Right card image uploaded (original):', imageUrl)
-            logImageDimensions(imageUrl, 'Right card (original)')
-            
-            // Resize the image to 1024x1536
-            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
-            
-            setRightCardImage(resizedImageUrl)
-            console.log('Right card image resized to 1024x1536:', resizedImageUrl)
-            logImageDimensions(resizedImageUrl, 'Right card (resized)')
-            
-            // Create a File object from the base64 data URL as backup
-            // This ensures we have a File object even if onFileUpload doesn't work
-            try {
-                const response = await fetch(imageUrl)
-                const blob = await response.blob()
-                const file = new File([blob], 'apparel-image.jpg', { type: 'image/jpeg' })
-                console.log('Created backup File object for right card:', file.name, file.size)
-                setApparelImageFile(file)
-            } catch (fileError) {
-                console.error('Failed to create backup File object:', fileError)
-            }
-        } catch (error) {
-            console.error('Error resizing image:', error)
-            // Fallback to original image if resizing fails
-            setRightCardImage(imageUrl)
-            console.log('Using original image due to resize error')
-        }
-    }
-
-    const handleCameraButtonClick = async () => {
-        console.log('Camera button clicked!')
-        
-        // Validate that both images are uploaded first
-        if (!userImageFile || !apparelImageFile) {
-            let message = ''
-            if (!userImageFile && !apparelImageFile) {
-                message = 'Please upload model photo and apparel photo before generating your fit.'
-            } else if (!userImageFile) {
-                message = 'Please upload model photo'
-            } else if (!apparelImageFile) {
-                message = 'Please upload apparel photo'
-            }
-            
-            showToast(message, 'warning')
-            return
-        }
-        
-        // Set loading state and show polaroid
-        setIsCapturing(true)
-        setShowPolaroid(true)
-        setHasError(false)
-        
-        // Create AbortController for 30-second timeout
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION_MS)
-        
-        try {
-            // Convert and compress both images concurrently with higher limit
-            const [modelB64, apparelB64] = await Promise.all([
-                fileToBase64(userImageFile).then(b64 => compressBase64(b64, B64_LIMIT_KB)),
-                fileToBase64(apparelImageFile).then(b64 => compressBase64(b64, B64_LIMIT_KB))
-            ])
-            
-            console.log('Successfully converted images to base64:', {
-                modelB64: modelB64.substring(0, 50) + '...',
-                apparelB64: apparelB64.substring(0, 50) + '...'
-            })
-            
-            // Dispatch /api/tryon request with 30s timeout
-            const response = await fetch('/api/tryon', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    modelImage: modelB64, 
-                    apparelImages: [apparelB64] 
-                }),
-                signal: controller.signal
-            })
-            
-            // Clear timeout to prevent memory leaks
-            clearTimeout(timeoutId)
-            
-            if (!response.ok) {
-                const errorText = await response.text()
-                throw new Error(`API request failed: ${response.status} - ${errorText}`)
-            }
-            
-            const { img_generated } = await response.json()
-            console.log('Successfully received generated image from API')
-            console.log('Generated image length:', img_generated?.length || 0)
-            console.log('Generated image preview:', img_generated?.substring(0, 50) + '...')
-            
-            // Store the generated image in state
-            setGeneratedImage(img_generated)
-            console.log('Set generatedImage state to:', img_generated ? 'base64 string' : 'null')
-            
-            // Set isCapturing to false immediately when we have the image
-            // This will hide the loading spinner and show the generated image
-            setIsCapturing(false)
-            console.log('Set isCapturing to false - image should now display')
-            
-        } catch (error) {
-            console.error('Error in handleCameraButtonClick:', error)
-            
-            // Clear timeout to prevent memory leaks
-            clearTimeout(timeoutId)
-            
-            // Set error state
-            setHasError(true)
-            
-            // Handle compression failures specifically
-            if (error instanceof CompressionFailedError) {
-                console.error('Image compression failed - file too large even after compression')
-                showToast('Your image is still too large after compression. Please upload a smaller file.', 'error')
-                setIsCapturing(false)
-                return
-            }
-            
-            // Handle AbortError (timeout)
-            if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
-                console.error(`API request timed out after ${TIMEOUT_DURATION_MS}ms`)
-                showToast(errorToMessage('TIMEOUT'), 'error')
-                setIsCapturing(false)
-                return
-            }
-            
-            // Handle API errors with status codes
-            if (error instanceof Error && error.message.includes('API request failed:')) {
-                const statusMatch = error.message.match(/API request failed: (\d+)/)
-                const status = statusMatch ? parseInt(statusMatch[1]) : undefined
-                showToast(errorToMessage(status), 'error')
-                setIsCapturing(false)
-                return
-            }
-            
-            // Handle other errors
-            showToast(errorToMessage(), 'error')
-            setIsCapturing(false)
-        } finally {
-            // Don't reset isCapturing here - let the PolaroidPhotoGenerator handle completion
-            // The component will call onGenerationComplete when the animation is done
-        }
-    }
 
     return (
         <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">

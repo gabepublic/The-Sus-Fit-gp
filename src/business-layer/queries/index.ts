@@ -1,6 +1,20 @@
 // Business Layer Queries
 // Re-export all React Query hooks for data fetching
 
-// Queries will be implemented in later tasks
-// export * from './useFeatureFlags.query';
-// export * from './useImageProcessing.query';
+// Image processing queries
+export {
+  useImageProcessing,
+  useImageMetadata,
+  useImageThumbnail,
+  useImageValidation,
+  useFormatConversion,
+  useBatchImageProcessing,
+  useProcessingStats,
+  useImageProcessingCache,
+  imageProcessingKeys,
+  ImageProcessingOperation,
+  type ProcessingQueueItem,
+  type BatchProcessingConfig,
+  type ProcessingStats,
+  type ProcessingQueueState
+} from './useImageProcessing';

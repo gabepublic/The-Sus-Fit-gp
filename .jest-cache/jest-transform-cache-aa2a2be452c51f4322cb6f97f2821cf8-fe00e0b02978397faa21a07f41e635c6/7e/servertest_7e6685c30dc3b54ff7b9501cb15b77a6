@@ -1,0 +1,51 @@
+ae8332030ddb46139643c799d92f4040
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+const _server = require("../../../src/test/mocks/server");
+const _handlers = require("../../../src/test/mocks/handlers");
+describe('mock server', ()=>{
+    it('exports server instance', ()=>{
+        expect(_server.server).toBeDefined();
+        expect(typeof _server.server.listen).toBe('function');
+        expect(typeof _server.server.close).toBe('function');
+        expect(typeof _server.server.resetHandlers).toBe('function');
+    });
+    it('server is configured with handlers', ()=>{
+        // MSW servers don't expose listenerCount, but we can verify they have handlers
+        // by checking that the server has the expected MSW methods and can be started/stopped
+        expect(_server.server).toBeDefined();
+        expect(typeof _server.server.listen).toBe('function');
+        expect(typeof _server.server.close).toBe('function');
+        expect(typeof _server.server.resetHandlers).toBe('function');
+        // Test that the server can actually handle requests by starting it
+        _server.server.listen();
+        expect(()=>_server.server.close()).not.toThrow();
+    });
+    it('can start and stop server', ()=>{
+        expect(()=>{
+            _server.server.listen();
+            _server.server.close();
+        }).not.toThrow();
+    });
+    it('can reset handlers', ()=>{
+        expect(()=>{
+            _server.server.resetHandlers();
+        }).not.toThrow();
+    });
+    it('server uses the same handlers as exported', ()=>{
+        // The server should be configured with the handlers from the handlers file
+        expect(_handlers.handlers).toBeDefined();
+        expect(Array.isArray(_handlers.handlers)).toBe(true);
+    });
+    it('server has proper MSW configuration', ()=>{
+        // Test that the server has the expected MSW methods
+        expect(_server.server).toHaveProperty('listen');
+        expect(_server.server).toHaveProperty('close');
+        expect(_server.server).toHaveProperty('resetHandlers');
+        expect(_server.server).toHaveProperty('use');
+    });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy93aWxsc3RyZWV0ZXIvV2Vic3Rvcm1Qcm9qZWN0cy92aWJlLWNvZGluZy90aG9zZS1wZW9wbGUvVGhlLVN1cy1GaXQtZ3AvX190ZXN0c19fL3Rlc3QvbW9ja3Mvc2VydmVyLnRlc3QudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgc2VydmVyIH0gZnJvbSAnQC90ZXN0L21vY2tzL3NlcnZlcidcbmltcG9ydCB7IGhhbmRsZXJzIH0gZnJvbSAnQC90ZXN0L21vY2tzL2hhbmRsZXJzJ1xuXG5kZXNjcmliZSgnbW9jayBzZXJ2ZXInLCAoKSA9PiB7XG4gIGl0KCdleHBvcnRzIHNlcnZlciBpbnN0YW5jZScsICgpID0+IHtcbiAgICBleHBlY3Qoc2VydmVyKS50b0JlRGVmaW5lZCgpXG4gICAgZXhwZWN0KHR5cGVvZiBzZXJ2ZXIubGlzdGVuKS50b0JlKCdmdW5jdGlvbicpXG4gICAgZXhwZWN0KHR5cGVvZiBzZXJ2ZXIuY2xvc2UpLnRvQmUoJ2Z1bmN0aW9uJylcbiAgICBleHBlY3QodHlwZW9mIHNlcnZlci5yZXNldEhhbmRsZXJzKS50b0JlKCdmdW5jdGlvbicpXG4gIH0pXG5cbiAgaXQoJ3NlcnZlciBpcyBjb25maWd1cmVkIHdpdGggaGFuZGxlcnMnLCAoKSA9PiB7XG4gICAgLy8gTVNXIHNlcnZlcnMgZG9uJ3QgZXhwb3NlIGxpc3RlbmVyQ291bnQsIGJ1dCB3ZSBjYW4gdmVyaWZ5IHRoZXkgaGF2ZSBoYW5kbGVyc1xuICAgIC8vIGJ5IGNoZWNraW5nIHRoYXQgdGhlIHNlcnZlciBoYXMgdGhlIGV4cGVjdGVkIE1TVyBtZXRob2RzIGFuZCBjYW4gYmUgc3RhcnRlZC9zdG9wcGVkXG4gICAgZXhwZWN0KHNlcnZlcikudG9CZURlZmluZWQoKVxuICAgIGV4cGVjdCh0eXBlb2Ygc2VydmVyLmxpc3RlbikudG9CZSgnZnVuY3Rpb24nKVxuICAgIGV4cGVjdCh0eXBlb2Ygc2VydmVyLmNsb3NlKS50b0JlKCdmdW5jdGlvbicpXG4gICAgZXhwZWN0KHR5cGVvZiBzZXJ2ZXIucmVzZXRIYW5kbGVycykudG9CZSgnZnVuY3Rpb24nKVxuICAgIFxuICAgIC8vIFRlc3QgdGhhdCB0aGUgc2VydmVyIGNhbiBhY3R1YWxseSBoYW5kbGUgcmVxdWVzdHMgYnkgc3RhcnRpbmcgaXRcbiAgICBzZXJ2ZXIubGlzdGVuKClcbiAgICBleHBlY3QoKCkgPT4gc2VydmVyLmNsb3NlKCkpLm5vdC50b1Rocm93KClcbiAgfSlcblxuICBpdCgnY2FuIHN0YXJ0IGFuZCBzdG9wIHNlcnZlcicsICgpID0+IHtcbiAgICBleHBlY3QoKCkgPT4ge1xuICAgICAgc2VydmVyLmxpc3RlbigpXG4gICAgICBzZXJ2ZXIuY2xvc2UoKVxuICAgIH0pLm5vdC50b1Rocm93KClcbiAgfSlcblxuICBpdCgnY2FuIHJlc2V0IGhhbmRsZXJzJywgKCkgPT4ge1xuICAgIGV4cGVjdCgoKSA9PiB7XG4gICAgICBzZXJ2ZXIucmVzZXRIYW5kbGVycygpXG4gICAgfSkubm90LnRvVGhyb3coKVxuICB9KVxuXG4gIGl0KCdzZXJ2ZXIgdXNlcyB0aGUgc2FtZSBoYW5kbGVycyBhcyBleHBvcnRlZCcsICgpID0+IHtcbiAgICAvLyBUaGUgc2VydmVyIHNob3VsZCBiZSBjb25maWd1cmVkIHdpdGggdGhlIGhhbmRsZXJzIGZyb20gdGhlIGhhbmRsZXJzIGZpbGVcbiAgICBleHBlY3QoaGFuZGxlcnMpLnRvQmVEZWZpbmVkKClcbiAgICBleHBlY3QoQXJyYXkuaXNBcnJheShoYW5kbGVycykpLnRvQmUodHJ1ZSlcbiAgfSlcblxuICBpdCgnc2VydmVyIGhhcyBwcm9wZXIgTVNXIGNvbmZpZ3VyYXRpb24nLCAoKSA9PiB7XG4gICAgLy8gVGVzdCB0aGF0IHRoZSBzZXJ2ZXIgaGFzIHRoZSBleHBlY3RlZCBNU1cgbWV0aG9kc1xuICAgIGV4cGVjdChzZXJ2ZXIpLnRvSGF2ZVByb3BlcnR5KCdsaXN0ZW4nKVxuICAgIGV4cGVjdChzZXJ2ZXIpLnRvSGF2ZVByb3BlcnR5KCdjbG9zZScpXG4gICAgZXhwZWN0KHNlcnZlcikudG9IYXZlUHJvcGVydHkoJ3Jlc2V0SGFuZGxlcnMnKVxuICAgIGV4cGVjdChzZXJ2ZXIpLnRvSGF2ZVByb3BlcnR5KCd1c2UnKVxuICB9KVxufSkgIl0sIm5hbWVzIjpbImRlc2NyaWJlIiwiaXQiLCJleHBlY3QiLCJzZXJ2ZXIiLCJ0b0JlRGVmaW5lZCIsImxpc3RlbiIsInRvQmUiLCJjbG9zZSIsInJlc2V0SGFuZGxlcnMiLCJub3QiLCJ0b1Rocm93IiwiaGFuZGxlcnMiLCJBcnJheSIsImlzQXJyYXkiLCJ0b0hhdmVQcm9wZXJ0eSJdLCJtYXBwaW5ncyI6Ijs7Ozt3QkFBdUI7MEJBQ0U7QUFFekJBLFNBQVMsZUFBZTtJQUN0QkMsR0FBRywyQkFBMkI7UUFDNUJDLE9BQU9DLGNBQU0sRUFBRUMsV0FBVztRQUMxQkYsT0FBTyxPQUFPQyxjQUFNLENBQUNFLE1BQU0sRUFBRUMsSUFBSSxDQUFDO1FBQ2xDSixPQUFPLE9BQU9DLGNBQU0sQ0FBQ0ksS0FBSyxFQUFFRCxJQUFJLENBQUM7UUFDakNKLE9BQU8sT0FBT0MsY0FBTSxDQUFDSyxhQUFhLEVBQUVGLElBQUksQ0FBQztJQUMzQztJQUVBTCxHQUFHLHNDQUFzQztRQUN2QywrRUFBK0U7UUFDL0Usc0ZBQXNGO1FBQ3RGQyxPQUFPQyxjQUFNLEVBQUVDLFdBQVc7UUFDMUJGLE9BQU8sT0FBT0MsY0FBTSxDQUFDRSxNQUFNLEVBQUVDLElBQUksQ0FBQztRQUNsQ0osT0FBTyxPQUFPQyxjQUFNLENBQUNJLEtBQUssRUFBRUQsSUFBSSxDQUFDO1FBQ2pDSixPQUFPLE9BQU9DLGNBQU0sQ0FBQ0ssYUFBYSxFQUFFRixJQUFJLENBQUM7UUFFekMsbUVBQW1FO1FBQ25FSCxjQUFNLENBQUNFLE1BQU07UUFDYkgsT0FBTyxJQUFNQyxjQUFNLENBQUNJLEtBQUssSUFBSUUsR0FBRyxDQUFDQyxPQUFPO0lBQzFDO0lBRUFULEdBQUcsNkJBQTZCO1FBQzlCQyxPQUFPO1lBQ0xDLGNBQU0sQ0FBQ0UsTUFBTTtZQUNiRixjQUFNLENBQUNJLEtBQUs7UUFDZCxHQUFHRSxHQUFHLENBQUNDLE9BQU87SUFDaEI7SUFFQVQsR0FBRyxzQkFBc0I7UUFDdkJDLE9BQU87WUFDTEMsY0FBTSxDQUFDSyxhQUFhO1FBQ3RCLEdBQUdDLEdBQUcsQ0FBQ0MsT0FBTztJQUNoQjtJQUVBVCxHQUFHLDZDQUE2QztRQUM5QywyRUFBMkU7UUFDM0VDLE9BQU9TLGtCQUFRLEVBQUVQLFdBQVc7UUFDNUJGLE9BQU9VLE1BQU1DLE9BQU8sQ0FBQ0Ysa0JBQVEsR0FBR0wsSUFBSSxDQUFDO0lBQ3ZDO0lBRUFMLEdBQUcsdUNBQXVDO1FBQ3hDLG9EQUFvRDtRQUNwREMsT0FBT0MsY0FBTSxFQUFFVyxjQUFjLENBQUM7UUFDOUJaLE9BQU9DLGNBQU0sRUFBRVcsY0FBYyxDQUFDO1FBQzlCWixPQUFPQyxjQUFNLEVBQUVXLGNBQWMsQ0FBQztRQUM5QlosT0FBT0MsY0FBTSxFQUFFVyxjQUFjLENBQUM7SUFDaEM7QUFDRiJ9

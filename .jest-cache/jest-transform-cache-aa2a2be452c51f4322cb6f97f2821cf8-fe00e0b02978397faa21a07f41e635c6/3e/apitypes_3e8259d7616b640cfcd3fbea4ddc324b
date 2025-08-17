@@ -1,0 +1,62 @@
+cadfc08255079dfe5c7151eb98650c2f
+// Business Layer API Types
+// Types for external API interactions and responses
+// Re-export API schema types
+"use strict";
+
+/* istanbul ignore next */
+function cov_1go2spkrqw() {
+  var path = "/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/api.types.ts";
+  var hash = "e9a306ae0d5cb75f8fae9e3fdbad6010dd82f2fd";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/api.types.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 0
+        },
+        end: {
+          line: 7,
+          column: 3
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    inputSourceMap: {
+      version: 3,
+      sources: ["/Users/willstreeter/WebstormProjects/vibe-coding/those-people/The-Sus-Fit-gp/src/business-layer/types/api.types.ts"],
+      sourcesContent: ["// Business Layer API Types\n// Types for external API interactions and responses\n\n// Re-export API schema types\nexport type { TryonRequest } from '@/app/api/tryon/schema';\n\n// Try-on API response types\nexport interface TryonResponse {\n  success: boolean;\n  data?: {\n    resultImage: string; // base64 encoded image\n    processedAt: string; // ISO timestamp\n    processingTime?: number; // milliseconds\n  };\n  error?: string;\n  requestId?: string;\n}\n\n// API error response type\nexport interface ApiErrorResponse {\n  success: false;\n  error: string;\n  code?: string;\n  details?: Record<string, unknown>;\n  timestamp: string;\n  requestId?: string;\n}\n\n// API success response type\nexport interface ApiSuccessResponse<T = unknown> {\n  success: true;\n  data: T;\n  timestamp: string;\n  requestId?: string;\n}\n\n// Generic API response union type\nexport type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;\n\n// Image processing types\nexport interface ImageProcessingOptions {\n  quality?: number; // 0-100\n  format?: 'jpeg' | 'png' | 'webp';\n  width?: number;\n  height?: number;\n  maintainAspectRatio?: boolean;\n}\n\nexport interface ProcessedImage {\n  data: string; // base64 encoded\n  format: string;\n  width: number;\n  height: number;\n  size: number; // bytes\n  processedAt: string;\n}\n\n// Feature flag types (for future use)\nexport interface FeatureFlagConfig {\n  key: string;\n  enabled: boolean;\n  value?: string | number | boolean;\n  description?: string;\n  environment?: string;\n}\n\nexport interface FeatureFlagResponse {\n  flags: Record<string, FeatureFlagConfig>;\n  lastUpdated: string;\n  version: string;\n}"],
+      names: [],
+      mappings: "AAAA,2BAA2B;AAC3B,oDAAoD;AAEpD,6BAA6B"
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "e9a306ae0d5cb75f8fae9e3fdbad6010dd82f2fd"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_1go2spkrqw = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1go2spkrqw();
+cov_1go2spkrqw().s[0]++;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiL1VzZXJzL3dpbGxzdHJlZXRlci9XZWJzdG9ybVByb2plY3RzL3ZpYmUtY29kaW5nL3Rob3NlLXBlb3BsZS9UaGUtU3VzLUZpdC1ncC9zcmMvYnVzaW5lc3MtbGF5ZXIvdHlwZXMvYXBpLnR5cGVzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIEJ1c2luZXNzIExheWVyIEFQSSBUeXBlc1xuLy8gVHlwZXMgZm9yIGV4dGVybmFsIEFQSSBpbnRlcmFjdGlvbnMgYW5kIHJlc3BvbnNlc1xuXG4vLyBSZS1leHBvcnQgQVBJIHNjaGVtYSB0eXBlc1xuZXhwb3J0IHR5cGUgeyBUcnlvblJlcXVlc3QgfSBmcm9tICdAL2FwcC9hcGkvdHJ5b24vc2NoZW1hJztcblxuLy8gVHJ5LW9uIEFQSSByZXNwb25zZSB0eXBlc1xuZXhwb3J0IGludGVyZmFjZSBUcnlvblJlc3BvbnNlIHtcbiAgc3VjY2VzczogYm9vbGVhbjtcbiAgZGF0YT86IHtcbiAgICByZXN1bHRJbWFnZTogc3RyaW5nOyAvLyBiYXNlNjQgZW5jb2RlZCBpbWFnZVxuICAgIHByb2Nlc3NlZEF0OiBzdHJpbmc7IC8vIElTTyB0aW1lc3RhbXBcbiAgICBwcm9jZXNzaW5nVGltZT86IG51bWJlcjsgLy8gbWlsbGlzZWNvbmRzXG4gIH07XG4gIGVycm9yPzogc3RyaW5nO1xuICByZXF1ZXN0SWQ/OiBzdHJpbmc7XG59XG5cbi8vIEFQSSBlcnJvciByZXNwb25zZSB0eXBlXG5leHBvcnQgaW50ZXJmYWNlIEFwaUVycm9yUmVzcG9uc2Uge1xuICBzdWNjZXNzOiBmYWxzZTtcbiAgZXJyb3I6IHN0cmluZztcbiAgY29kZT86IHN0cmluZztcbiAgZGV0YWlscz86IFJlY29yZDxzdHJpbmcsIHVua25vd24+O1xuICB0aW1lc3RhbXA6IHN0cmluZztcbiAgcmVxdWVzdElkPzogc3RyaW5nO1xufVxuXG4vLyBBUEkgc3VjY2VzcyByZXNwb25zZSB0eXBlXG5leHBvcnQgaW50ZXJmYWNlIEFwaVN1Y2Nlc3NSZXNwb25zZTxUID0gdW5rbm93bj4ge1xuICBzdWNjZXNzOiB0cnVlO1xuICBkYXRhOiBUO1xuICB0aW1lc3RhbXA6IHN0cmluZztcbiAgcmVxdWVzdElkPzogc3RyaW5nO1xufVxuXG4vLyBHZW5lcmljIEFQSSByZXNwb25zZSB1bmlvbiB0eXBlXG5leHBvcnQgdHlwZSBBcGlSZXNwb25zZTxUID0gdW5rbm93bj4gPSBBcGlTdWNjZXNzUmVzcG9uc2U8VD4gfCBBcGlFcnJvclJlc3BvbnNlO1xuXG4vLyBJbWFnZSBwcm9jZXNzaW5nIHR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIEltYWdlUHJvY2Vzc2luZ09wdGlvbnMge1xuICBxdWFsaXR5PzogbnVtYmVyOyAvLyAwLTEwMFxuICBmb3JtYXQ/OiAnanBlZycgfCAncG5nJyB8ICd3ZWJwJztcbiAgd2lkdGg/OiBudW1iZXI7XG4gIGhlaWdodD86IG51bWJlcjtcbiAgbWFpbnRhaW5Bc3BlY3RSYXRpbz86IGJvb2xlYW47XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgUHJvY2Vzc2VkSW1hZ2Uge1xuICBkYXRhOiBzdHJpbmc7IC8vIGJhc2U2NCBlbmNvZGVkXG4gIGZvcm1hdDogc3RyaW5nO1xuICB3aWR0aDogbnVtYmVyO1xuICBoZWlnaHQ6IG51bWJlcjtcbiAgc2l6ZTogbnVtYmVyOyAvLyBieXRlc1xuICBwcm9jZXNzZWRBdDogc3RyaW5nO1xufVxuXG4vLyBGZWF0dXJlIGZsYWcgdHlwZXMgKGZvciBmdXR1cmUgdXNlKVxuZXhwb3J0IGludGVyZmFjZSBGZWF0dXJlRmxhZ0NvbmZpZyB7XG4gIGtleTogc3RyaW5nO1xuICBlbmFibGVkOiBib29sZWFuO1xuICB2YWx1ZT86IHN0cmluZyB8IG51bWJlciB8IGJvb2xlYW47XG4gIGRlc2NyaXB0aW9uPzogc3RyaW5nO1xuICBlbnZpcm9ubWVudD86IHN0cmluZztcbn1cblxuZXhwb3J0IGludGVyZmFjZSBGZWF0dXJlRmxhZ1Jlc3BvbnNlIHtcbiAgZmxhZ3M6IFJlY29yZDxzdHJpbmcsIEZlYXR1cmVGbGFnQ29uZmlnPjtcbiAgbGFzdFVwZGF0ZWQ6IHN0cmluZztcbiAgdmVyc2lvbjogc3RyaW5nO1xufSJdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUVBIiwiaWdub3JlTGlzdCI6W119

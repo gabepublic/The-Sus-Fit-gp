@@ -1,0 +1,29 @@
+4f508c1bcc52ac164f4ed2c634353b1d
+/**
+ * Simple test to validate our testing framework
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+const _react = require("@testing-library/react");
+const _reactquerytestutils = require("./test-utils/react-query-test-utils");
+const _apimocks = require("./test-utils/api-mocks");
+// Setup API mocks outside of test
+_apimocks.MockAPIUtils.setupServer();
+describe('Testing Framework Validation', ()=>{
+    it('should create a query client for testing', ()=>{
+        const queryClient = (0, _reactquerytestutils.createTestQueryClient)();
+        expect(queryClient).toBeDefined();
+    });
+    it('should have API mocks available', ()=>{
+        expect(_apimocks.MockAPIUtils.reset).toBeDefined();
+        expect(_apimocks.MockAPIUtils.useErrorScenario).toBeDefined();
+    });
+    it('should run basic async test', async ()=>{
+        await (0, _react.waitFor)(()=>{
+            expect(true).toBe(true);
+        });
+    });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy93aWxsc3RyZWV0ZXIvV2Vic3Rvcm1Qcm9qZWN0cy92aWJlLWNvZGluZy90aG9zZS1wZW9wbGUvVGhlLVN1cy1GaXQtZ3AvX190ZXN0c19fL3NpbXBsZS1mcmFtZXdvcmstdGVzdC50ZXN0LnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIFNpbXBsZSB0ZXN0IHRvIHZhbGlkYXRlIG91ciB0ZXN0aW5nIGZyYW1ld29ya1xuICovXG5pbXBvcnQgeyBhY3QsIHdhaXRGb3IgfSBmcm9tICdAdGVzdGluZy1saWJyYXJ5L3JlYWN0JztcbmltcG9ydCB7IGNyZWF0ZVRlc3RRdWVyeUNsaWVudCB9IGZyb20gJy4vdGVzdC11dGlscy9yZWFjdC1xdWVyeS10ZXN0LXV0aWxzJztcbmltcG9ydCB7IE1vY2tBUElVdGlscyB9IGZyb20gJy4vdGVzdC11dGlscy9hcGktbW9ja3MnO1xuXG4vLyBTZXR1cCBBUEkgbW9ja3Mgb3V0c2lkZSBvZiB0ZXN0XG5Nb2NrQVBJVXRpbHMuc2V0dXBTZXJ2ZXIoKTtcblxuZGVzY3JpYmUoJ1Rlc3RpbmcgRnJhbWV3b3JrIFZhbGlkYXRpb24nLCAoKSA9PiB7XG4gIGl0KCdzaG91bGQgY3JlYXRlIGEgcXVlcnkgY2xpZW50IGZvciB0ZXN0aW5nJywgKCkgPT4ge1xuICAgIGNvbnN0IHF1ZXJ5Q2xpZW50ID0gY3JlYXRlVGVzdFF1ZXJ5Q2xpZW50KCk7XG4gICAgZXhwZWN0KHF1ZXJ5Q2xpZW50KS50b0JlRGVmaW5lZCgpO1xuICB9KTtcblxuICBpdCgnc2hvdWxkIGhhdmUgQVBJIG1vY2tzIGF2YWlsYWJsZScsICgpID0+IHtcbiAgICBleHBlY3QoTW9ja0FQSVV0aWxzLnJlc2V0KS50b0JlRGVmaW5lZCgpO1xuICAgIGV4cGVjdChNb2NrQVBJVXRpbHMudXNlRXJyb3JTY2VuYXJpbykudG9CZURlZmluZWQoKTtcbiAgfSk7XG5cbiAgaXQoJ3Nob3VsZCBydW4gYmFzaWMgYXN5bmMgdGVzdCcsIGFzeW5jICgpID0+IHtcbiAgICBhd2FpdCB3YWl0Rm9yKCgpID0+IHtcbiAgICAgIGV4cGVjdCh0cnVlKS50b0JlKHRydWUpO1xuICAgIH0pO1xuICB9KTtcbn0pOyJdLCJuYW1lcyI6WyJNb2NrQVBJVXRpbHMiLCJzZXR1cFNlcnZlciIsImRlc2NyaWJlIiwiaXQiLCJxdWVyeUNsaWVudCIsImNyZWF0ZVRlc3RRdWVyeUNsaWVudCIsImV4cGVjdCIsInRvQmVEZWZpbmVkIiwicmVzZXQiLCJ1c2VFcnJvclNjZW5hcmlvIiwid2FpdEZvciIsInRvQmUiXSwibWFwcGluZ3MiOiJBQUFBOztDQUVDOzs7O3VCQUM0QjtxQ0FDUzswQkFDVDtBQUU3QixrQ0FBa0M7QUFDbENBLHNCQUFZLENBQUNDLFdBQVc7QUFFeEJDLFNBQVMsZ0NBQWdDO0lBQ3ZDQyxHQUFHLDRDQUE0QztRQUM3QyxNQUFNQyxjQUFjQyxJQUFBQSwwQ0FBcUI7UUFDekNDLE9BQU9GLGFBQWFHLFdBQVc7SUFDakM7SUFFQUosR0FBRyxtQ0FBbUM7UUFDcENHLE9BQU9OLHNCQUFZLENBQUNRLEtBQUssRUFBRUQsV0FBVztRQUN0Q0QsT0FBT04sc0JBQVksQ0FBQ1MsZ0JBQWdCLEVBQUVGLFdBQVc7SUFDbkQ7SUFFQUosR0FBRywrQkFBK0I7UUFDaEMsTUFBTU8sSUFBQUEsY0FBTyxFQUFDO1lBQ1pKLE9BQU8sTUFBTUssSUFBSSxDQUFDO1FBQ3BCO0lBQ0Y7QUFDRiJ9

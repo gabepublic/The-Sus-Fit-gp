@@ -7,5 +7,25 @@ export {
   type ReactQueryProviderProps 
 } from './ReactQueryProvider';
 
-// Feature flag provider will be implemented in Task 2
-// export * from './FeatureFlagProvider';
+export {
+  FeatureFlagProvider,
+  type FeatureFlagProviderProps
+} from './FeatureFlagProvider';
+
+export {
+  FeatureFlagContext,
+  useFeatureFlagContext,
+  useFeatureFlagContextOptional
+} from './FeatureFlagContext';
+
+export {
+  CanvasProvider,
+  useCanvas,
+  useManagedCanvas,
+  useCanvasUtils,
+  type CanvasProviderProps,
+  type CanvasContextValue,
+  type ManagedCanvas,
+  type CanvasPool,
+  type CanvasUtils
+} from './CanvasProvider';
