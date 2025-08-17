@@ -3,9 +3,9 @@
  * Provides comprehensive testing setup for Business Layer, Bridge Layer, and UI Components
  */
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ComponentType } from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryState, MutationState } from '@tanstack/react-query';
 import { ToastProvider } from '@/components/ToastProvider';
 
 /**
@@ -89,7 +89,7 @@ export function TestProviders({
   children, 
   queryClient, 
   queryConfig = {} 
-}: TestProvidersProps) {
+}: TestProvidersProps): ReactElement {
   const client = queryClient || createTestQueryClient(queryConfig);
 
   return (
@@ -117,7 +117,7 @@ export function renderWithProviders(
   
   const client = queryClient || createTestQueryClient(queryConfig);
 
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper({ children }: { children: React.ReactNode }): ReactElement {
     return (
       <TestProviders queryClient={client}>
         {children}
@@ -192,7 +192,7 @@ class HookTestUtils {
   /**
    * Get query state for debugging
    */
-  getQueryState(queryKey: unknown[]) {
+  getQueryState(queryKey: unknown[]): QueryState<unknown, Error> | undefined {
     const query = this.queryClient.getQueryCache().find({ queryKey });
     return query?.state;
   }
@@ -200,7 +200,7 @@ class HookTestUtils {
   /**
    * Get mutation state for debugging
    */
-  getMutationState() {
+  getMutationState(): Array<{ state: MutationState<unknown, Error, unknown, unknown>; options: any }> {
     return this.queryClient.getMutationCache().getAll().map(mutation => ({
       state: mutation.state,
       options: mutation.options,
@@ -210,10 +210,10 @@ class HookTestUtils {
   /**
    * Create a provider component for renderHook
    */
-  createWrapper() {
+  createWrapper(): ComponentType<{ children: React.ReactNode }> {
     const queryClient = this.queryClient;
     
-    return function TestWrapper({ children }: { children: React.ReactNode }) {
+    return function TestWrapper({ children }: { children: React.ReactNode }): ReactElement {
       return (
         <TestProviders queryClient={queryClient}>
           {children}
@@ -255,7 +255,7 @@ class MutationTestUtils extends HookTestUtils {
   /**
    * Get the latest mutation result
    */
-  getLatestMutationResult() {
+  getLatestMutationResult(): MutationState<unknown, Error, unknown, unknown> | undefined {
     const mutations = this.queryClient.getMutationCache().getAll();
     const latestMutation = mutations[mutations.length - 1];
     return latestMutation?.state;

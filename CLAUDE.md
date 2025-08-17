@@ -476,6 +476,26 @@ For each subtask, verify:
 2. Re-run all QA validation steps
 3. Only then mark the subtask as complete
 
+# Documentation Standards
+
+## JSDoc Requirements
+- All functions/components need JSDoc with @param, @returns, @example
+- Use TypeScript types in JSDoc
+- Document React props with interfaces
+- Include usage examples for components
+
+## File Documentation
+- Each major module needs a README.md in its folder
+- API routes need endpoint documentation
+- Custom hooks need usage examples
+- Utility functions need purpose and examples
+
+## Next.js Specific
+- Document page components with their routes
+- Explain data fetching patterns (getServerSideProps, etc.)
+- Document API route handlers with request/response examples
+
+
 This ensures code quality, maintainability, and reliability throughout the development process.
 
 ---

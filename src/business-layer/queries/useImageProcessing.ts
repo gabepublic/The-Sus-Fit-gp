@@ -3,7 +3,7 @@
 // Image Processing React Query Hooks
 // React Query integration for image processing operations with progress tracking
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 import {
   processImageForTryon,
@@ -116,7 +116,15 @@ export const imageProcessingKeys = {
 /**
  * Basic image processing hook for try-on operations
  */
-export function useImageProcessing() {
+export function useImageProcessing(): {
+  processBasic: (file: File) => Promise<ImageProcessingResult>;
+  processAdvanced: (params: { file: File; options?: Partial<AdvancedImageProcessingOptions> }) => Promise<AdvancedImageProcessingResult>;
+  isProcessingBasic: boolean;
+  isProcessingAdvanced: boolean;
+  basicError: ClassifiedError | null;
+  advancedError: ClassifiedError | null;
+  reset: () => void;
+} {
   const queryClient = useQueryClient();
 
   const basicProcessingMutation = useMutation({
@@ -175,8 +183,8 @@ export function useImageProcessing() {
     processAdvanced: advancedProcessingMutation.mutateAsync,
     isProcessingBasic: basicProcessingMutation.isPending,
     isProcessingAdvanced: advancedProcessingMutation.isPending,
-    basicError: basicProcessingMutation.error,
-    advancedError: advancedProcessingMutation.error,
+    basicError: basicProcessingMutation.error as ClassifiedError | null,
+    advancedError: advancedProcessingMutation.error as ClassifiedError | null,
     reset: () => {
       basicProcessingMutation.reset();
       advancedProcessingMutation.reset();
@@ -187,7 +195,7 @@ export function useImageProcessing() {
 /**
  * Image metadata extraction hook
  */
-export function useImageMetadata(file: File | null, enabled: boolean = true) {
+export function useImageMetadata(file: File | null, enabled: boolean = true): UseQueryResult<ImageMetadata> {
   return useQuery({
     queryKey: file ? imageProcessingKeys.metadata(`${file.name}_${file.lastModified}`) : [],
     queryFn: async (): Promise<ImageMetadata> => {
@@ -209,7 +217,7 @@ export function useImageMetadata(file: File | null, enabled: boolean = true) {
 /**
  * Image thumbnail generation hook
  */
-export function useImageThumbnail(file: File | null, size: number = 150, enabled: boolean = true) {
+export function useImageThumbnail(file: File | null, size: number = 150, enabled: boolean = true): UseQueryResult<string> {
   return useQuery({
     queryKey: file ? imageProcessingKeys.thumbnail(`${file.name}_${file.lastModified}`, size) : [],
     queryFn: async (): Promise<string> => {
@@ -235,7 +243,7 @@ export function useImageThumbnail(file: File | null, size: number = 150, enabled
 /**
  * Image validation hook
  */
-export function useImageValidation(file: File | null, enabled: boolean = true) {
+export function useImageValidation(file: File | null, enabled: boolean = true): UseQueryResult<{ isValid: boolean; errors: string[] }> {
   return useQuery({
     queryKey: file ? imageProcessingKeys.validation(`${file.name}_${file.lastModified}`) : [],
     queryFn: async (): Promise<{ isValid: boolean; errors: string[] }> => {
@@ -286,7 +294,7 @@ export function useImageValidation(file: File | null, enabled: boolean = true) {
 /**
  * Format conversion hook
  */
-export function useFormatConversion() {
+export function useFormatConversion(): UseMutationResult<string, ClassifiedError, { file: File; targetFormat: ImageFormat; quality?: number }> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -535,7 +543,7 @@ export function useBatchImageProcessing(config: Partial<BatchProcessingConfig> =
 /**
  * Processing statistics hook
  */
-export function useProcessingStats() {
+export function useProcessingStats(): UseQueryResult<ProcessingStats> {
   return useQuery({
     queryKey: imageProcessingKeys.stats(),
     queryFn: async (): Promise<ProcessingStats> => {

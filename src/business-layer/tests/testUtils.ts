@@ -1,9 +1,9 @@
 // Test Utilities for Optimistic Updates and Cache Management
 // Common utilities and mocks for testing optimistic updates functionality
 
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { renderHook, RenderHookResult } from '@testing-library/react';
 import type { 
   TryonMutationVariables,
   TryonMutationResponse,
@@ -39,7 +39,7 @@ export function createTestQueryClient(options?: {
 /**
  * Create a wrapper component with QueryClient for hook testing
  */
-export function createQueryClientWrapper(queryClient?: QueryClient) {
+export function createQueryClientWrapper(queryClient?: QueryClient): ComponentType<{ children: React.ReactNode }> {
   const client = queryClient || createTestQueryClient();
   
   return ({ children }: { children: React.ReactNode }) => (
@@ -53,7 +53,7 @@ export function createQueryClientWrapper(queryClient?: QueryClient) {
 export function renderHookWithQueryClient<T>(
   hook: () => T,
   queryClient?: QueryClient
-) {
+): RenderHookResult<T, any> {
   const wrapper = createQueryClientWrapper(queryClient);
   return renderHook(hook, { wrapper });
 }
@@ -259,7 +259,7 @@ export function wait(ms: number): Promise<void> {
 /**
  * Create mock history entries for testing
  */
-export function createMockHistoryEntries(count = 5) {
+export function createMockHistoryEntries(count = 5): Array<any> {
   return Array.from({ length: count }, (_, index) => ({
     id: `history-entry-${index}`,
     timestamp: new Date(Date.now() - index * 60000).toISOString(),
@@ -401,7 +401,7 @@ export function assertOptimisticUpdateRolledBack(
 /**
  * Mock console methods to avoid test output pollution
  */
-export function mockConsole() {
+export function mockConsole(): { mocks: any; restore: () => void } {
   const originalConsole = { ...console };
   
   const consoleMocks = {

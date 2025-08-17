@@ -1,7 +1,7 @@
 // Try-On History React Query Hooks
 // Provides React Query integration for history management with caching and synchronization
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type {
   TryonHistoryEntry,
@@ -279,7 +279,7 @@ export function useTryonHistory(
 export function useTryonHistoryEntry(
   id: string,
   config: Pick<UseTryonHistoryConfig, 'historyService' | 'staleTime' | 'cacheTime'> = {}
-) {
+): UseQueryResult<TryonHistoryEntry | null> {
   const mergedConfig = useMemo(() => ({
     historyService: defaultHistoryService,
     staleTime: 5 * 60 * 1000,
@@ -302,7 +302,7 @@ export function useTryonHistoryEntry(
  */
 export function useTryonHistoryStats(
   config: Pick<UseTryonHistoryConfig, 'historyService' | 'staleTime' | 'cacheTime'> = {}
-) {
+): UseQueryResult<any> {
   const mergedConfig = useMemo(() => ({
     historyService: defaultHistoryService,
     staleTime: 60 * 1000, // 1 minute

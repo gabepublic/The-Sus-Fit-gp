@@ -1,5 +1,5 @@
-import React from 'react'
-import { render, RenderOptions, screen } from '@testing-library/react'
+import React, { ReactElement } from 'react'
+import { render, RenderOptions, screen, RenderResult } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastProvider } from '@/components/ToastProvider'
 
@@ -7,7 +7,7 @@ import { ToastProvider } from '@/components/ToastProvider'
 const customRender = (
   ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-) => {
+): RenderResult => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -20,7 +20,7 @@ const customRender = (
     },
   })
 
-  const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  const AllTheProviders = ({ children }: { children: React.ReactNode }): ReactElement => {
     return (
       <QueryClientProvider client={queryClient}>
         <ToastProvider>

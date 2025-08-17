@@ -3,7 +3,7 @@
  * Comprehensive mocking strategies for external API calls
  */
 
-import { http, HttpResponse, delay } from 'msw';
+import { http, HttpResponse, delay, HttpHandler } from 'msw';
 import { setupServer } from 'msw/node';
 
 /**
@@ -74,7 +74,7 @@ export const API_ENDPOINTS = {
 /**
  * MSW request handlers
  */
-const handlers = [
+const handlers: HttpHandler[] = [
   // Try-on API endpoint - success case
   http.post(API_ENDPOINTS.tryon, async ({ request }) => {
     const body = await request.json() as any;
@@ -115,7 +115,7 @@ const handlers = [
 /**
  * Error scenario handlers
  */
-const errorHandlers = {
+const errorHandlers: Record<string, HttpHandler> = {
   // Server error (500)
   serverError: http.post(API_ENDPOINTS.tryon, () => {
     return HttpResponse.json(DEFAULT_MOCK_RESPONSES.error, { status: 500 });
@@ -159,7 +159,7 @@ const errorHandlers = {
 /**
  * Performance scenario handlers
  */
-const performanceHandlers = {
+const performanceHandlers: Record<string, HttpHandler> = {
   // Fast response (< 100ms)
   fast: http.post(API_ENDPOINTS.tryon, async () => {
     await delay(50);
@@ -241,7 +241,7 @@ class MockAPIUtils {
       delay?: number;
       shouldFail?: boolean;
     } = {}
-  ) {
+  ): HttpHandler {
     const { status = 200, delay: delayMs = 0, shouldFail = false } = options;
     
     return http.post(API_ENDPOINTS.tryon, async () => {
@@ -289,7 +289,7 @@ class MockAPIUtils {
   static createFileUploadHandler(
     response: any = { url: 'mock-upload-url' },
     options: { status?: number; delay?: number } = {}
-  ) {
+  ): HttpHandler {
     const { status = 200, delay: delayMs = 0 } = options;
     
     return http.post(API_ENDPOINTS.upload, async ({ request }) => {
@@ -313,7 +313,7 @@ class MockAPIUtils {
 /**
  * OpenAI API mocks (if needed for testing external integrations)
  */
-const openAIMocks = {
+const openAIMocks: Record<string, HttpHandler> = {
   // Mock OpenAI API responses
   completion: http.post('https://api.openai.com/v1/completions', () => {
     return HttpResponse.json({
@@ -356,7 +356,7 @@ export {
 /**
  * Default export
  */
-export default {
+const apiMocks = {
   server,
   handlers,
   errorHandlers,
@@ -366,3 +366,5 @@ export default {
   DEFAULT_MOCK_RESPONSES,
   API_ENDPOINTS,
 };
+
+export default apiMocks;
