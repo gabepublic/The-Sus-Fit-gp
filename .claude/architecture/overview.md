@@ -8,7 +8,7 @@ The application follows a strict three-layer separation of concerns pattern to m
 
 ```
 ┌──────────────────────────────────────┐
-│           Presentation Layer         │
+│          Presentation Layer          │
 │    (UI Components, Pages, Layouts)   │
 │  • Pure presentation components      │
 │  • Consumes business layer hooks     │
@@ -17,13 +17,13 @@ The application follows a strict three-layer separation of concerns pattern to m
                   │
 ┌─────────────────▼────────────────────┐
 │            Business Layer            │
-│  ┌─── Bridge Hooks   ─────────────┐  │
+│  ┌───────── Bridge Hooks ─────────┐  │
 │  │ useBridgeLayer, useImageUpload │  │
 │  │ • Orchestrate lower-level hooks│  │
 │  │ • Simplify component APIs      │  │
 │  │ • Handle complex workflows     │  │
 │  └────────────────────────────────┘  │
-│  ┌─── Core Business Logic ────────┐  │
+│  ┌────── Core Business Logic ─────┐  │
 │  │ Queries, Mutations, Services   │  │
 │  │ • React Query integration      │  │
 │  │ • Business rules & validation  │  │
@@ -32,7 +32,7 @@ The application follows a strict three-layer separation of concerns pattern to m
 └─────────────────┬────────────────────┘
                   │
 ┌─────────────────▼────────────────────┐
-│            Data Layer                │
+│             Data Layer               │
 │    (API clients, External Services,  │
 │     Database interactions)           │
 │  • HTTP requests to backend          │
