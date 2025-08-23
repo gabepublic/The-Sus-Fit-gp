@@ -7,38 +7,38 @@ The application follows a strict three-layer separation of concerns pattern to m
 ## Layer Structure
 
 ```
-┌─────────────────────────────────────┐
-│        Presentation Layer               │
-│    (UI Components, Pages, Layouts)      │
-│  • Pure presentation components         │
-│  • Consumes business layer hooks        │
-│  • Minimal business logic               │
-└─────────────────┬───────────────────┘
+┌──────────────────────────────────────┐
+│           Presentation Layer         │
+│    (UI Components, Pages, Layouts)   │
+│  • Pure presentation components      │
+│  • Consumes business layer hooks     │
+│  • Minimal business logic            │
+└─────────────────┬────────────────────┘
                     │
-┌─────────────────▼───────────────────┐
-│         Business Layer                  │
-│  ┌─── Bridge Hooks   ────────────┐      │
-│  │ useBridgeLayer, useImageUpload    │  │
-│  │ • Orchestrate lower-level hooks     │       │
-│  │ • Simplify component APIs        │         │
-│  │ • Handle complex workflows    │         │
-│  └────────────────────────────┘   │
-│  ┌─── Core Business Logic ─────┐    │
-│  │ Queries, Mutations, Services │    │
-│  │ • React Query integration   │    │
-│  │ • Business rules & validation│    │
-│  │ • State management          │    │
-│  └───────────────────────────────┘  │
-└─────────────────┬───────────────────┘
+┌─────────────────▼────────────────────┐
+│            Business Layer            │
+│  ┌─── Bridge Hooks   ─────────────┐  │
+│  │ useBridgeLayer, useImageUpload │  │
+│  │ • Orchestrate lower-level hooks│  │
+│  │ • Simplify component APIs      │  │
+│  │ • Handle complex workflows     │  │
+│  └────────────────────────────────┘  │
+│  ┌─── Core Business Logic ────────┐  │
+│  │ Queries, Mutations, Services   │  │
+│  │ • React Query integration      │  │
+│  │ • Business rules & validation  │  │
+│  │ • State management             │  │
+│  └────────────────────────────────┘  │
+└─────────────────┬────────────────────┘
                   │
-┌─────────────────▼───────────────────┐
-│          Data Layer                 │
-│    (API clients, External Services, │
-│     Database interactions)          │
-│  • HTTP requests to backend         │
-│  • External API integrations        │
-│  • Data fetching & caching          │
-└─────────────────────────────────────┘
+┌─────────────────▼────────────────────┐
+│            Data Layer                │
+│    (API clients, External Services,  │
+│     Database interactions)           │
+│  • HTTP requests to backend          │
+│  • External API integrations         │
+│  • Data fetching & caching           │
+└──────────────────────────────────────┘
 ```
 
 ## Directory Structure
