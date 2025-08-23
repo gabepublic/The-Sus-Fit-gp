@@ -14,7 +14,7 @@ The application follows a strict three-layer separation of concerns pattern to m
 │  • Consumes business layer hooks     │
 │  • Minimal business logic            │
 └─────────────────┬────────────────────┘
-                    │
+                  │
 ┌─────────────────▼────────────────────┐
 │            Business Layer            │
 │  ┌─── Bridge Hooks   ─────────────┐  │
