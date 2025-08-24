@@ -968,14 +968,6 @@ describe('useTryonMutation', () => {
       const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
       const mockApparelFile = createMockFile('apparel.png', 'image/png');
 
-      // Debug: Verify File objects are created correctly
-      console.log('File check:', {
-        mockFileIsFile: mockFile instanceof File,
-        mockApparelIsFile: mockApparelFile instanceof File,
-        mockFileConstructor: mockFile.constructor.name,
-        mockApparelConstructor: mockApparelFile.constructor.name
-      });
-
       // Reset the mock before each test
       mockProcessImageForTryon.mockClear();
 
