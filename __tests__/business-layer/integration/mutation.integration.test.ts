@@ -166,21 +166,6 @@ describe('Mutation Integration Tests', () => {
       expect(result.current.error).toBeNull();
       expect(result.current.data).toEqual(mockTryonResponse);
 
-      // TODO: Re-enable integration checks once business logic is working properly
-      // // Verify optimistic updates were handled
-      // expect(mockOptimisticManager.startOptimisticUpdate).toHaveBeenCalledWith(
-      //   expect.objectContaining(testVariables),
-      //   expect.objectContaining({
-      //     showPreview: true,
-      //     updateHistory: true,
-      //     showProgress: true
-      //   })
-      // );
-      // expect(mockOptimisticManager.completeOptimisticUpdate).toHaveBeenCalledWith(
-      //   'integration-test-optimistic-id',
-      //   mockTryonResponse,
-      //   expect.any(Object)
-      // );
 
       // // Verify cache invalidation was triggered
       // expect(mockCacheManager.invalidateAfterSuccess).toHaveBeenCalledWith(
