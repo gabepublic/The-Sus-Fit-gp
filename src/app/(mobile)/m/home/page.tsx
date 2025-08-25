@@ -9,7 +9,7 @@ interface MobileHomePageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileHomePage({ searchParams }: MobileHomePageProps) {
+export default function MobileHomePage({ searchParams: _searchParams }: MobileHomePageProps) {
   return (
     <div className="mobile-home-page">
       <h1>Welcome to The Sus Fit</h1>

@@ -9,7 +9,7 @@ interface MobileSharePageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileSharePage({ searchParams }: MobileSharePageProps) {
+export default function MobileSharePage({ searchParams: _searchParams }: MobileSharePageProps) {
   return (
     <div className="mobile-share-page">
       <h1>Share Your Look</h1>

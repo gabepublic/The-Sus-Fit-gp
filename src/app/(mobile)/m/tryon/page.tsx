@@ -9,7 +9,7 @@ interface MobileTryonPageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileTryonPage({ searchParams }: MobileTryonPageProps) {
+export default function MobileTryonPage({ searchParams: _searchParams }: MobileTryonPageProps) {
   return (
     <div className="mobile-tryon-page">
       <h1>Try It On</h1>

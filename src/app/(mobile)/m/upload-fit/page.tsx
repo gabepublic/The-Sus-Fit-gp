@@ -9,7 +9,7 @@ interface MobileUploadFitPageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileUploadFitPage({ searchParams }: MobileUploadFitPageProps) {
+export default function MobileUploadFitPage({ searchParams: _searchParams }: MobileUploadFitPageProps) {
   return (
     <div className="mobile-upload-fit-page">
       <h1>Upload Your Fit</h1>

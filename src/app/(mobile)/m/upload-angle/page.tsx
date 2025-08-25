@@ -9,7 +9,7 @@ interface MobileUploadAnglePageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileUploadAnglePage({ searchParams }: MobileUploadAnglePageProps) {
+export default function MobileUploadAnglePage({ searchParams: _searchParams }: MobileUploadAnglePageProps) {
   return (
     <div className="mobile-upload-angle-page">
       <h1>Upload Your Angle</h1>
