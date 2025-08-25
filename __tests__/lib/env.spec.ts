@@ -13,6 +13,8 @@ describe('env', () => {
     delete process.env.LANGCHAIN_TRACING_V2;
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete (process.env as any).NODE_ENV;
+    // Clear CI environment to ensure tests behave consistently
+    delete process.env.CI;
     // Reset console.error
     console.error = originalConsoleError;
   });
@@ -77,6 +79,8 @@ describe('env', () => {
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       process.env.PINECONE_INDEX_NAME = 'test-index';
       delete process.env.ANTHROPIC_API_KEY;
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -88,6 +92,8 @@ describe('env', () => {
       process.env.PINECONE_API_KEY = 'test-pinecone-key';
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       process.env.PINECONE_INDEX_NAME = 'test-index';
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -99,6 +105,8 @@ describe('env', () => {
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       process.env.PINECONE_INDEX_NAME = 'test-index';
       delete process.env.PINECONE_API_KEY;
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -110,6 +118,8 @@ describe('env', () => {
       process.env.PINECONE_API_KEY = 'test-pinecone-key';
       process.env.PINECONE_INDEX_NAME = 'test-index';
       delete process.env.PINECONE_ENVIRONMENT;
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -121,6 +131,8 @@ describe('env', () => {
       process.env.PINECONE_API_KEY = 'test-pinecone-key';
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       delete process.env.PINECONE_INDEX_NAME;
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -133,6 +145,8 @@ describe('env', () => {
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       process.env.PINECONE_INDEX_NAME = 'test-index';
       process.env.NEXT_PUBLIC_APP_URL = 'invalid-url';
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -145,6 +159,8 @@ describe('env', () => {
       process.env.PINECONE_ENVIRONMENT = 'test-environment';
       process.env.PINECONE_INDEX_NAME = 'test-index';
       (process.env as any).NODE_ENV = 'invalid-env';
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -174,6 +190,8 @@ describe('env', () => {
       process.env.PINECONE_API_KEY = '';
       process.env.PINECONE_ENVIRONMENT = '';
       process.env.PINECONE_INDEX_NAME = '';
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Invalid environment variables');
@@ -192,6 +210,8 @@ describe('env', () => {
           throw new Error('Unexpected error');
         }
       });
+      // Ensure CI environment doesn't interfere with test
+      delete process.env.CI;
 
       // Act & Assert
       expect(() => validateEnv()).toThrow('Unexpected error');
