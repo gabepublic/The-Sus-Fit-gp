@@ -14,22 +14,13 @@ export interface OpenAIEnv {
 /**
  * Retrieves and validates OpenAI environment variables
  * @returns OpenAIEnv object with validated API key and model
- * @throws Error if OPENAI_API_KEY is not found (except during build/CI)
+ * @throws Error if OPENAI_API_KEY is not found
  */
 export const getEnv = (): OpenAIEnv => {
   const key = process.env.OPENAI_API_KEY;
   
-  // During build time or CI, provide a mock key to allow the build to complete
   if (!key || key.trim() === '') {
-    if (process.env.NODE_ENV === 'production' && !process.env.CI) {
-      throw new Error('OPENAI_API_KEY not found');
-    }
-    // For CI/build environments, use a mock key and mock model
-    console.warn('OPENAI_API_KEY not found, using mock key for build/CI environment');
-    return {
-      key: 'sk-mock-key-for-build',
-      model: 'mock', // Use mock model for CI builds
-    };
+    throw new Error('OPENAI_API_KEY not found');
   }
   
   const model = process.env.OPENAI_MODEL;
