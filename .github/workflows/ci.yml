@@ -70,6 +70,15 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         node-version: [22.x]
 
+    env:
+      CI: true
+      OPENAI_API_KEY: sk-mock-key-for-build
+      OPENAI_MODEL: mock
+      ANTHROPIC_API_KEY: sk-mock-anthropic-key
+      PINECONE_API_KEY: mock-pinecone-key
+      PINECONE_ENVIRONMENT: mock-environment
+      PINECONE_INDEX_NAME: mock-index
+
     steps:
       - uses: actions/checkout@v4
 
@@ -137,6 +146,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [test, e2e]
+    env:
+      CI: true
+      OPENAI_API_KEY: sk-mock-key-for-build
+      OPENAI_MODEL: mock
+      ANTHROPIC_API_KEY: sk-mock-anthropic-key
+      PINECONE_API_KEY: mock-pinecone-key
+      PINECONE_ENVIRONMENT: mock-environment
+      PINECONE_INDEX_NAME: mock-index
 
     steps:
       - uses: actions/checkout@v4
