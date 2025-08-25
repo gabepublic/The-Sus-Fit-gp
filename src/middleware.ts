@@ -17,6 +17,7 @@ export function middleware(request: NextRequest) {
   const { pathname, search, origin } = request.nextUrl
   const userAgent = request.headers.get('user-agent') || ''
   
+  
   // Skip middleware for static assets, API routes, and already mobile routes
   if (
     pathname.startsWith('/api/') ||
@@ -68,6 +69,7 @@ export function middleware(request: NextRequest) {
 
   // Determine if this is a phone device that should be redirected
   const shouldRedirect = shouldRedirectToMobile(userAgent)
+  
   
   if (shouldRedirect) {
     // Use the route mapping system to determine the mobile route
