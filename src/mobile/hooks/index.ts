@@ -1,6 +1,20 @@
 // Mobile hooks barrel exports
-// Device redirect hook will be implemented in Task 9
-// Mobile analytics hook will be implemented in Task 10
 
-// Placeholder export to make this a valid module
-export const MOBILE_HOOKS_PLACEHOLDER = 'hooks_module' as const
+// Device redirect hooks
+export {
+  useDeviceRedirect,
+  useIsPhone,
+  useIsClient
+} from './useDeviceRedirect'
+
+export type {
+  DeviceRedirectConfig,
+  DeviceRedirectResult
+} from './useDeviceRedirect'
+
+// Mobile analytics hooks
+export {
+  useMobileAnalytics,
+  type MobileAnalyticsEvent,
+  type MobileAnalyticsHook
+} from './useMobileAnalytics'
