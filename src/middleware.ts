@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { shouldRedirectToMobile } from './mobile/utils/deviceDetection'
+import { getMobileRouteString } from './mobile/utils/routeMapping'
 
 // Cookie name for view preference
 const VIEW_PREFERENCE_COOKIE = 'view-preference'
@@ -33,8 +34,9 @@ export function middleware(request: NextRequest) {
   const viewOverride = url.searchParams.get('view')
   
   if (viewOverride === 'mobile') {
-    // Force redirect to mobile
-    const response = NextResponse.redirect(new URL('/m/home' + search, origin))
+    // Force redirect to mobile - try to use route mapping, fallback to home
+    const mobileRoute = getMobileRouteString(pathname) || '/m/home'
+    const response = NextResponse.redirect(new URL(mobileRoute + search, origin))
     response.cookies.set(VIEW_PREFERENCE_COOKIE, 'mobile', { 
       maxAge: COOKIE_MAX_AGE,
       httpOnly: true,
@@ -68,35 +70,36 @@ export function middleware(request: NextRequest) {
   const shouldRedirect = shouldRedirectToMobile(userAgent)
   
   if (shouldRedirect) {
-    // Determine the appropriate mobile route based on current path
-    let mobileRoute = '/m/home'
+    // Use the route mapping system to determine the mobile route
+    const mobileRoute = getMobileRouteString(pathname)
     
-    // Map main routes to mobile routes
-    const routeMapping: Record<string, string> = {
-      '/': '/m/home',
-      '/upload-angle': '/m/upload-angle',
-      '/upload-fit': '/m/upload-fit',
-      '/tryon': '/m/tryon',
-      '/share': '/m/share'
+    if (mobileRoute && mobileRoute !== pathname) {
+      // Only redirect if the mobile route is different from the current route
+      // Create redirect URL with preserved query string
+      const redirectUrl = new URL(mobileRoute + search, origin)
+      const response = NextResponse.redirect(redirectUrl)
+      
+      // Set cookie to prevent redirect loops
+      response.cookies.set(VIEW_PREFERENCE_COOKIE, 'mobile', { 
+        maxAge: COOKIE_MAX_AGE,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
+      
+      return response
+    } else {
+      // No mobile mapping found or mapping indicates to stay on main - set cookie
+      const response = NextResponse.next()
+      response.cookies.set(VIEW_PREFERENCE_COOKIE, 'main', { 
+        maxAge: COOKIE_MAX_AGE,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
+      
+      return response
     }
-    
-    if (routeMapping[pathname]) {
-      mobileRoute = routeMapping[pathname]
-    }
-    
-    // Create redirect URL with preserved query string
-    const redirectUrl = new URL(mobileRoute + search, origin)
-    const response = NextResponse.redirect(redirectUrl)
-    
-    // Set cookie to prevent redirect loops
-    response.cookies.set(VIEW_PREFERENCE_COOKIE, 'mobile', { 
-      maxAge: COOKIE_MAX_AGE,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    })
-    
-    return response
   }
 
   // Not a phone device, continue with normal processing

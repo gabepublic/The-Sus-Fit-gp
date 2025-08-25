@@ -10,4 +10,24 @@ export {
   shouldRedirectToMobile
 } from './deviceDetection'
 
-// Route mapping utility will be implemented in Task 8
+// Route mapping utilities
+export {
+  getMobileRoute,
+  getMobileRouteString,
+  hasMobileMapping,
+  extractRouteParams,
+  substituteRouteParams,
+  matchesWildcardPattern,
+  getRouteMappingsByType,
+  addRouteMapping,
+  removeRouteMapping,
+  staticRouteMappings,
+  parameterizedRouteMappings,
+  wildcardRouteMappings,
+  allRouteMappings
+} from './routeMapping'
+
+export type {
+  RouteMapping,
+  RouteMatch
+} from './routeMapping'
