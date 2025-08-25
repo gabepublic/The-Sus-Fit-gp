@@ -1,0 +1,625 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Business Layer Foundation",
+        "description": "Create the business layer directory structure and core React Query configuration with providers",
+        "details": "Create src/business-layer/ directory structure with queries/, mutations/, providers/, config/, and types/ subdirectories. Setup QueryClient with sensible defaults (retry: 2, staleTime: 5 minutes, cacheTime: 10 minutes). Create ReactQueryProvider component with error boundaries and devtools integration. Export configured provider for app-wide usage.",
+        "testStrategy": "Unit tests for QueryClient configuration, provider mounting tests, error boundary behavior validation",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create directory structure and index files",
+            "description": "Set up the complete business-layer directory structure with proper index file exports",
+            "dependencies": [],
+            "details": "Create src/business-layer/ directory with subdirectories: queries/, mutations/, providers/, config/, and types/. Add index.ts files in each subdirectory for clean exports. Create main business-layer/index.ts that exports all public interfaces. Ensure proper TypeScript path mapping and module resolution.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Setup React Query client configuration",
+            "description": "Configure QueryClient with optimized defaults and create base configuration utilities",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Create config/queryClient.ts with QueryClient instance configured with retry: 2, staleTime: 5 minutes, cacheTime: 10 minutes. Add query and mutation default options. Create configuration utilities for different query types (image processing, API calls). Include proper error handling defaults and timeout configurations.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create ReactQueryProvider component with error boundaries",
+            "description": "Build the provider component with error boundaries and development tools integration",
+            "dependencies": [
+              "1.2"
+            ],
+            "details": "Create providers/ReactQueryProvider.tsx component that wraps QueryClient.Provider. Implement ErrorBoundary component for query error handling with user-friendly error messages. Add React Query DevTools integration for development environment. Include proper TypeScript props interface and children handling.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add TypeScript types and export everything properly",
+            "description": "Create comprehensive TypeScript interfaces and ensure proper module exports",
+            "dependencies": [
+              "1.3"
+            ],
+            "details": "Create types/index.ts with core business layer TypeScript interfaces including QueryConfig, MutationConfig, and ErrorResponse types. Add types for image processing, try-on operations, and API responses. Ensure all modules export properly through business-layer/index.ts. Validate TypeScript compilation and import paths work correctly.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Create Feature Flag Configuration System",
+        "description": "Implement feature flag system for client customization and runtime feature toggles",
+        "details": "Create feature flag provider with TypeScript interfaces for flag definitions. Implement environment-based configuration loading from .env files. Support runtime feature toggles with default values. Create useFeatureFlag hook for component usage. Include feature flags for try-on functionality, image processing options, and UI variations.",
+        "testStrategy": "Unit tests for feature flag resolution, environment loading tests, hook behavior validation",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create TypeScript interfaces for feature flags",
+            "description": "Define comprehensive TypeScript interfaces and types for feature flag definitions, configurations, and runtime values",
+            "dependencies": [],
+            "details": "Create FeatureFlag interface with properties for flag key, description, default value, and type (boolean, string, number). Define FeatureFlagConfig interface for environment-based configurations. Create specific flag interfaces for try-on functionality (enableTryon, maxConcurrentRequests), image processing options (enableCompression, maxFileSize, supportedFormats), and UI variations (showPolaroid, enablePreview). Include union types for flag categories and validation schemas.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create FeatureFlagProvider component",
+            "description": "Implement React context provider component for feature flag management with React Query integration",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create FeatureFlagProvider React component that wraps React Query for feature flag data fetching. Implement FeatureFlagContext with React.createContext containing flag values and loading states. Add error boundaries for graceful degradation when flag loading fails. Include provider props for custom configuration overrides and default flag values. Ensure provider supports both client-side and server-side rendering scenarios.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement environment configuration loading",
+            "description": "Create configuration loading system that reads feature flags from environment variables and configuration files",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Implement loadFeatureFlagConfig function that reads from process.env variables with FEATURE_FLAG_ prefix. Create configuration merging logic that combines environment variables with default values. Add support for different environments (development, staging, production) with environment-specific overrides. Include validation for flag values against TypeScript interfaces. Implement caching strategy to avoid repeated environment reads and support hot reloading in development.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Create useFeatureFlag hook and integration",
+            "description": "Implement custom React hook for accessing feature flags with error handling and caching integration",
+            "dependencies": [
+              "2.2",
+              "2.3"
+            ],
+            "details": "Create useFeatureFlag hook that accepts flag key and returns flag value with loading state. Implement error handling with fallback to default values when flag loading fails. Add React Query integration for caching flag values with appropriate stale time and cache invalidation. Include TypeScript generics for type-safe flag value returns. Create utility functions like useFeatureFlagEnabled for boolean flags and batch flag checking. Add development-only logging for flag usage tracking.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Migrate Try-On Logic to React Query Mutation",
+        "description": "Extract try-on functionality from page component into a React Query useMutation hook with comprehensive error handling",
+        "details": "Create useTryonMutation hook in business-layer/mutations/ that wraps the existing /api/tryon endpoint. Implement retry logic with exponential backoff (3 retries, 1s, 2s, 4s delays). Add proper TypeScript typing for mutation variables and response. Include comprehensive error handling for validation, timeout, and API errors. Migrate image processing logic (resize, compression, validation) from page component.",
+        "testStrategy": "Unit tests for mutation behavior, error handling scenarios, retry mechanism testing, integration tests with mock API",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Base useTryonMutation Hook Structure",
+            "description": "Set up the basic React Query mutation hook with TypeScript interfaces and endpoint integration",
+            "dependencies": [],
+            "details": "Create useTryonMutation.ts in business-layer/mutations/ directory. Define TypeScript interfaces for TryonMutationVariables (user image, garment image, options) and TryonMutationResponse (result image, metadata, processing time). Set up basic useMutation hook that calls the existing /api/tryon endpoint. Include proper error typing for API responses.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Retry Logic with Exponential Backoff",
+            "description": "Add robust retry mechanism with exponential backoff for failed API calls",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Implement retry logic with 3 attempts and exponential backoff delays (1s, 2s, 4s). Create retryConfig utility function to handle backoff calculations. Add retry conditions that distinguish between retryable errors (network, timeout, 5xx) and non-retryable errors (validation, 4xx). Include retry attempt tracking in mutation state.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Extract and Integrate Image Processing Logic",
+            "description": "Move image processing functionality from page component into the mutation hook",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Extract resizeImageTo1024x1536, image compression, and validation logic from page component. Integrate these functions into the mutation's onMutate callback for preprocessing. Add file size validation, format checking, and dimension validation. Ensure processed images are properly formatted before API submission.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add Comprehensive Error Handling",
+            "description": "Implement detailed error handling for all failure scenarios with user-friendly messages",
+            "dependencies": [
+              "3.2",
+              "3.3"
+            ],
+            "details": "Create error classification system for validation errors, timeout errors, API errors, and processing errors. Add user-friendly error messages with actionable suggestions. Implement error recovery suggestions (retry, reduce image size, check connection). Include error logging for debugging and monitoring purposes.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement Share History Management",
+            "description": "Add mutation integration with share history tracking and state management",
+            "dependencies": [
+              "3.4"
+            ],
+            "details": "Integrate mutation with existing share history system to track successful try-on operations. Add mutation callbacks (onSuccess, onError) to update history state. Implement history entry creation with metadata (timestamp, garment details, processing time). Ensure history persistence and retrieval work seamlessly with new mutation.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add Optimistic Updates and Cache Management",
+            "description": "Implement optimistic UI updates and React Query cache invalidation strategies",
+            "dependencies": [
+              "3.5"
+            ],
+            "details": "Add optimistic updates to show immediate feedback during mutation execution. Implement cache invalidation for related queries (history, user data). Add loading states and progress indicators that update during image processing. Include rollback mechanisms for failed optimistic updates.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Add Mutation Testing and Validation",
+            "description": "Create comprehensive tests for the useTryonMutation hook covering all scenarios",
+            "dependencies": [
+              "3.6"
+            ],
+            "details": "Write unit tests for mutation behavior including success, error, and retry scenarios. Test image processing integration and validation logic. Create mock API responses for different error conditions. Add performance tests for image processing operations. Test optimistic updates and cache invalidation behavior.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Create Image Processing Business Logic",
+        "description": "Extract and enhance image processing functionality into business layer with React Query integration",
+        "details": "Create useImageProcessing query hook for file validation, metadata extraction, and preview generation. Move resizeImageTo1024x1536 function to business layer utilities. Implement file validation (size limits, format checking, dimension validation). Add image optimization suggestions and processing status tracking. Support concurrent processing of multiple images with progress tracking.",
+        "testStrategy": "Unit tests for image processing functions, file validation tests, performance benchmarks for resize operations",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup Canvas API Infrastructure and Context",
+            "description": "Create Canvas context provider and basic Canvas API wrapper utilities for image manipulation",
+            "dependencies": [],
+            "details": "Create CanvasProvider component with React context for managing canvas instances. Implement basic Canvas API wrapper utilities for common operations (create canvas, get context, load image). Setup canvas dimension management and device pixel ratio handling. Create hooks for accessing canvas context and utilities.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Core Image Processing Functions",
+            "description": "Move and enhance resizeImageTo1024x1536 function and create additional image processing utilities",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Extract resizeImageTo1024x1536 from existing code to business-layer/utils/. Implement additional processing functions: image compression, format conversion, metadata extraction. Create image validation utilities for size limits, format checking, and dimension validation. Add error handling for corrupted or invalid images.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create Text Overlay System",
+            "description": "Implement text rendering and overlay functionality on canvas with positioning and styling options",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Create text overlay utilities for rendering text on canvas with customizable fonts, colors, and positioning. Implement text measurement and automatic positioning algorithms. Support multi-line text with proper wrapping and alignment. Add text styling options (bold, italic, shadows, outlines).",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Sticker Placement Logic",
+            "description": "Create sticker management system with positioning, scaling, and rotation capabilities",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement sticker placement utilities with drag-and-drop positioning logic. Create sticker scaling and rotation functions with touch/mouse event handling. Implement sticker layering and z-index management. Add collision detection and snap-to-grid functionality for precise placement.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Create Filter Application System",
+            "description": "Implement image filter system with real-time preview and multiple filter options",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "Create filter application utilities using canvas ImageData manipulation. Implement common filters: brightness, contrast, saturation, blur, sharpen. Create filter preview system with real-time canvas updates. Add filter composition and blending modes. Optimize filter performance for real-time application.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Undo/Redo Stack Management",
+            "description": "Create immutable state management system for tracking and reverting image editing operations",
+            "dependencies": [
+              "4.2",
+              "4.3",
+              "4.4",
+              "4.5"
+            ],
+            "details": "Implement immutable state stack for undo/redo functionality using canvas snapshots or operation logs. Create state management utilities for tracking image editing operations. Implement efficient snapshot storage with compression. Add undo/redo hooks with keyboard shortcuts support and operation limits.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Create useImageProcessing React Query Hook",
+            "description": "Implement React Query integration for image processing operations with progress tracking",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Create useImageProcessing query hook that wraps image processing utilities. Implement progress tracking for long-running operations like resizing and compression. Add concurrent processing support for multiple images with queue management. Include proper error handling and retry logic for processing failures.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Implement Image Export and Optimization",
+            "description": "Create final image export system with format optimization and quality controls",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.6"
+            ],
+            "details": "Implement image export utilities with multiple format support (PNG, JPEG, WebP). Create quality optimization algorithms for different use cases (web, print, social media). Add batch export functionality for multiple processed images. Implement download triggers and file naming conventions with metadata preservation.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement Bridge Layer Custom Hooks",
+        "description": "Create UI-friendly custom hooks that coordinate business logic and manage component state",
+        "details": "Create useTryonWorkflow hook in src/hooks/ that coordinates the complete try-on generation process. Implement useImageUpload hooks for file upload handling with validation and preview URL management. Create clean interfaces that abstract business logic complexity from UI components. Maintain backward compatibility with existing page component state structure (isCapturing, showPolaroid, generatedImage, hasError).",
+        "testStrategy": "Integration tests for hook coordination, UI state management tests, component interface compatibility validation",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create useTryonWorkflow hook for coordinating complete workflow",
+            "description": "Implement the main workflow coordination hook that manages the entire try-on generation process from start to finish",
+            "dependencies": [],
+            "details": "Create useTryonWorkflow hook in src/hooks/ that coordinates between image upload, processing, API calls, and state management. Should integrate with the useTryonMutation from task 3 and useImageProcessing from task 4. Include workflow state management (idle, uploading, processing, generating, complete, error) and provide clean API for UI components to consume.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create useImageUpload hooks for file handling",
+            "description": "Implement specialized hooks for handling file upload operations with validation and preview management",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Create useImageUpload and related hooks for file upload handling including drag-and-drop support, file validation, preview URL generation, and upload progress tracking. Should integrate with the image processing business logic and provide validation feedback to UI components. Include error handling for invalid file types, size limits, and upload failures.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create clean component interfaces abstracting business complexity",
+            "description": "Design and implement clean, UI-friendly interfaces that hide business logic complexity from React components",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "Create abstraction layer interfaces that provide simple, declarative APIs for UI components. Design hook interfaces that expose only necessary state and actions while hiding complex business logic implementation details. Include proper TypeScript typing for all interfaces and ensure consistent error handling patterns across all bridge layer hooks.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Ensure backward compatibility with existing page component state",
+            "description": "Maintain compatibility with current page component state structure and provide migration path",
+            "dependencies": [
+              "5.1",
+              "5.2",
+              "5.3"
+            ],
+            "details": "Ensure new hook interfaces maintain backward compatibility with existing page component state structure (isCapturing, showPolaroid, generatedImage, hasError). Create compatibility layer that maps new hook state to existing component expectations. Provide gradual migration path and deprecation warnings for old state patterns while maintaining full functionality.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Integrate Providers into App Layout",
+        "description": "Update app layout to include React Query and feature flag providers while maintaining existing functionality",
+        "details": "Modify src/app/layout.tsx to wrap the application with ReactQueryProvider and FeatureFlagProvider. Ensure proper provider nesting order and error boundary placement. Maintain existing ToastProvider integration. Add React Query devtools for development environment. Test that existing functionality remains unchanged after provider integration.",
+        "testStrategy": "Integration tests for provider setup, existing functionality regression tests, devtools availability validation",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update layout.tsx with provider integration",
+            "description": "Modify src/app/layout.tsx to wrap the application with ReactQueryProvider and FeatureFlagProvider",
+            "dependencies": [],
+            "details": "Import ReactQueryProvider and FeatureFlagProvider components. Update the layout component to wrap children with these providers in the correct nesting order. Ensure ReactQueryProvider is the outermost provider, followed by FeatureFlagProvider, maintaining existing ToastProvider placement.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Ensure proper provider nesting and error boundaries",
+            "description": "Configure correct provider hierarchy and implement error boundary placement for robust error handling",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Establish proper nesting order: ReactQueryProvider > FeatureFlagProvider > ToastProvider > children. Add or verify error boundary components around provider stack to catch and handle provider initialization errors. Ensure error boundaries don't interfere with existing error handling mechanisms.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add React Query devtools for development",
+            "description": "Integrate React Query devtools for development environment debugging and monitoring",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Import and conditionally render ReactQueryDevtools component only in development environment. Configure devtools with appropriate settings (initialIsOpen: false, position: 'bottom-right'). Ensure devtools don't appear in production builds and don't impact performance.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Test provider integration and existing functionality compatibility",
+            "description": "Validate that provider integration doesn't break existing functionality and all features work correctly",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Test application startup and provider initialization. Verify existing ToastProvider functionality remains intact. Test React Query devtools availability in development. Run existing tests to ensure no regressions. Validate error boundaries trigger correctly for provider errors.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Migrate Page Component to Use New Architecture",
+        "description": "Refactor src/app/page.tsx to use bridge layer hooks while preserving exact UI behavior and functionality",
+        "details": "Replace direct API calls and complex state management in page component with bridge layer hooks. Update handleCameraButtonClick to use useTryonWorkflow hook. Replace file upload handlers with useImageUpload hooks. Maintain exact same UI behavior, loading states, error handling, and user experience. Remove redundant state management code while preserving all existing functionality.",
+        "testStrategy": "End-to-end tests for complete user workflow, UI behavior regression tests, performance comparison with original implementation",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Extract Direct API Calls to useTryonWorkflow Hook",
+            "description": "Replace handleCameraButtonClick and direct API calls with useTryonWorkflow hook integration",
+            "dependencies": [],
+            "details": "Identify all direct API calls in page.tsx and replace with useTryonWorkflow hook. Update handleCameraButtonClick to use the hook's mutation function. Ensure proper loading states and error handling are maintained through the hook's return values.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Migrate File Upload Handlers to useImageUpload Hooks",
+            "description": "Replace existing file upload state management with useImageUpload bridge layer hooks",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Replace all file upload handlers, validation logic, and state management with useImageUpload hooks. Maintain existing drag-and-drop functionality, file type validation, and preview generation while using the new hook architecture.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Refactor Modal State Management",
+            "description": "Extract modal visibility and state management to use bridge layer hooks",
+            "dependencies": [],
+            "details": "Replace local modal state management with bridge layer modal hooks. Ensure modal opening, closing, and data passing behaviors remain exactly the same while using the new architecture.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Migrate Canvas Preview Component Integration",
+            "description": "Update Canvas preview rendering to use bridge layer hooks for real-time updates",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "Refactor Canvas preview component integration to use bridge layer hooks for image rendering, zoom controls, and real-time preview updates. Maintain performance characteristics and user interaction responsiveness.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Extract Text Overlay Editor State Management",
+            "description": "Migrate text overlay editing functionality to bridge layer hooks",
+            "dependencies": [
+              "7.3"
+            ],
+            "details": "Replace local text overlay state management with bridge layer hooks. Maintain text editing, positioning, styling, and persistence functionality while using the new architecture pattern.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Refactor Sticker Library and Drag-Drop Logic",
+            "description": "Migrate sticker library and drag-and-drop functionality to use bridge layer hooks",
+            "dependencies": [
+              "7.4"
+            ],
+            "details": "Extract sticker library state management, drag-and-drop interactions, and positioning logic to bridge layer hooks. Ensure smooth drag interactions and accurate positioning are preserved.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Update Undo/Redo and Export Functionality",
+            "description": "Migrate undo/redo operations and export functionality to bridge layer architecture",
+            "dependencies": [
+              "7.5",
+              "7.6"
+            ],
+            "details": "Replace local undo/redo state management and export functionality with bridge layer hooks. Maintain action history, state restoration, and export format optimization while using the new architecture.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Remove Redundant State and Perform Integration Testing",
+            "description": "Clean up redundant state management code and validate complete migration",
+            "dependencies": [
+              "7.7"
+            ],
+            "details": "Remove all redundant local state management, dead code, and unused imports. Perform comprehensive testing to ensure exact UI behavior preservation, loading states, error handling, and user experience match the original implementation.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Add Comprehensive Testing Framework",
+        "description": "Implement testing strategy for the new three-layer architecture with unit, integration, and end-to-end tests",
+        "details": "Create test utilities for React Query testing with mock providers. Add unit tests for all business layer hooks and mutations. Implement integration tests for bridge layer hook coordination. Add performance benchmarks comparing old vs new architecture. Create mock strategies for OpenAI API calls in tests. Document testing patterns for future feature development.",
+        "testStrategy": "Comprehensive test coverage for all layers, performance regression testing, mock API behavior validation, CI/CD integration tests",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up testing infrastructure and configuration",
+            "description": "Configure Jest, React Testing Library, and test utilities for the three-layer architecture",
+            "dependencies": [],
+            "details": "Install and configure testing dependencies including Jest, React Testing Library, MSW for API mocking, and React Query testing utilities. Set up test configuration files, custom render functions with providers, and establish testing file structure. Configure test scripts in package.json and ensure proper TypeScript support for tests.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create React Query testing utilities and mock providers",
+            "description": "Build reusable test utilities for testing React Query hooks and mutations",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create custom testing utilities including QueryClient wrapper, mock provider setup, and helper functions for testing async hooks. Implement utilities for mocking React Query cache, testing loading states, error states, and success scenarios. Establish patterns for testing mutations with optimistic updates.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement unit tests for business layer hooks and mutations",
+            "description": "Write comprehensive unit tests for all business layer React Query hooks",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Create unit tests for useTryonMutation, useImageProcessing, and other business layer hooks. Test individual hook behavior including success scenarios, error handling, retry logic, and state management. Mock external dependencies like OpenAI API calls and ensure proper isolation of business logic.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Create mock strategies for external API calls",
+            "description": "Implement comprehensive mocking for OpenAI API and other external services",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Set up MSW (Mock Service Worker) handlers for OpenAI API endpoints. Create mock response scenarios for success, error, timeout, and rate limiting cases. Implement mock strategies for file upload endpoints and image processing APIs. Ensure mocks are realistic and match actual API behavior.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement integration tests for bridge layer coordination",
+            "description": "Test the coordination between business layer hooks and bridge layer custom hooks",
+            "dependencies": [
+              "8.3",
+              "8.4"
+            ],
+            "details": "Create integration tests for useTryonWorkflow and useImageUpload hooks that verify proper coordination with business layer. Test complete workflows including file upload, validation, processing, and API calls. Verify error propagation and state synchronization across layers.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add performance benchmarks and architecture comparison tests",
+            "description": "Create performance tests comparing old vs new three-layer architecture",
+            "dependencies": [
+              "8.5"
+            ],
+            "details": "Implement performance benchmarks for image processing, API calls, and rendering. Create tests that measure load times, memory usage, and processing speed for both architectures. Set up automated performance regression testing and establish performance baselines for CI/CD integration.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Create end-to-end tests and testing documentation",
+            "description": "Implement E2E tests for complete user workflows and document testing patterns",
+            "dependencies": [
+              "8.6"
+            ],
+            "details": "Create end-to-end tests using Playwright for complete try-on workflows including file upload, processing, and result display. Test error scenarios and edge cases in browser environment. Document testing patterns, best practices, and guidelines for future feature development. Create testing runbook for CI/CD integration.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-15T00:44:33.282Z",
+      "updated": "2025-08-15T22:20:40.268Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

@@ -1,17 +1,32 @@
-import React from 'react'
-import { render, RenderOptions, screen } from '@testing-library/react'
+import React, { ReactElement } from 'react'
+import { render, RenderOptions, screen, RenderResult } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastProvider } from '@/components/ToastProvider'
 
 // Create a custom render function that includes providers if needed
 const customRender = (
   ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-) => {
-  const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+): RenderResult => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  })
+
+  const AllTheProviders = ({ children }: { children: React.ReactNode }): ReactElement => {
     return (
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </QueryClientProvider>
     )
   }
 

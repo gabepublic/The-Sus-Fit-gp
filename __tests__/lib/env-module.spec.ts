@@ -9,6 +9,8 @@ describe('env module import', () => {
   beforeEach(() => {
     // Reset process.env before each test
     process.env = { ...originalEnv };
+    // Clear CI environment to ensure tests behave consistently
+    delete process.env.CI;
     // Clear module cache to ensure fresh imports
     jest.resetModules();
   });
@@ -111,6 +113,8 @@ describe('env module import', () => {
     delete process.env.PINECONE_API_KEY;
     delete process.env.PINECONE_ENVIRONMENT;
     delete process.env.PINECONE_INDEX_NAME;
+    // Ensure CI environment doesn't interfere with test
+    delete process.env.CI;
 
     // Act & Assert - Import should throw
     await expect(import('../../src/lib/env')).rejects.toThrow('Invalid environment variables');

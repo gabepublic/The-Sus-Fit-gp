@@ -30,7 +30,7 @@ global.BroadcastChannel = class BroadcastChannel {
 
 // Now require undici after globals are set
 const { fetch, Request, Response, Headers } = require('undici')
-global.fetch = fetch
+global.fetch = jest.fn(fetch)
 global.Request = Request
 global.Response = Response
 global.Headers = Headers
@@ -154,6 +154,48 @@ Object.defineProperty(window, 'scrollTo', {
   writable: true,
   value: jest.fn(),
 })
+
+// Mock localStorage for business layer services (only for non-jsdom environments)
+// Tests with @jest-environment jsdom should use their own localStorage mock
+if (typeof window === 'undefined') {
+  const localStorageMock = {
+    getItem: jest.fn((key) => null),
+    setItem: jest.fn((key, value) => undefined),
+    removeItem: jest.fn((key) => undefined),
+    clear: jest.fn(() => undefined),
+    length: 0,
+    key: jest.fn((index) => null)
+  }
+
+  // Make localStorage available globally for Node.js environment
+  global.localStorage = localStorageMock
+  
+  // Ensure window object exists in test environment
+  global.window = {
+    localStorage: localStorageMock,
+    // Add other window properties as needed
+    location: {
+      href: 'http://localhost:3000',
+      origin: 'http://localhost:3000',
+      pathname: '/',
+      search: '',
+      hash: ''
+    }
+  }
+}
+
+// Mock localStorage globally for all tests
+Object.defineProperty(global, 'localStorage', {
+  value: {
+    getItem: jest.fn(() => null),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+    length: 0,
+    key: jest.fn(() => null)
+  },
+  writable: true
+});
 
 // Suppress console.error for expected test errors
 const originalError = console.error
