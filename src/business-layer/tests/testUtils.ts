@@ -42,9 +42,13 @@ export function createTestQueryClient(options?: {
 export function createQueryClientWrapper(queryClient?: QueryClient): ComponentType<{ children: React.ReactNode }> {
   const client = queryClient || createTestQueryClient();
   
-  return ({ children }: { children: React.ReactNode }) => (
+  // Define a named component to satisfy react/display-name
+  const QueryClientTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     React.createElement(QueryClientProvider, { client }, children)
   );
+  QueryClientTestWrapper.displayName = 'QueryClientTestWrapper';
+
+  return QueryClientTestWrapper;
 }
 
 /**
