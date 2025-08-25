@@ -1,0 +1,163 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Create Mobile Route Group Directory Structure",
+        "description": "Establish the mobile route group directory structure under `/m` parent route with all five child routes using Next.js 14 App Router conventions",
+        "details": "Create the directory structure: `src/app/(mobile)/m/layout.tsx` for the mobile shell, and five page components: `src/app/(mobile)/m/home/page.tsx`, `src/app/(mobile)/m/upload-angle/page.tsx`, `src/app/(mobile)/m/upload-fit/page.tsx`, `src/app/(mobile)/m/tryon/page.tsx`, `src/app/(mobile)/m/share/page.tsx`. Each page should be a basic Server Component with placeholder content. Use Next.js 14 App Router route group syntax with parentheses for organizational grouping. Include proper TypeScript interfaces for page props.",
+        "testStrategy": "Verify all routes are accessible by navigating to each URL. Test that the route group doesn't interfere with existing routes. Confirm Server Components render correctly with placeholder content.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Create Mobile Component Directory Structure",
+        "description": "Establish mobile-specific component and styling directories outside the app router structure for better organization",
+        "details": "Create `src/mobile/components/` directory for MobileHeader.tsx and MobileMenu.tsx components. Create `src/mobile/styles/mobile.css` for mobile-specific styles if needed. Create `src/mobile/types/` for mobile-specific TypeScript interfaces. Use barrel exports in `src/mobile/index.ts` for clean imports. Follow current project conventions for component structure and TypeScript interfaces.",
+        "testStrategy": "Verify directory structure is created correctly and imports work as expected. Test that mobile components can be imported from the mobile directory structure.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Research and Configure User Agent Detection Library",
+        "description": "Research current best practices for server-side User Agent detection in Next.js 14 and select appropriate library for phone device detection",
+        "details": "Research libraries like `ua-parser-js` (v1.0.37+), `device-detector-js`, or built-in Next.js headers API. Select library that provides accurate phone vs tablet distinction, has good TypeScript support, and works well with Next.js 14 middleware. Create utility functions in `src/mobile/utils/deviceDetection.ts` with functions like `isPhoneDevice(userAgent: string): boolean`. Include comprehensive device patterns for iOS phones, Android phones, while excluding tablets like iPad.",
+        "testStrategy": "Unit tests for device detection utility with various User Agent strings. Test edge cases like iPad, Android tablets, and unusual mobile browsers. Verify accuracy against known device User Agent strings.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Transparent Mobile Header Component",
+        "description": "Create the MobileHeader component with transparent background, logo on left, and hamburger menu button on right",
+        "details": "Build MobileHeader as a Client Component in `src/mobile/components/MobileHeader.tsx`. Use CSS-in-JS with styled-components or Tailwind CSS classes for transparent background (`background: transparent`). Position logo as tappable Link component to `/m/home`. Implement hamburger button with proper ARIA attributes: `aria-expanded`, `aria-controls='mobile-menu'`, `aria-label='Open navigation menu'`. Use state management for menu open/close. Match design from HomeView.png reference with proper responsive sizing for mobile viewports (320px+).",
+        "testStrategy": "Visual regression tests comparing to HomeView.png design. Test header transparency by checking computed styles. Verify logo link navigation. Test hamburger button accessibility with screen readers and keyboard navigation.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Mobile Navigation Menu Component",
+        "description": "Create the accessible overlay/drawer menu with focus trapping and keyboard navigation for the five mobile routes",
+        "details": "Build MobileMenu as Client Component with overlay/drawer pattern using libraries like `focus-trap-react` (v10.2.3+) and `react-transition-group` for animations. Implement five navigation links to the mobile routes with current route highlighting using `usePathname()` hook. Add backdrop click handling, Escape key support, and proper focus restoration. Use ARIA live regions for screen reader announcements. Style as full-screen overlay or slide-in drawer with proper z-index stacking. Include smooth animations with CSS transforms or Framer Motion.",
+        "testStrategy": "Accessibility testing with screen readers (NVDA, VoiceOver). Keyboard navigation testing (Tab, Escape, Enter). Test focus trapping and restoration. Verify current route highlighting. Test backdrop click and Escape key closing functionality.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Create Mobile Layout Component",
+        "description": "Implement the mobile layout.tsx that wraps all mobile routes with the header and menu components",
+        "details": "Create `src/app/(mobile)/m/layout.tsx` as the layout component for all mobile routes. Import and render MobileHeader with shared state for menu visibility. Use React Context or useState with prop drilling to manage menu open/close state between header and menu components. Ensure layout supports transparent header by not adding background colors. Include proper viewport meta tag handling and mobile-optimized CSS. Support both portrait and landscape orientations with CSS media queries.",
+        "testStrategy": "Test layout renders correctly on all five mobile routes. Verify header/menu state management works properly. Test responsive behavior on various screen sizes (320px to 768px). Confirm transparent header allows underlying view background to show through.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Next.js Middleware for Device Detection",
+        "description": "Create middleware.ts for server-side User Agent detection and phone-to-mobile redirects with cookie-based loop prevention",
+        "details": "Create `src/middleware.ts` using Next.js 14 middleware API. Import device detection utility from task 3. Implement redirect logic: phones from `/` to `/m/home`, preserving query strings with `new URL()` and `searchParams`. Add cookie-based loop prevention with `cookies().set('view-preference', 'mobile', { maxAge: 300 })` (5-minute expiration). Support query override parameters `?view=mobile` and `?view=main` for development debugging. Use `NextResponse.redirect()` for redirects and `NextResponse.next()` to continue normal processing.",
+        "testStrategy": "Unit tests for middleware logic with mock requests. Test redirect scenarios: phone UA to mobile routes, tablet/desktop remaining on main routes. Verify query string preservation and cookie setting/reading. Test loop prevention and query override functionality.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Deep-Link Mapping System",
+        "description": "Create mapping system for translating main app routes to mobile routes during redirects",
+        "details": "Create `src/mobile/utils/routeMapping.ts` with route mapping object and functions. Initial mappings: `/` -> `/m/home`. Build helper function `getMobileRoute(mainRoute: string): string | null` to handle route translation. Integrate into middleware to redirect to mapped mobile routes when available, otherwise stay on main version. Design extensible system for future route additions with TypeScript interfaces for route mappings. Include wildcard and parameterized route support for future scalability.",
+        "testStrategy": "Unit tests for route mapping functions with various input routes. Test middleware integration with mapped and unmapped routes. Verify fallback behavior when no mobile mapping exists. Test edge cases like routes with parameters and query strings.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Add Client-Side Device Detection Safety Net",
+        "description": "Implement client-side device detection as backup for cases where server-side detection was inconclusive",
+        "details": "Create client-side device detection hook `useDeviceRedirect()` in `src/mobile/hooks/useDeviceRedirect.ts`. Use `useEffect` with `navigator.userAgent` to check device type after hydration. Only trigger redirect if no view preference cookie exists and device is detected as phone. Use `router.replace()` from `next/navigation` for client-side navigation. Implement debouncing to prevent multiple rapid checks. Add TypeScript interfaces for hook return values and configuration options.",
+        "testStrategy": "Test client-side detection triggers only when needed. Verify no redirect loops with existing cookies. Test edge cases where server-side detection fails. Ensure no hydration mismatches between server and client detection.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Mobile Route Analytics Hook Points",
+        "description": "Create analytics integration points for mobile route changes without implementing full analytics",
+        "details": "Create `src/mobile/hooks/useMobileAnalytics.ts` hook with event tracking functions. Add route change detection using `usePathname()` and `useEffect` to fire analytics events on mobile route navigation. Create interface `MobileAnalyticsEvent` with properties like route, timestamp, device type. Implement as hook points only - actual analytics implementation will be added in future PRDs. Use console.log statements as placeholders for actual analytics calls. Include TypeScript types for future analytics integration.",
+        "testStrategy": "Test hook fires on route changes within mobile routes. Verify event data structure matches defined interfaces. Test no events fire on non-mobile routes. Confirm console.log statements appear during navigation for debugging.",
+        "priority": "low",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Add Comprehensive Unit and Integration Tests",
+        "description": "Create comprehensive test suites for mobile routing logic, device detection, and component functionality",
+        "details": "Use Jest and React Testing Library for component tests. Test MobileHeader: logo link navigation, hamburger button functionality, ARIA attributes. Test MobileMenu: keyboard navigation, focus trapping, route highlighting. Test device detection utilities with mock User Agent strings. Test middleware with mock Next.js request/response objects using `next-test-utils`. Create test utilities in `__tests__/mobile/utils/` for common mobile testing patterns. Use MSW (Mock Service Worker) for API mocking if needed.",
+        "testStrategy": "Achieve >90% code coverage for mobile components and utilities. Test all accessibility features with @testing-library/jest-dom. Verify no regression in main app functionality. Run tests in CI/CD pipeline with mobile-specific test scenarios.",
+        "priority": "high",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Create End-to-End Mobile Flow Tests",
+        "description": "Implement E2E tests covering the complete mobile user journey from device detection to navigation",
+        "details": "Use Playwright or Cypress for E2E testing with mobile device emulation. Create test scenarios: phone device visiting `/` redirects to `/m/home`, mobile navigation through all five routes, hamburger menu functionality, tablet/desktop staying on main version. Test real device User Agent strings and viewport sizes. Include accessibility testing with axe-core integration. Create mobile-specific test fixtures and page object models. Test both portrait and landscape orientations.",
+        "testStrategy": "Run E2E tests on multiple mobile viewport sizes (iPhone SE, iPhone 12, Pixel 5). Test with real mobile User Agent strings. Verify no accessibility violations using automated axe checks. Test happy path: device detection -> redirect -> mobile navigation -> route changes.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-25T03:29:16.400Z",
+      "updated": "2025-08-25T03:42:45.875Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

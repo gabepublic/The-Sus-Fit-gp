@@ -63,10 +63,10 @@ This command helps you get Task Master set up globally on your system.
 7. **Quick Test**
    ```bash
    # Create a test PRD
-   echo "Build a simple hello world API" > test-thos-11-prd.txt
+   echo "Build a simple hello world API" > test-prd.txt
    
    # Try parsing it
-   task-master parse-prd test-thos-11-prd.txt -n 3
+   task-master parse-prd test-prd.txt -n 3
    ```
 
 ## Troubleshooting
