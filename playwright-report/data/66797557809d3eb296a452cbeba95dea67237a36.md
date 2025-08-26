@@ -1,0 +1,1229 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Sus Fit API Documentation - v0.1.0":
+    - /url: index.html
+  - button "Search"
+- heading "Sus Fit API Documentation - v0.1.0" [level=1]
+- heading "The-Sus-Fit Permalink" [level=1]:
+  - text: The-Sus-Fit
+  - link "Permalink":
+    - /url: "#the-sus-fit"
+- paragraph: A stealth mode guerilla branding campaign for AI fun
+- paragraph:
+  - link "Coverage":
+    - /url: https://codecov.io/gh/gabepublic/The-Sus-Fit-gp
+    - img "Coverage"
+- heading "Prerequisites Permalink" [level=2]:
+  - text: Prerequisites
+  - link "Permalink":
+    - /url: "#prerequisites"
+- paragraph: "Before you begin, ensure you have the following installed:"
+- list:
+  - listitem:
+    - strong: Node.js
+    - text: 18+
+  - listitem:
+    - strong: pnpm
+    - text: (preferred package manager)
+  - listitem:
+    - strong: Git
+- heading "Installing pnpm Permalink" [level=3]:
+  - text: Installing pnpm
+  - link "Permalink":
+    - /url: "#installing-pnpm"
+- paragraph: "If you don't have pnpm installed:"
+- code: "# Using npm npm install -g pnpm # Using Homebrew (macOS) brew install pnpm # Using Windows (PowerShell) iwr https://get.pnpm.io/install.ps1 -useb | iex"
+- button "Copy"
+- heading "Environment Variables Permalink" [level=2]:
+  - text: Environment Variables
+  - link "Permalink":
+    - /url: "#environment-variables"
+- paragraph:
+  - text: This project uses environment variables to securely manage API keys and configuration.
+  - strong:
+    - text: Never commit your
+    - code: .env.local
+    - text: file to version control.
+- heading "Required Environment Variables Permalink" [level=3]:
+  - text: Required Environment Variables
+  - link "Permalink":
+    - /url: "#required-environment-variables"
+- table:
+  - rowgroup:
+    - row "Variable Description Format Default":
+      - cell "Variable"
+      - cell "Description"
+      - cell "Format"
+      - cell "Default"
+  - rowgroup:
+    - row "OPENAI_API_KEY OpenAI API key for image generation sk-proj-... Required":
+      - cell "OPENAI_API_KEY":
+        - code: OPENAI_API_KEY
+      - cell "OpenAI API key for image generation"
+      - cell "sk-proj-...":
+        - code: sk-proj-...
+      - cell "Required"
+    - row "OPENAI_MODEL OpenAI model to use Model name gpt-image-1":
+      - cell "OPENAI_MODEL":
+        - code: OPENAI_MODEL
+      - cell "OpenAI model to use"
+      - cell "Model name"
+      - cell "gpt-image-1":
+        - code: gpt-image-1
+- heading "Optional Environment Variables Permalink" [level=3]:
+  - text: Optional Environment Variables
+  - link "Permalink":
+    - /url: "#optional-environment-variables"
+- table:
+  - rowgroup:
+    - row "Variable Description Format Default":
+      - cell "Variable"
+      - cell "Description"
+      - cell "Format"
+      - cell "Default"
+  - rowgroup:
+    - row "NODE_ENV Node environment development, production, test development":
+      - cell "NODE_ENV":
+        - code: NODE_ENV
+      - cell "Node environment"
+      - cell "development, production, test":
+        - code: development
+        - text: ","
+        - code: production
+        - text: ","
+        - code: test
+      - cell "development":
+        - code: development
+    - row "CI CI environment flag true/false false":
+      - cell "CI":
+        - code: CI
+      - cell "CI environment flag"
+      - cell "true/false":
+        - code: "true"
+        - text: /
+        - code: "false"
+      - cell "false":
+        - code: "false"
+    - row "NEXT_PUBLIC_BASE_URL Base URL for the application URL None":
+      - cell "NEXT_PUBLIC_BASE_URL":
+        - code: NEXT_PUBLIC_BASE_URL
+      - cell "Base URL for the application"
+      - cell "URL"
+      - cell "None"
+    - row "NEXT_PUBLIC_APP_URL App URL for development URL http://localhost:3000":
+      - cell "NEXT_PUBLIC_APP_URL":
+        - code: NEXT_PUBLIC_APP_URL
+      - cell "App URL for development"
+      - cell "URL"
+      - cell "http://localhost:3000":
+        - code: http://localhost:3000
+- heading "Environment File Setup Permalink" [level=3]:
+  - text: Environment File Setup
+  - link "Permalink":
+    - /url: "#environment-file-setup"
+- list:
+  - listitem:
+    - paragraph:
+      - strong: Copy the example file
+      - text: ":"
+    - code: cp .env.example .env.local
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Add your API keys
+      - text: ": Edit"
+      - code: .env.local
+      - text: and add your actual API keys
+  - listitem:
+    - paragraph:
+      - strong: Verify security
+      - text: ": Ensure"
+      - code: .env.local
+      - text: is in your
+      - code: .gitignore
+      - text: and not tracked by Git
+- blockquote:
+  - paragraph:
+    - text: ⚠️
+    - strong: Security Warning
+    - text: ": Never commit"
+    - code: .env.local
+    - text: to version control. The
+    - code: .env.example
+    - text: file is safe to commit as it contains no real secrets.
+- heading "Getting API Keys Permalink" [level=3]:
+  - text: Getting API Keys
+  - link "Permalink":
+    - /url: "#getting-api-keys"
+- list:
+  - listitem:
+    - strong: OpenAI API Key
+    - text: ": Visit"
+    - link "OpenAI Platform":
+      - /url: https://platform.openai.com/api-keys
+    - text: to create your API key
+- heading "Running Dev Permalink" [level=2]:
+  - text: Running Dev
+  - link "Permalink":
+    - /url: "#running-dev"
+- heading "Quick Start Permalink" [level=3]:
+  - text: Quick Start
+  - link "Permalink":
+    - /url: "#quick-start"
+- list:
+  - listitem:
+    - paragraph:
+      - strong: Clone the repository
+      - text: ":"
+    - code: git clone https://github.com/your-username/The-Sus-Fit-gp.git cd The-Sus-Fit-gp
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Install dependencies
+      - text: ":"
+    - code: pnpm install
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Set up environment variables
+      - text: "(choose one method):"
+    - paragraph:
+      - strong: "Method A: Using .env.local (Recommended)"
+    - code: "cp .env.example .env.local # Edit .env.local with your API keys"
+    - button "Copy"
+    - paragraph:
+      - strong: "Method B: Using shell environment"
+    - code: "# Unix/macOS export OPENAI_API_KEY=\"sk-proj-your-key-here\" # Windows (Command Prompt) set OPENAI_API_KEY=sk-proj-your-key-here # Windows (PowerShell) $env:OPENAI_API_KEY=\"sk-proj-your-key-here\""
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Start the development server
+      - text: ":"
+    - code: pnpm dev
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Open your browser
+      - text: ": Navigate to"
+      - code: http://localhost:3000
+- heading "Development Scripts Permalink" [level=3]:
+  - text: Development Scripts
+  - link "Permalink":
+    - /url: "#development-scripts"
+- table:
+  - rowgroup:
+    - row "Command Description":
+      - cell "Command"
+      - cell "Description"
+  - rowgroup:
+    - row "pnpm dev Start development server":
+      - cell "pnpm dev":
+        - code: pnpm dev
+      - cell "Start development server"
+    - row "pnpm build Build for production":
+      - cell "pnpm build":
+        - code: pnpm build
+      - cell "Build for production"
+    - row "pnpm start Start production server":
+      - cell "pnpm start":
+        - code: pnpm start
+      - cell "Start production server"
+    - row "pnpm lint Run ESLint":
+      - cell "pnpm lint":
+        - code: pnpm lint
+      - cell "Run ESLint"
+    - row "pnpm type-check Run TypeScript type checking":
+      - cell "pnpm type-check":
+        - code: pnpm type-check
+      - cell "Run TypeScript type checking"
+- heading "Running Tests Permalink" [level=2]:
+  - text: Running Tests
+  - link "Permalink":
+    - /url: "#running-tests"
+- heading "Unit Tests Permalink" [level=3]:
+  - text: Unit Tests
+  - link "Permalink":
+    - /url: "#unit-tests"
+- paragraph: "Run all unit tests:"
+- code: pnpm test
+- button "Copy"
+- paragraph: "Run tests with coverage:"
+- code: pnpm test:coverage
+- button "Copy"
+- paragraph: "Run tests in watch mode:"
+- code: pnpm test:watch
+- button "Copy"
+- heading "End-to-End Tests Permalink" [level=3]:
+  - text: End-to-End Tests
+  - link "Permalink":
+    - /url: "#end-to-end-tests"
+- paragraph: "Run Playwright E2E tests:"
+- code: pnpm test:e2e
+- button "Copy"
+- heading "Test Scripts Permalink" [level=3]:
+  - text: Test Scripts
+  - link "Permalink":
+    - /url: "#test-scripts"
+- table:
+  - rowgroup:
+    - row "Command Description":
+      - cell "Command"
+      - cell "Description"
+  - rowgroup:
+    - row "pnpm test Run all tests":
+      - cell "pnpm test":
+        - code: pnpm test
+      - cell "Run all tests"
+    - row "pnpm test:ci Run tests with coverage and CI configuration":
+      - cell "pnpm test:ci":
+        - code: pnpm test:ci
+      - cell "Run tests with coverage and CI configuration"
+    - row "pnpm test:unit Run unit tests":
+      - cell "pnpm test:unit":
+        - code: pnpm test:unit
+      - cell "Run unit tests"
+    - row "pnpm test:watch Run tests in watch mode":
+      - cell "pnpm test:watch":
+        - code: pnpm test:watch
+      - cell "Run tests in watch mode"
+    - row "pnpm test:coverage Run tests with coverage report":
+      - cell "pnpm test:coverage":
+        - code: pnpm test:coverage
+      - cell "Run tests with coverage report"
+    - row "pnpm test:coverage:enforce Run tests with coverage enforcement":
+      - cell "pnpm test:coverage:enforce":
+        - code: pnpm test:coverage:enforce
+      - cell "Run tests with coverage enforcement"
+    - row "pnpm test:e2e Run Playwright E2E tests":
+      - cell "pnpm test:e2e":
+        - code: pnpm test:e2e
+      - cell "Run Playwright E2E tests"
+- heading "Test Coverage Permalink" [level=3]:
+  - text: Test Coverage
+  - link "Permalink":
+    - /url: "#test-coverage"
+- paragraph:
+  - text: The project maintains a
+  - strong: 80% coverage threshold
+  - text: "for:"
+- list:
+  - listitem: Branches
+  - listitem: Functions
+  - listitem: Lines
+  - listitem: Statements
+- paragraph:
+  - text: Coverage reports are available in the
+  - code: /coverage
+  - text: directory and uploaded to Codecov in CI.
+- heading "OpenAI Service Wrapper Permalink" [level=2]:
+  - text: OpenAI Service Wrapper
+  - link "Permalink":
+    - /url: "#openai-service-wrapper"
+- paragraph: The project includes a comprehensive OpenAI service wrapper for virtual try-on functionality using the OpenAI Images Edit API. This wrapper provides type-safe, validated interactions with OpenAI's image generation capabilities.
+- heading "Features Permalink" [level=3]:
+  - text: Features
+  - link "Permalink":
+    - /url: "#features"
+- list:
+  - listitem:
+    - strong: Type-safe API
+    - text: ": Full TypeScript support with Zod validation schemas"
+  - listitem:
+    - strong: Input validation
+    - text: ": Automatic validation of base64 image data"
+  - listitem:
+    - strong: Error handling
+    - text: ": Comprehensive error handling with custom error context"
+  - listitem:
+    - strong: Clean API
+    - text: ": Simple, intuitive function interface"
+- heading "Usage Permalink" [level=3]:
+  - text: Usage
+  - link "Permalink":
+    - /url: "#usage"
+- code: "import { generateTryOn, TryOnParams } from '@/lib'; // Example usage const tryOnParams: TryOnParams = { modelImage: \"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\", apparelImages: [\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\"] }; try { const generatedImage = await generateTryOn(tryOnParams); console.log('Generated image:', generatedImage); } catch (error) { console.error('Try-on failed:', error.message); }"
+- button "Copy"
+- heading "API Reference Permalink" [level=3]:
+  - text: API Reference
+  - link "Permalink":
+    - /url: "#api-reference"
+- 'heading "generateTryOn(params: TryOnParams): Promise<string> Permalink" [level=4]':
+  - code: "generateTryOn(params: TryOnParams): Promise<string>"
+  - link "Permalink":
+    - /url: "#generatetryonparams-tryonparams-promise"
+- paragraph: Generates a try-on image by combining a model image with apparel images.
+- paragraph:
+  - strong: "Parameters:"
+- list:
+  - listitem:
+    - code: params.modelImage
+    - text: "(string): Base64-encoded model image"
+  - listitem:
+    - code: params.apparelImages
+    - text: "(string[]): Array of base64-encoded apparel images (minimum 1)"
+- paragraph:
+  - strong: "Returns:"
+- list:
+  - listitem:
+    - code: Promise<string>
+    - text: ": Base64-encoded generated image"
+- paragraph:
+  - strong: "Throws:"
+- list:
+  - listitem:
+    - code: Error
+    - text: ": When validation fails, API call fails, or response is invalid"
+- heading "CI/CD Pipeline Permalink" [level=2]:
+  - text: CI/CD Pipeline
+  - link "Permalink":
+    - /url: "#cicd-pipeline"
+- paragraph: "The project uses GitHub Actions for continuous integration:"
+- list:
+  - listitem:
+    - strong: Unit Tests
+    - text: ": Runs on Ubuntu with Node.js 18.x and 20.x"
+  - listitem:
+    - strong: E2E Tests
+    - text: ": Runs on Ubuntu and Windows with comprehensive artifact uploads"
+  - listitem:
+    - strong: Build Verification
+    - text: ": Ensures the application builds successfully"
+  - listitem:
+    - strong: Coverage Reports
+    - text: ": Uploaded to Codecov and available as artifacts"
+- heading "SETUP Permalink" [level=2]:
+  - text: SETUP
+  - link "Permalink":
+    - /url: "#setup"
+- list:
+  - listitem:
+    - text: Setup taskmaster; also see
+    - link "taskmaster docs":
+      - /url: https://github.com/eyaltoledano/claude-task-master/tree/main
+- code: "# Install Taskmaster pnpm install task-master-ai # Initialize with Cursor rules ONLY npx task-master init --rules cursor # Create environment file cp .env.example .env.local # Add your API key to .env.local"
+- button "Copy"
+- heading "PRD Permalink" [level=2]:
+  - text: PRD
+  - link "Permalink":
+    - /url: "#prd"
+- heading "Wiring OpenAI Vision API Permalink" [level=3]:
+  - text: Wiring OpenAI Vision API
+  - link "Permalink":
+    - /url: "#wiring-openai-vision-api"
+- list:
+  - listitem:
+    - text: Create
+    - code: .taskmaster/docs/feature-prd-tryon-phase01.txt
+  - listitem: Generate tasks
+- code: npx task-master parse-prd .taskmaster/docs/feature-prd-tryon-phase01.txt npx task-master expand --all
+- button "Copy"
+- group:
+  - heading "Settings" [level=3]
+- group:
+  - heading "On This Page" [level=3]
+  - link "The-Sus-Fit":
+    - /url: "#the-sus-fit"
+  - list:
+    - listitem:
+      - link "Prerequisites":
+        - /url: "#prerequisites"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Installing pnpm":
+            - /url: "#installing-pnpm"
+    - listitem:
+      - link "Environment Variables":
+        - /url: "#environment-variables"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Required Environment Variables":
+            - /url: "#required-environment-variables"
+        - listitem:
+          - link "Optional Environment Variables":
+            - /url: "#optional-environment-variables"
+        - listitem:
+          - link "Environment File Setup":
+            - /url: "#environment-file-setup"
+        - listitem:
+          - link "Getting API Keys":
+            - /url: "#getting-api-keys"
+    - listitem:
+      - link "Running Dev":
+        - /url: "#running-dev"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Quick Start":
+            - /url: "#quick-start"
+        - listitem:
+          - link "Development Scripts":
+            - /url: "#development-scripts"
+    - listitem:
+      - link "Running Tests":
+        - /url: "#running-tests"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Unit Tests":
+            - /url: "#unit-tests"
+        - listitem:
+          - link "End-to-End Tests":
+            - /url: "#end-to-end-tests"
+        - listitem:
+          - link "Test Scripts":
+            - /url: "#test-scripts"
+        - listitem:
+          - link "Test Coverage":
+            - /url: "#test-coverage"
+    - listitem:
+      - link "OpenAI Service Wrapper":
+        - /url: "#openai-service-wrapper"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Features":
+            - /url: "#features"
+        - listitem:
+          - link "Usage":
+            - /url: "#usage"
+        - listitem:
+          - link "API Reference":
+            - /url: "#api-reference"
+        - listitem:
+          - list:
+            - listitem:
+              - 'link "generateTryOn(params: TryOnParams): Promise<string>"':
+                - /url: "#generatetryonparams-tryonparams-promise"
+    - listitem:
+      - link "CI/CD Pipeline":
+        - /url: "#cicd-pipeline"
+    - listitem:
+      - link "SETUP":
+        - /url: "#setup"
+    - listitem:
+      - link "PRD":
+        - /url: "#prd"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Wiring OpenAI Vision API":
+            - /url: "#wiring-openai-vision-api"
+- navigation:
+  - link "Sus Fit API Documentation - v0.1.0":
+    - /url: modules.html
+  - list:
+    - listitem:
+      - link "Enumeration ErrorCategory":
+        - /url: ./enums/ErrorCategory.html
+        - img "Enumeration"
+        - text: ErrorCategory
+    - listitem:
+      - link "Enumeration ErrorSeverity":
+        - /url: ./enums/ErrorSeverity.html
+        - img "Enumeration"
+        - text: ErrorSeverity
+    - listitem:
+      - link "Enumeration ExportFormat":
+        - /url: ./enums/ExportFormat.html
+        - img "Enumeration"
+        - text: ExportFormat
+    - listitem:
+      - link "Enumeration ImageProcessingOperation":
+        - /url: ./enums/ImageProcessingOperation.html
+        - img "Enumeration"
+        - text: ImageProcessingOperation
+    - listitem:
+      - link "Enumeration QualityPreset":
+        - /url: ./enums/QualityPreset.html
+        - img "Enumeration"
+        - text: QualityPreset
+    - listitem:
+      - link "Class BatchExportManager":
+        - /url: ./classes/BatchExportManager.html
+        - img "Class"
+        - text: BatchExportManager
+    - listitem:
+      - link "Class ConsoleErrorLogger":
+        - /url: ./classes/ConsoleErrorLogger.html
+        - img "Class"
+        - text: ConsoleErrorLogger
+    - listitem:
+      - link "Class ErrorBoundary":
+        - /url: ./classes/ErrorBoundary.html
+        - img "Class"
+        - text: ErrorBoundary
+    - listitem:
+      - link "Class ImageDimensionError":
+        - /url: ./classes/ImageDimensionError.html
+        - img "Class"
+        - text: ImageDimensionError
+    - listitem:
+      - link "Class ImageExporter":
+        - /url: ./classes/ImageExporter.html
+        - img "Class"
+        - text: ImageExporter
+    - listitem:
+      - link "Class ImageProcessingError":
+        - /url: ./classes/ImageProcessingError.html
+        - img "Class"
+        - text: ImageProcessingError
+    - listitem:
+      - link "Class LocalStorageTryonHistoryService":
+        - /url: ./classes/LocalStorageTryonHistoryService.html
+        - img "Class"
+        - text: LocalStorageTryonHistoryService
+    - listitem:
+      - link "Interface ApiError":
+        - /url: ./interfaces/ApiError.html
+        - img "Interface"
+        - text: ApiError
+    - listitem:
+      - link "Interface BatchExportConfig":
+        - /url: ./interfaces/BatchExportConfig.html
+        - img "Interface"
+        - text: BatchExportConfig
+    - listitem:
+      - link "Interface BatchProcessingConfig":
+        - /url: ./interfaces/BatchProcessingConfig.html
+        - img "Interface"
+        - text: BatchProcessingConfig
+    - listitem:
+      - link "Interface BusinessLayerError":
+        - /url: ./interfaces/BusinessLayerError.html
+        - img "Interface"
+        - text: BusinessLayerError
+    - listitem:
+      - link "Interface ClassifiedError":
+        - /url: ./interfaces/ClassifiedError.html
+        - img "Interface"
+        - text: ClassifiedError
+    - listitem:
+      - link "Interface CompressionConfig":
+        - /url: ./interfaces/CompressionConfig.html
+        - img "Interface"
+        - text: CompressionConfig
+    - listitem:
+      - link "Interface CreateTryonHistoryEntryOptions":
+        - /url: ./interfaces/CreateTryonHistoryEntryOptions.html
+        - img "Interface"
+        - text: CreateTryonHistoryEntryOptions
+    - listitem:
+      - link "Interface ErrorLogger":
+        - /url: ./interfaces/ErrorLogger.html
+        - img "Interface"
+        - text: ErrorLogger
+    - listitem:
+      - link "Interface ErrorRecoveryAction":
+        - /url: ./interfaces/ErrorRecoveryAction.html
+        - img "Interface"
+        - text: ErrorRecoveryAction
+    - listitem:
+      - link "Interface ExportConfig":
+        - /url: ./interfaces/ExportConfig.html
+        - img "Interface"
+        - text: ExportConfig
+    - listitem:
+      - link "Interface ExportMetadata":
+        - /url: ./interfaces/ExportMetadata.html
+        - img "Interface"
+        - text: ExportMetadata
+    - listitem:
+      - link "Interface ExportResult":
+        - /url: ./interfaces/ExportResult.html
+        - img "Interface"
+        - text: ExportResult
+    - listitem:
+      - link "Interface ExportState":
+        - /url: ./interfaces/ExportState.html
+        - img "Interface"
+        - text: ExportState
+    - listitem:
+      - link "Interface FeatureFlag":
+        - /url: ./interfaces/FeatureFlag.html
+        - img "Interface"
+        - text: FeatureFlag
+    - listitem:
+      - link "Interface FeatureFlagConfig":
+        - /url: ./interfaces/FeatureFlagConfig.html
+        - img "Interface"
+        - text: FeatureFlagConfig
+    - listitem:
+      - link "Interface FeatureFlagContextValue":
+        - /url: ./interfaces/FeatureFlagContextValue.html
+        - img "Interface"
+        - text: FeatureFlagContextValue
+    - listitem:
+      - link "Interface FeatureFlagProviderConfig":
+        - /url: ./interfaces/FeatureFlagProviderConfig.html
+        - img "Interface"
+        - text: FeatureFlagProviderConfig
+    - listitem:
+      - link "Interface FeatureFlagProviderProps":
+        - /url: ./interfaces/FeatureFlagProviderProps.html
+        - img "Interface"
+        - text: FeatureFlagProviderProps
+    - listitem:
+      - link "Interface ImageProcessingOptions":
+        - /url: ./interfaces/ImageProcessingOptions.html
+        - img "Interface"
+        - text: ImageProcessingOptions
+    - listitem:
+      - link "Interface ImageProcessingResult":
+        - /url: ./interfaces/ImageProcessingResult.html
+        - img "Interface"
+        - text: ImageProcessingResult
+    - listitem:
+      - link "Interface ImageUploadData":
+        - /url: ./interfaces/ImageUploadData.html
+        - img "Interface"
+        - text: ImageUploadData
+    - listitem:
+      - link "Interface ImageUploadVariables":
+        - /url: ./interfaces/ImageUploadVariables.html
+        - img "Interface"
+        - text: ImageUploadVariables
+    - listitem:
+      - link "Interface MutationConfig":
+        - /url: ./interfaces/MutationConfig.html
+        - img "Interface"
+        - text: MutationConfig
+    - listitem:
+      - link "Interface MutationState":
+        - /url: ./interfaces/MutationState.html
+        - img "Interface"
+        - text: MutationState
+    - listitem:
+      - link "Interface NetworkError":
+        - /url: ./interfaces/NetworkError.html
+        - img "Interface"
+        - text: NetworkError
+    - listitem:
+      - link "Interface ProcessedImage":
+        - /url: ./interfaces/ProcessedImage.html
+        - img "Interface"
+        - text: ProcessedImage
+    - listitem:
+      - link "Interface ProcessingQueueItem":
+        - /url: ./interfaces/ProcessingQueueItem.html
+        - img "Interface"
+        - text: ProcessingQueueItem
+    - listitem:
+      - link "Interface ProcessingQueueState":
+        - /url: ./interfaces/ProcessingQueueState.html
+        - img "Interface"
+        - text: ProcessingQueueState
+    - listitem:
+      - link "Interface ProcessingStats":
+        - /url: ./interfaces/ProcessingStats.html
+        - img "Interface"
+        - text: ProcessingStats
+    - listitem:
+      - link "Interface QueryConfig":
+        - /url: ./interfaces/QueryConfig.html
+        - img "Interface"
+        - text: QueryConfig
+    - listitem:
+      - link "Interface ReactQueryProviderProps":
+        - /url: ./interfaces/ReactQueryProviderProps.html
+        - img "Interface"
+        - text: ReactQueryProviderProps
+    - listitem:
+      - link "Interface TimeoutError":
+        - /url: ./interfaces/TimeoutError.html
+        - img "Interface"
+        - text: TimeoutError
+    - listitem:
+      - link "Interface TryonHistoryCollection":
+        - /url: ./interfaces/TryonHistoryCollection.html
+        - img "Interface"
+        - text: TryonHistoryCollection
+    - listitem:
+      - link "Interface TryonHistoryContextValue":
+        - /url: ./interfaces/TryonHistoryContextValue.html
+        - img "Interface"
+        - text: TryonHistoryContextValue
+    - listitem:
+      - link "Interface TryonHistoryEntry":
+        - /url: ./interfaces/TryonHistoryEntry.html
+        - img "Interface"
+        - text: TryonHistoryEntry
+    - listitem:
+      - link "Interface TryonHistoryQueryOptions":
+        - /url: ./interfaces/TryonHistoryQueryOptions.html
+        - img "Interface"
+        - text: TryonHistoryQueryOptions
+    - listitem:
+      - link "Interface TryonHistoryService":
+        - /url: ./interfaces/TryonHistoryService.html
+        - img "Interface"
+        - text: TryonHistoryService
+    - listitem:
+      - link "Interface TryonHistoryStorageConfig":
+        - /url: ./interfaces/TryonHistoryStorageConfig.html
+        - img "Interface"
+        - text: TryonHistoryStorageConfig
+    - listitem:
+      - link "Interface TryonMutationContext":
+        - /url: ./interfaces/TryonMutationContext.html
+        - img "Interface"
+        - text: TryonMutationContext
+    - listitem:
+      - link "Interface TryonMutationData":
+        - /url: ./interfaces/TryonMutationData.html
+        - img "Interface"
+        - text: TryonMutationData
+    - listitem:
+      - link "Interface TryonMutationError":
+        - /url: ./interfaces/TryonMutationError.html
+        - img "Interface"
+        - text: TryonMutationError
+    - listitem:
+      - link "Interface TryonMutationOptions":
+        - /url: ./interfaces/TryonMutationOptions.html
+        - img "Interface"
+        - text: TryonMutationOptions
+    - listitem:
+      - link "Interface TryonMutationResponse":
+        - /url: ./interfaces/TryonMutationResponse.html
+        - img "Interface"
+        - text: TryonMutationResponse
+    - listitem:
+      - link "Interface TryonMutationVariables":
+        - /url: ./interfaces/TryonMutationVariables.html
+        - img "Interface"
+        - text: TryonMutationVariables
+    - listitem:
+      - link "Interface TryonMutationVariablesWithFiles":
+        - /url: ./interfaces/TryonMutationVariablesWithFiles.html
+        - img "Interface"
+        - text: TryonMutationVariablesWithFiles
+    - listitem:
+      - link "Interface TryonResponse":
+        - /url: ./interfaces/TryonResponse.html
+        - img "Interface"
+        - text: TryonResponse
+    - listitem:
+      - link "Interface TryonResponseMetadata":
+        - /url: ./interfaces/TryonResponseMetadata.html
+        - img "Interface"
+        - text: TryonResponseMetadata
+    - listitem:
+      - link "Interface UseFeatureFlagReturn":
+        - /url: ./interfaces/UseFeatureFlagReturn.html
+        - img "Interface"
+        - text: UseFeatureFlagReturn
+    - listitem:
+      - link "Interface UseImageExportOptions":
+        - /url: ./interfaces/UseImageExportOptions.html
+        - img "Interface"
+        - text: UseImageExportOptions
+    - listitem:
+      - link "Interface UseTryonHistoryReturn":
+        - /url: ./interfaces/UseTryonHistoryReturn.html
+        - img "Interface"
+        - text: UseTryonHistoryReturn
+    - listitem:
+      - link "Interface UseTryonMutationConfig":
+        - /url: ./interfaces/UseTryonMutationConfig.html
+        - img "Interface"
+        - text: UseTryonMutationConfig
+    - listitem:
+      - link "Interface UseTryonMutationReturn":
+        - /url: ./interfaces/UseTryonMutationReturn.html
+        - img "Interface"
+        - text: UseTryonMutationReturn
+    - listitem:
+      - link "Interface ValidationError":
+        - /url: ./interfaces/ValidationError.html
+        - img "Interface"
+        - text: ValidationError
+    - listitem:
+      - link "Interface WatermarkConfig":
+        - /url: ./interfaces/WatermarkConfig.html
+        - img "Interface"
+        - text: WatermarkConfig
+    - listitem:
+      - link "Type Alias ApiResponse":
+        - /url: ./types/ApiResponse.html
+        - img "Type Alias"
+        - text: ApiResponse
+    - listitem:
+      - link "Type Alias Environment":
+        - /url: ./types/Environment.html
+        - img "Type Alias"
+        - text: Environment
+    - listitem:
+      - link "Type Alias FeatureFlagCategory":
+        - /url: ./types/FeatureFlagCategory.html
+        - img "Type Alias"
+        - text: FeatureFlagCategory
+    - listitem:
+      - link "Type Alias FeatureFlagCollection":
+        - /url: ./types/FeatureFlagCollection.html
+        - img "Type Alias"
+        - text: FeatureFlagCollection
+    - listitem:
+      - link "Type Alias FeatureFlagValue":
+        - /url: ./types/FeatureFlagValue.html
+        - img "Type Alias"
+        - text: FeatureFlagValue
+    - listitem:
+      - link "Type Alias TryonRequest":
+        - /url: ./types/TryonRequest.html
+        - img "Type Alias"
+        - text: TryonRequest
+    - listitem:
+      - link "Variable DEFAULT_EXPORT_CONFIG":
+        - /url: ./variables/DEFAULT_EXPORT_CONFIG.html
+        - img "Variable"
+        - text: DEFAULT_EXPORT_CONFIG
+    - listitem:
+      - link "Variable DEFAULT_PROCESSING_OPTIONS":
+        - /url: ./variables/DEFAULT_PROCESSING_OPTIONS.html
+        - img "Variable"
+        - text: DEFAULT_PROCESSING_OPTIONS
+    - listitem:
+      - link "Variable defaultHistoryService":
+        - /url: ./variables/defaultHistoryService.html
+        - img "Variable"
+        - text: defaultHistoryService
+    - listitem:
+      - link "Variable FeatureFlagContext":
+        - /url: ./variables/FeatureFlagContext.html
+        - img "Variable"
+        - text: FeatureFlagContext
+    - listitem:
+      - link "Variable FeatureFlagProvider":
+        - /url: ./variables/FeatureFlagProvider.html
+        - img "Variable"
+        - text: FeatureFlagProvider
+    - listitem:
+      - link "Variable HISTORY_QUERY_KEYS":
+        - /url: ./variables/HISTORY_QUERY_KEYS.html
+        - img "Variable"
+        - text: HISTORY_QUERY_KEYS
+    - listitem:
+      - link "Variable imageProcessingKeys":
+        - /url: ./variables/imageProcessingKeys.html
+        - img "Variable"
+        - text: imageProcessingKeys
+    - listitem:
+      - link "Variable queryClient":
+        - /url: ./variables/queryClient.html
+        - img "Variable"
+        - text: queryClient
+    - listitem:
+      - link "Variable ReactQueryProvider":
+        - /url: ./variables/ReactQueryProvider.html
+        - img "Variable"
+        - text: ReactQueryProvider
+    - listitem:
+      - link "Function classifyTryonError":
+        - /url: ./functions/classifyTryonError.html
+        - img "Function"
+        - text: classifyTryonError
+    - listitem:
+      - link "Function clearQueryCache":
+        - /url: ./functions/clearQueryCache.html
+        - img "Function"
+        - text: clearQueryCache
+    - listitem:
+      - link "Function createApiError":
+        - /url: ./functions/createApiError.html
+        - img "Function"
+        - text: createApiError
+    - listitem:
+      - link "Function createApiQueryConfig":
+        - /url: ./functions/createApiQueryConfig.html
+        - img "Function"
+        - text: createApiQueryConfig
+    - listitem:
+      - link "Function createBatchExportManager":
+        - /url: ./functions/createBatchExportManager.html
+        - img "Function"
+        - text: createBatchExportManager
+    - listitem:
+      - link "Function createBusinessLayerError":
+        - /url: ./functions/createBusinessLayerError.html
+        - img "Function"
+        - text: createBusinessLayerError
+    - listitem:
+      - link "Function createHistoryEntryFromMutation":
+        - /url: ./functions/createHistoryEntryFromMutation.html
+        - img "Function"
+        - text: createHistoryEntryFromMutation
+    - listitem:
+      - link "Function createHistoryIntegratedCallbacks":
+        - /url: ./functions/createHistoryIntegratedCallbacks.html
+        - img "Function"
+        - text: createHistoryIntegratedCallbacks
+    - listitem:
+      - link "Function createImageExporter":
+        - /url: ./functions/createImageExporter.html
+        - img "Function"
+        - text: createImageExporter
+    - listitem:
+      - link "Function createImageProcessingQueryConfig":
+        - /url: ./functions/createImageProcessingQueryConfig.html
+        - img "Function"
+        - text: createImageProcessingQueryConfig
+    - listitem:
+      - link "Function createMutationConfig":
+        - /url: ./functions/createMutationConfig.html
+        - img "Function"
+        - text: createMutationConfig
+    - listitem:
+      - link "Function createNetworkError":
+        - /url: ./functions/createNetworkError.html
+        - img "Function"
+        - text: createNetworkError
+    - listitem:
+      - link "Function createShareableHistoryEntry":
+        - /url: ./functions/createShareableHistoryEntry.html
+        - img "Function"
+        - text: createShareableHistoryEntry
+    - listitem:
+      - link "Function createTimeoutError":
+        - /url: ./functions/createTimeoutError.html
+        - img "Function"
+        - text: createTimeoutError
+    - listitem:
+      - link "Function createValidationError":
+        - /url: ./functions/createValidationError.html
+        - img "Function"
+        - text: createValidationError
+    - listitem:
+      - link "Function estimateFileSize":
+        - /url: ./functions/estimateFileSize.html
+        - img "Function"
+        - text: estimateFileSize
+    - listitem:
+      - link "Function formatErrorForDisplay":
+        - /url: ./functions/formatErrorForDisplay.html
+        - img "Function"
+        - text: formatErrorForDisplay
+    - listitem:
+      - link "Function getBase64Size":
+        - /url: ./functions/getBase64Size.html
+        - img "Function"
+        - text: getBase64Size
+    - listitem:
+      - link "Function getErrorLogger":
+        - /url: ./functions/getErrorLogger.html
+        - img "Function"
+        - text: getErrorLogger
+    - listitem:
+      - link "Function getErrorRecoveryActions":
+        - /url: ./functions/getErrorRecoveryActions.html
+        - img "Function"
+        - text: getErrorRecoveryActions
+    - listitem:
+      - link "Function getImageDimensions":
+        - /url: ./functions/getImageDimensions.html
+        - img "Function"
+        - text: getImageDimensions
+    - listitem:
+      - link "Function getOptimalFormat":
+        - /url: ./functions/getOptimalFormat.html
+        - img "Function"
+        - text: getOptimalFormat
+    - listitem:
+      - link "Function getUserFriendlyErrorMessage":
+        - /url: ./functions/getUserFriendlyErrorMessage.html
+        - img "Function"
+        - text: getUserFriendlyErrorMessage
+    - listitem:
+      - link "Function invalidateQueries":
+        - /url: ./functions/invalidateQueries.html
+        - img "Function"
+        - text: invalidateQueries
+    - listitem:
+      - link "Function isErrorRetryable":
+        - /url: ./functions/isErrorRetryable.html
+        - img "Function"
+        - text: isErrorRetryable
+    - listitem:
+      - link "Function logAndClassifyError":
+        - /url: ./functions/logAndClassifyError.html
+        - img "Function"
+        - text: logAndClassifyError
+    - listitem:
+      - link "Function processImageForTryon":
+        - /url: ./functions/processImageForTryon.html
+        - img "Function"
+        - text: processImageForTryon
+    - listitem:
+      - link "Function processTryonImages":
+        - /url: ./functions/processTryonImages.html
+        - img "Function"
+        - text: processTryonImages
+    - listitem:
+      - link "Function resizeImageTo1024x1536":
+        - /url: ./functions/resizeImageTo1024x1536.html
+        - img "Function"
+        - text: resizeImageTo1024x1536
+    - listitem:
+      - link "Function setErrorLogger":
+        - /url: ./functions/setErrorLogger.html
+        - img "Function"
+        - text: setErrorLogger
+    - listitem:
+      - link "Function useAllFeatureFlags":
+        - /url: ./functions/useAllFeatureFlags.html
+        - img "Function"
+        - text: useAllFeatureFlags
+    - listitem:
+      - link "Function useAllFeatureFlagsEnabled":
+        - /url: ./functions/useAllFeatureFlagsEnabled.html
+        - img "Function"
+        - text: useAllFeatureFlagsEnabled
+    - listitem:
+      - link "Function useAnyFeatureFlagEnabled":
+        - /url: ./functions/useAnyFeatureFlagEnabled.html
+        - img "Function"
+        - text: useAnyFeatureFlagEnabled
+    - listitem:
+      - link "Function useBatchImageExport":
+        - /url: ./functions/useBatchImageExport.html
+        - img "Function"
+        - text: useBatchImageExport
+    - listitem:
+      - link "Function useBatchImageProcessing":
+        - /url: ./functions/useBatchImageProcessing.html
+        - img "Function"
+        - text: useBatchImageProcessing
+    - listitem:
+      - link "Function useExperimentVariant":
+        - /url: ./functions/useExperimentVariant.html
+        - img "Function"
+        - text: useExperimentVariant
+    - listitem:
+      - link "Function useFeatureFlag":
+        - /url: ./functions/useFeatureFlag.html
+        - img "Function"
+        - text: useFeatureFlag
+    - listitem:
+      - link "Function useFeatureFlagContext":
+        - /url: ./functions/useFeatureFlagContext.html
+        - img "Function"
+        - text: useFeatureFlagContext
+    - listitem:
+      - link "Function useFeatureFlagContextOptional":
+        - /url: ./functions/useFeatureFlagContextOptional.html
+        - img "Function"
+        - text: useFeatureFlagContextOptional
+    - listitem:
+      - link "Function useFeatureFlagEnabled":
+        - /url: ./functions/useFeatureFlagEnabled.html
+        - img "Function"
+        - text: useFeatureFlagEnabled
+    - listitem:
+      - link "Function useFeatureFlagNumber":
+        - /url: ./functions/useFeatureFlagNumber.html
+        - img "Function"
+        - text: useFeatureFlagNumber
+    - listitem:
+      - link "Function useFeatureFlagRefresh":
+        - /url: ./functions/useFeatureFlagRefresh.html
+        - img "Function"
+        - text: useFeatureFlagRefresh
+    - listitem:
+      - link "Function useFeatureFlags":
+        - /url: ./functions/useFeatureFlags.html
+        - img "Function"
+        - text: useFeatureFlags
+    - listitem:
+      - link "Function useFeatureFlagString":
+        - /url: ./functions/useFeatureFlagString.html
+        - img "Function"
+        - text: useFeatureFlagString
+    - listitem:
+      - link "Function useFeatureFlagValue":
+        - /url: ./functions/useFeatureFlagValue.html
+        - img "Function"
+        - text: useFeatureFlagValue
+    - listitem:
+      - link "Function useFormatConversion":
+        - /url: ./functions/useFormatConversion.html
+        - img "Function"
+        - text: useFormatConversion
+    - listitem:
+      - link "Function useHistoryIntegratedMutationConfig":
+        - /url: ./functions/useHistoryIntegratedMutationConfig.html
+        - img "Function"
+        - text: useHistoryIntegratedMutationConfig
+    - listitem:
+      - link "Function useImageExport":
+        - /url: ./functions/useImageExport.html
+        - img "Function"
+        - text: useImageExport
+    - listitem:
+      - link "Function useImageMetadata":
+        - /url: ./functions/useImageMetadata.html
+        - img "Function"
+        - text: useImageMetadata
+    - listitem:
+      - link "Function useImageProcessing":
+        - /url: ./functions/useImageProcessing.html
+        - img "Function"
+        - text: useImageProcessing
+    - listitem:
+      - link "Function useImageProcessingCache":
+        - /url: ./functions/useImageProcessingCache.html
+        - img "Function"
+        - text: useImageProcessingCache
+    - listitem:
+      - link "Function useImageThumbnail":
+        - /url: ./functions/useImageThumbnail.html
+        - img "Function"
+        - text: useImageThumbnail
+    - listitem:
+      - link "Function useImageValidation":
+        - /url: ./functions/useImageValidation.html
+        - img "Function"
+        - text: useImageValidation
+    - listitem:
+      - link "Function useProcessingStats":
+        - /url: ./functions/useProcessingStats.html
+        - img "Function"
+        - text: useProcessingStats
+    - listitem:
+      - link "Function useSimpleImageExport":
+        - /url: ./functions/useSimpleImageExport.html
+        - img "Function"
+        - text: useSimpleImageExport
+    - listitem:
+      - link "Function useTryonHistory":
+        - /url: ./functions/useTryonHistory.html
+        - img "Function"
+        - text: useTryonHistory
+    - listitem:
+      - link "Function useTryonHistoryEntry":
+        - /url: ./functions/useTryonHistoryEntry.html
+        - img "Function"
+        - text: useTryonHistoryEntry
+    - listitem:
+      - link "Function useTryonHistoryStats":
+        - /url: ./functions/useTryonHistoryStats.html
+        - img "Function"
+        - text: useTryonHistoryStats
+    - listitem:
+      - link "Function useTryonMutation":
+        - /url: ./functions/useTryonMutation.html
+        - img "Function"
+        - text: useTryonMutation
+    - listitem:
+      - link "Function validateImageDimensions":
+        - /url: ./functions/validateImageDimensions.html
+        - img "Function"
+        - text: validateImageDimensions
+- contentinfo:
+  - paragraph:
+    - text: Generated using
+    - link "TypeDoc":
+      - /url: https://typedoc.org/
+```
