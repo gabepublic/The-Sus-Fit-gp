@@ -192,7 +192,6 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
     @apply border-border;
   }
 
@@ -200,6 +199,24 @@
     @apply text-foreground;
     font-family: var(--font-sans);
     background-image: var(--gradient-yellow-warm-radial);
+  }
+
+  /* Global mobile tap highlight removal */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+  }
+
+  button:focus,
+  button:active,
+  button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   h1,
@@ -238,12 +255,14 @@
     display: flex;
     flex-direction: column;
     font-family: var(--font-secondary);
-    font-size: 24px;
+    font-size: 1.8rem;
     font-weight: 400;
     line-height: 48px;
-    filter: hue-rotate(285deg) saturate(320%) brightness(0.9);
-    text-shadow: -8px -8px 0 #7561be, 8px -8px 0 #7561be, -8px 8px 0 #7561be,
-      8px 8px 0 #7561be;
+    filter: hue-rotate(285deg) saturate(320%) brightness(0.9) 
+            drop-shadow(-1px -1px 0 #1989a9) drop-shadow(1px -1px 0 #1989a9)
+            drop-shadow(-1px 1px 0 #1989a9) drop-shadow(1px 1px 0 #1989a9)
+            drop-shadow(0px -1px 0 #1989a9) drop-shadow(0px 1px 0 #1989a9)
+            drop-shadow(-1px 0px 0 #1989a9) drop-shadow(1px 0px 0 #1989a9);
   }
 
   .ticker-container {
@@ -408,6 +427,40 @@
 
   .animate-photoSlideReveal {
     animation: photoSlideReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Remove all mobile button highlights and focus states */
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .no-tap-highlight:focus,
+  .no-tap-highlight:active,
+  .no-tap-highlight:hover,
+  .no-tap-highlight:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+  }
+
+  /* Additional targeting for mobile button states */
+  button.no-tap-highlight,
+  button.no-tap-highlight:focus,
+  button.no-tap-highlight:active,
+  button.no-tap-highlight:hover,
+  button.no-tap-highlight:focus-visible {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
   }
 }
 
