@@ -166,25 +166,43 @@ export function useMultipleTryonProgress(optimisticIds: string[]): {
   anyInProgress: boolean;
   allCompleted: boolean;
 } {
-  const queries = optimisticIds.map(id => 
-    useQuery({
-      queryKey: ['tryon-progress', id],
-      enabled: Boolean(id),
-      refetchInterval: 500,
-      staleTime: 0
-    })
-  );
+  const queryClient = useQueryClient();
+  
+  // Use a single query to fetch all progress data
+  const allProgressQuery = useQuery({
+    queryKey: ['tryon-progress-multiple', optimisticIds.join(',')],
+    queryFn: async () => {
+      const results: Record<string, TryonProgress> = {};
+      
+      // Fetch each progress individually using queryClient
+      await Promise.allSettled(
+        optimisticIds.map(async (id) => {
+          if (!id) return;
+          
+          try {
+            const data = await queryClient.fetchQuery({
+              queryKey: ['tryon-progress', id],
+              staleTime: 0
+            });
+            if (data) {
+              results[id] = data as TryonProgress;
+            }
+          } catch (error) {
+            // Ignore individual fetch errors
+          }
+        })
+      );
+      
+      return results;
+    },
+    enabled: optimisticIds.length > 0,
+    refetchInterval: 500,
+    staleTime: 0
+  });
 
   const progressMap = useMemo(() => {
-    const map: Record<string, TryonProgress> = {};
-    optimisticIds.forEach((id, index) => {
-      const data = queries[index]?.data as TryonProgress | undefined;
-      if (data) {
-        map[id] = data;
-      }
-    });
-    return map;
-  }, [optimisticIds, queries]);
+    return allProgressQuery.data || {};
+  }, [allProgressQuery.data]);
 
   const anyInProgress = useMemo(() => {
     return Object.values(progressMap).some(progress => progress.status === 'processing');

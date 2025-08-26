@@ -256,7 +256,7 @@ export class TextOverlayRenderer {
     const fontWeight = style.fontWeight || DEFAULT_TEXT_STYLE.fontWeight;
     const fontSize = style.fontSize || DEFAULT_TEXT_STYLE.fontSize;
     const fontFamily = style.fontFamily || DEFAULT_TEXT_STYLE.fontFamily;
-    
+
     return `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
   }
 
@@ -330,16 +330,16 @@ export class TextOverlayRenderer {
     for (const word of words) {
       const testLine = currentLine + (currentLine ? ' ' : '') + word;
       const metrics = this.ctx.measureText(testLine);
-      
+
       if (metrics.width > maxWidth && currentLine) {
         lines.push(currentLine);
         currentLine = word;
-        
+
         // Handle long words
         if (wrapOptions.breakWords && this.ctx.measureText(currentLine).width > maxWidth) {
           const chars = currentLine.split('');
           let charLine = '';
-          
+
           for (const char of chars) {
             const testCharLine = charLine + char;
             if (this.ctx.measureText(testCharLine).width > maxWidth && charLine) {
@@ -368,16 +368,16 @@ export class TextOverlayRenderer {
    */
   measureText(text: string, style: TextStyle, position: TextPosition, wrapOptions?: TextWrapOptions): TextMeasurement {
     this.applyTextStyle(style);
-    
+
     const transformedText = this.applyTextTransform(text, style.textTransform);
     const lines = this.wrapText(transformedText, position.maxWidth || 0, style, wrapOptions);
     const lineHeight = (style.fontSize || DEFAULT_TEXT_STYLE.fontSize) * (style.lineHeight || DEFAULT_TEXT_STYLE.lineHeight);
-    
+
     let maxWidth = 0;
     const lineData = lines.map((line, index) => {
       const metrics = this.ctx.measureText(line);
       maxWidth = Math.max(maxWidth, metrics.width);
-      
+
       return {
         text: line,
         width: metrics.width,
@@ -386,18 +386,18 @@ export class TextOverlayRenderer {
     });
 
     const totalHeight = lines.length * lineHeight;
-    
+
     // Calculate bounding box based on anchor
     const anchor = position.anchor || { x: 'left', y: 'top' };
     let boundingX = position.x;
     let boundingY = position.y;
-    
+
     if (anchor.x === 'center') {
       boundingX -= maxWidth / 2;
     } else if (anchor.x === 'right') {
       boundingX -= maxWidth;
     }
-    
+
     if (anchor.y === 'middle') {
       boundingY -= totalHeight / 2;
     } else if (anchor.y === 'bottom') {
@@ -520,9 +520,9 @@ export class TextOverlayRenderer {
    */
   renderText(config: TextOverlayConfig): TextMeasurement {
     const { text, style, position, wrap, background } = config;
-    
+
     this.ctx.save();
-    
+
     // Apply rotation if specified
     if (position.rotation) {
       this.ctx.translate(position.x, position.y);
@@ -626,8 +626,8 @@ export class TextOverlayUtils {
     if (!ctx) throw new Error('Could not get canvas context');
 
     let fontSize = style.fontSize || 16;
-    let testStyle = { ...style, fontSize };
-    
+    const testStyle = { ...style, fontSize };
+
     // Binary search for optimal font size
     let minSize = 1;
     let maxSize = 200;
@@ -635,7 +635,7 @@ export class TextOverlayUtils {
     while (minSize < maxSize - 1) {
       fontSize = Math.floor((minSize + maxSize) / 2);
       testStyle.fontSize = fontSize;
-      
+
       ctx.font = `${testStyle.fontStyle || 'normal'} ${testStyle.fontWeight || 'normal'} ${fontSize}px ${testStyle.fontFamily || 'Arial'}`;
       const metrics = ctx.measureText(text);
       const textHeight = fontSize * (testStyle.lineHeight || 1.2);

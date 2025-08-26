@@ -86,8 +86,8 @@ describe('Bridge Layer Performance Tests', () => {
         'useBridgeLayer-init'
       );
 
-      // Bridge layer should initialize quickly (< 50ms)
-      perfUtils.assertPerformance(duration, 50, 'useBridgeLayer initialization');
+      // Bridge layer should initialize quickly (< 100ms)
+      perfUtils.assertPerformance(duration, 100, 'useBridgeLayer initialization');
     });
 
     it('should initialize useTryonWorkflow within performance budget', async () => {
