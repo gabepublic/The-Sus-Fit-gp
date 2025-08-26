@@ -1,0 +1,527 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Sus Fit API Documentation - v0.1.0":
+    - /url: index.html
+  - button "Search"
+  - link "Menu":
+    - /url: "#"
+- heading "Sus Fit API Documentation - v0.1.0" [level=1]
+- heading "The-Sus-FitPermalink" [level=1]:
+  - text: The-Sus-Fit
+  - link "Permalink":
+    - /url: "#the-sus-fit"
+- paragraph: A stealth mode guerilla branding campaign for AI fun
+- paragraph:
+  - link "Coverage":
+    - /url: https://codecov.io/gh/gabepublic/The-Sus-Fit-gp
+    - img "Coverage"
+- heading "PrerequisitesPermalink" [level=2]:
+  - text: Prerequisites
+  - link "Permalink":
+    - /url: "#prerequisites"
+- paragraph: "Before you begin, ensure you have the following installed:"
+- list:
+  - listitem:
+    - strong: Node.js
+    - text: 18+
+  - listitem:
+    - strong: pnpm
+    - text: (preferred package manager)
+  - listitem:
+    - strong: Git
+- heading "Installing pnpmPermalink" [level=3]:
+  - text: Installing pnpm
+  - link "Permalink":
+    - /url: "#installing-pnpm"
+- paragraph: "If you don't have pnpm installed:"
+- code: "# Using npm npm install -g pnpm # Using Homebrew (macOS) brew install pnpm # Using Windows (PowerShell) iwr https://get.pnpm.io/install.ps1 -useb | iex"
+- button "Copy"
+- heading "Environment VariablesPermalink" [level=2]:
+  - text: Environment Variables
+  - link "Permalink":
+    - /url: "#environment-variables"
+- paragraph:
+  - text: This project uses environment variables to securely manage API keys and configuration.
+  - strong:
+    - text: Never commit your
+    - code: .env.local
+    - text: file to version control.
+- heading "Required Environment VariablesPermalink" [level=3]:
+  - text: Required Environment Variables
+  - link "Permalink":
+    - /url: "#required-environment-variables"
+- table:
+  - rowgroup:
+    - row "Variable Description Format Default":
+      - cell "Variable"
+      - cell "Description"
+      - cell "Format"
+      - cell "Default"
+  - rowgroup:
+    - row "OPENAI_API_KEY OpenAI API key for image generation sk-proj-... Required":
+      - cell "OPENAI_API_KEY":
+        - code: OPENAI_API_KEY
+      - cell "OpenAI API key for image generation"
+      - cell "sk-proj-...":
+        - code: sk-proj-...
+      - cell "Required"
+    - row "OPENAI_MODEL OpenAI model to use Model name gpt-image-1":
+      - cell "OPENAI_MODEL":
+        - code: OPENAI_MODEL
+      - cell "OpenAI model to use"
+      - cell "Model name"
+      - cell "gpt-image-1":
+        - code: gpt-image-1
+- heading "Optional Environment VariablesPermalink" [level=3]:
+  - text: Optional Environment Variables
+  - link "Permalink":
+    - /url: "#optional-environment-variables"
+- table:
+  - rowgroup:
+    - row "Variable Description Format Default":
+      - cell "Variable"
+      - cell "Description"
+      - cell "Format"
+      - cell "Default"
+  - rowgroup:
+    - row "NODE_ENV Node environment development, production, test development":
+      - cell "NODE_ENV":
+        - code: NODE_ENV
+      - cell "Node environment"
+      - cell "development, production, test":
+        - code: development
+        - text: ","
+        - code: production
+        - text: ","
+        - code: test
+      - cell "development":
+        - code: development
+    - row "CI CI environment flag true/false false":
+      - cell "CI":
+        - code: CI
+      - cell "CI environment flag"
+      - cell "true/false":
+        - code: "true"
+        - text: /
+        - code: "false"
+      - cell "false":
+        - code: "false"
+    - row "NEXT_PUBLIC_BASE_URL Base URL for the application URL None":
+      - cell "NEXT_PUBLIC_BASE_URL":
+        - code: NEXT_PUBLIC_BASE_URL
+      - cell "Base URL for the application"
+      - cell "URL"
+      - cell "None"
+    - row "NEXT_PUBLIC_APP_URL App URL for development URL http://localhost:3000":
+      - cell "NEXT_PUBLIC_APP_URL":
+        - code: NEXT_PUBLIC_APP_URL
+      - cell "App URL for development"
+      - cell "URL"
+      - cell "http://localhost:3000":
+        - code: http://localhost:3000
+- heading "Environment File SetupPermalink" [level=3]:
+  - text: Environment File Setup
+  - link "Permalink":
+    - /url: "#environment-file-setup"
+- list:
+  - listitem:
+    - paragraph:
+      - strong: Copy the example file
+      - text: ":"
+    - code: cp .env.example .env.local
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Add your API keys
+      - text: ": Edit"
+      - code: .env.local
+      - text: and add your actual API keys
+  - listitem:
+    - paragraph:
+      - strong: Verify security
+      - text: ": Ensure"
+      - code: .env.local
+      - text: is in your
+      - code: .gitignore
+      - text: and not tracked by Git
+- blockquote:
+  - paragraph:
+    - text: ⚠️
+    - strong: Security Warning
+    - text: ": Never commit"
+    - code: .env.local
+    - text: to version control. The
+    - code: .env.example
+    - text: file is safe to commit as it contains no real secrets.
+- heading "Getting API KeysPermalink" [level=3]:
+  - text: Getting API Keys
+  - link "Permalink":
+    - /url: "#getting-api-keys"
+- list:
+  - listitem:
+    - strong: OpenAI API Key
+    - text: ": Visit"
+    - link "OpenAI Platform":
+      - /url: https://platform.openai.com/api-keys
+    - text: to create your API key
+- heading "Running DevPermalink" [level=2]:
+  - text: Running Dev
+  - link "Permalink":
+    - /url: "#running-dev"
+- heading "Quick StartPermalink" [level=3]:
+  - text: Quick Start
+  - link "Permalink":
+    - /url: "#quick-start"
+- list:
+  - listitem:
+    - paragraph:
+      - strong: Clone the repository
+      - text: ":"
+    - code: git clone https://github.com/your-username/The-Sus-Fit-gp.git cd The-Sus-Fit-gp
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Install dependencies
+      - text: ":"
+    - code: pnpm install
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Set up environment variables
+      - text: "(choose one method):"
+    - paragraph:
+      - strong: "Method A: Using .env.local (Recommended)"
+    - code: "cp .env.example .env.local # Edit .env.local with your API keys"
+    - button "Copy"
+    - paragraph:
+      - strong: "Method B: Using shell environment"
+    - code: "# Unix/macOS export OPENAI_API_KEY=\"sk-proj-your-key-here\" # Windows (Command Prompt) set OPENAI_API_KEY=sk-proj-your-key-here # Windows (PowerShell) $env:OPENAI_API_KEY=\"sk-proj-your-key-here\""
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Start the development server
+      - text: ":"
+    - code: pnpm dev
+    - button "Copy"
+  - listitem:
+    - paragraph:
+      - strong: Open your browser
+      - text: ": Navigate to"
+      - code: http://localhost:3000
+- heading "Development ScriptsPermalink" [level=3]:
+  - text: Development Scripts
+  - link "Permalink":
+    - /url: "#development-scripts"
+- table:
+  - rowgroup:
+    - row "Command Description":
+      - cell "Command"
+      - cell "Description"
+  - rowgroup:
+    - row "pnpm dev Start development server":
+      - cell "pnpm dev":
+        - code: pnpm dev
+      - cell "Start development server"
+    - row "pnpm build Build for production":
+      - cell "pnpm build":
+        - code: pnpm build
+      - cell "Build for production"
+    - row "pnpm start Start production server":
+      - cell "pnpm start":
+        - code: pnpm start
+      - cell "Start production server"
+    - row "pnpm lint Run ESLint":
+      - cell "pnpm lint":
+        - code: pnpm lint
+      - cell "Run ESLint"
+    - row "pnpm type-check Run TypeScript type checking":
+      - cell "pnpm type-check":
+        - code: pnpm type-check
+      - cell "Run TypeScript type checking"
+- heading "Running TestsPermalink" [level=2]:
+  - text: Running Tests
+  - link "Permalink":
+    - /url: "#running-tests"
+- heading "Unit TestsPermalink" [level=3]:
+  - text: Unit Tests
+  - link "Permalink":
+    - /url: "#unit-tests"
+- paragraph: "Run all unit tests:"
+- code: pnpm test
+- button "Copy"
+- paragraph: "Run tests with coverage:"
+- code: pnpm test:coverage
+- button "Copy"
+- paragraph: "Run tests in watch mode:"
+- code: pnpm test:watch
+- button "Copy"
+- heading "End-to-End TestsPermalink" [level=3]:
+  - text: End-to-End Tests
+  - link "Permalink":
+    - /url: "#end-to-end-tests"
+- paragraph: "Run Playwright E2E tests:"
+- code: pnpm test:e2e
+- button "Copy"
+- heading "Test ScriptsPermalink" [level=3]:
+  - text: Test Scripts
+  - link "Permalink":
+    - /url: "#test-scripts"
+- table:
+  - rowgroup:
+    - row "Command Description":
+      - cell "Command"
+      - cell "Description"
+  - rowgroup:
+    - row "pnpm test Run all tests":
+      - cell "pnpm test":
+        - code: pnpm test
+      - cell "Run all tests"
+    - row "pnpm test:ci Run tests with coverage and CI configuration":
+      - cell "pnpm test:ci":
+        - code: pnpm test:ci
+      - cell "Run tests with coverage and CI configuration"
+    - row "pnpm test:unit Run unit tests":
+      - cell "pnpm test:unit":
+        - code: pnpm test:unit
+      - cell "Run unit tests"
+    - row "pnpm test:watch Run tests in watch mode":
+      - cell "pnpm test:watch":
+        - code: pnpm test:watch
+      - cell "Run tests in watch mode"
+    - row "pnpm test:coverage Run tests with coverage report":
+      - cell "pnpm test:coverage":
+        - code: pnpm test:coverage
+      - cell "Run tests with coverage report"
+    - row "pnpm test:coverage:enforce Run tests with coverage enforcement":
+      - cell "pnpm test:coverage:enforce":
+        - code: pnpm test:coverage:enforce
+      - cell "Run tests with coverage enforcement"
+    - row "pnpm test:e2e Run Playwright E2E tests":
+      - cell "pnpm test:e2e":
+        - code: pnpm test:e2e
+      - cell "Run Playwright E2E tests"
+- heading "Test CoveragePermalink" [level=3]:
+  - text: Test Coverage
+  - link "Permalink":
+    - /url: "#test-coverage"
+- paragraph:
+  - text: The project maintains a
+  - strong: 80% coverage threshold
+  - text: "for:"
+- list:
+  - listitem: Branches
+  - listitem: Functions
+  - listitem: Lines
+  - listitem: Statements
+- paragraph:
+  - text: Coverage reports are available in the
+  - code: /coverage
+  - text: directory and uploaded to Codecov in CI.
+- heading "OpenAI Service WrapperPermalink" [level=2]:
+  - text: OpenAI Service Wrapper
+  - link "Permalink":
+    - /url: "#openai-service-wrapper"
+- paragraph: The project includes a comprehensive OpenAI service wrapper for virtual try-on functionality using the OpenAI Images Edit API. This wrapper provides type-safe, validated interactions with OpenAI's image generation capabilities.
+- heading "FeaturesPermalink" [level=3]:
+  - text: Features
+  - link "Permalink":
+    - /url: "#features"
+- list:
+  - listitem:
+    - strong: Type-safe API
+    - text: ": Full TypeScript support with Zod validation schemas"
+  - listitem:
+    - strong: Input validation
+    - text: ": Automatic validation of base64 image data"
+  - listitem:
+    - strong: Error handling
+    - text: ": Comprehensive error handling with custom error context"
+  - listitem:
+    - strong: Clean API
+    - text: ": Simple, intuitive function interface"
+- heading "UsagePermalink" [level=3]:
+  - text: Usage
+  - link "Permalink":
+    - /url: "#usage"
+- code: "import { generateTryOn, TryOnParams } from '@/lib'; // Example usage const tryOnParams: TryOnParams = { modelImage: \"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\", apparelImages: [\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\"] }; try { const generatedImage = await generateTryOn(tryOnParams); console.log('Generated image:', generatedImage); } catch (error) { console.error('Try-on failed:', error.message); }"
+- button "Copy"
+- heading "API ReferencePermalink" [level=3]:
+  - text: API Reference
+  - link "Permalink":
+    - /url: "#api-reference"
+- 'heading "generateTryOn(params: TryOnParams): Promise<string>Permalink" [level=4]':
+  - code: "generateTryOn(params: TryOnParams): Promise<string>"
+  - link "Permalink":
+    - /url: "#generatetryonparams-tryonparams-promise"
+- paragraph: Generates a try-on image by combining a model image with apparel images.
+- paragraph:
+  - strong: "Parameters:"
+- list:
+  - listitem:
+    - code: params.modelImage
+    - text: "(string): Base64-encoded model image"
+  - listitem:
+    - code: params.apparelImages
+    - text: "(string[]): Array of base64-encoded apparel images (minimum 1)"
+- paragraph:
+  - strong: "Returns:"
+- list:
+  - listitem:
+    - code: Promise<string>
+    - text: ": Base64-encoded generated image"
+- paragraph:
+  - strong: "Throws:"
+- list:
+  - listitem:
+    - code: Error
+    - text: ": When validation fails, API call fails, or response is invalid"
+- heading "CI/CD PipelinePermalink" [level=2]:
+  - text: CI/CD Pipeline
+  - link "Permalink":
+    - /url: "#cicd-pipeline"
+- paragraph: "The project uses GitHub Actions for continuous integration:"
+- list:
+  - listitem:
+    - strong: Unit Tests
+    - text: ": Runs on Ubuntu with Node.js 18.x and 20.x"
+  - listitem:
+    - strong: E2E Tests
+    - text: ": Runs on Ubuntu and Windows with comprehensive artifact uploads"
+  - listitem:
+    - strong: Build Verification
+    - text: ": Ensures the application builds successfully"
+  - listitem:
+    - strong: Coverage Reports
+    - text: ": Uploaded to Codecov and available as artifacts"
+- heading "SETUPPermalink" [level=2]:
+  - text: SETUP
+  - link "Permalink":
+    - /url: "#setup"
+- list:
+  - listitem:
+    - text: Setup taskmaster; also see
+    - link "taskmaster docs":
+      - /url: https://github.com/eyaltoledano/claude-task-master/tree/main
+- code: "# Install Taskmaster pnpm install task-master-ai # Initialize with Cursor rules ONLY npx task-master init --rules cursor # Create environment file cp .env.example .env.local # Add your API key to .env.local"
+- button "Copy"
+- heading "PRDPermalink" [level=2]:
+  - text: PRD
+  - link "Permalink":
+    - /url: "#prd"
+- heading "Wiring OpenAI Vision APIPermalink" [level=3]:
+  - text: Wiring OpenAI Vision API
+  - link "Permalink":
+    - /url: "#wiring-openai-vision-api"
+- list:
+  - listitem:
+    - text: Create
+    - code: .taskmaster/docs/feature-prd-tryon-phase01.txt
+  - listitem: Generate tasks
+- code: npx task-master parse-prd .taskmaster/docs/feature-prd-tryon-phase01.txt npx task-master expand --all
+- button "Copy"
+- group:
+  - heading "Settings" [level=3]
+- group:
+  - heading "On This Page" [level=3]
+  - link "The-Sus-Fit":
+    - /url: "#the-sus-fit"
+  - list:
+    - listitem:
+      - link "Prerequisites":
+        - /url: "#prerequisites"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Installing pnpm":
+            - /url: "#installing-pnpm"
+    - listitem:
+      - link "Environment Variables":
+        - /url: "#environment-variables"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Required Environment Variables":
+            - /url: "#required-environment-variables"
+        - listitem:
+          - link "Optional Environment Variables":
+            - /url: "#optional-environment-variables"
+        - listitem:
+          - link "Environment File Setup":
+            - /url: "#environment-file-setup"
+        - listitem:
+          - link "Getting API Keys":
+            - /url: "#getting-api-keys"
+    - listitem:
+      - link "Running Dev":
+        - /url: "#running-dev"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Quick Start":
+            - /url: "#quick-start"
+        - listitem:
+          - link "Development Scripts":
+            - /url: "#development-scripts"
+    - listitem:
+      - link "Running Tests":
+        - /url: "#running-tests"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Unit Tests":
+            - /url: "#unit-tests"
+        - listitem:
+          - link "End-to-End Tests":
+            - /url: "#end-to-end-tests"
+        - listitem:
+          - link "Test Scripts":
+            - /url: "#test-scripts"
+        - listitem:
+          - link "Test Coverage":
+            - /url: "#test-coverage"
+    - listitem:
+      - link "OpenAI Service Wrapper":
+        - /url: "#openai-service-wrapper"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Features":
+            - /url: "#features"
+        - listitem:
+          - link "Usage":
+            - /url: "#usage"
+        - listitem:
+          - link "API Reference":
+            - /url: "#api-reference"
+        - listitem:
+          - list:
+            - listitem:
+              - 'link "generateTryOn(params: TryOnParams): Promise<string>"':
+                - /url: "#generatetryonparams-tryonparams-promise"
+    - listitem:
+      - link "CI/CD Pipeline":
+        - /url: "#cicd-pipeline"
+    - listitem:
+      - link "SETUP":
+        - /url: "#setup"
+    - listitem:
+      - link "PRD":
+        - /url: "#prd"
+    - listitem:
+      - list:
+        - listitem:
+          - link "Wiring OpenAI Vision API":
+            - /url: "#wiring-openai-vision-api"
+- navigation:
+  - link "Sus Fit API Documentation - v0.1.0":
+    - /url: modules.html
+  - list:
+    - listitem: Loading...
+- contentinfo:
+  - paragraph:
+    - text: Generated using
+    - link "TypeDoc":
+      - /url: https://typedoc.org/
+```

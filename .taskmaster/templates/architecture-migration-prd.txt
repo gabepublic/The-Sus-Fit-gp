@@ -1,0 +1,210 @@
+# Three-Layer Architecture Migration PRD
+
+## Executive Summary
+
+Migrate the existing try-on application from direct API calls in page components to a three-layer architecture with smart React Query business hooks, bridge layer custom hooks, and feature flag configuration system. This migration maintains all current functionality while establishing a scalable foundation for multi-client customization.
+
+## Current State Analysis
+
+### Existing Implementation
+- **Page Component**: Direct fetch calls to `/api/tryon` with complex state management
+- **API Layer**: Working Next.js route at `src/app/api/tryon/route.ts`
+- **Lib Layer**: Functional `openaiClient.ts` with try-on generation logic
+- **Hooks**: Minimal structure with only `useToast` re-export
+
+### Current Workflow
+```
+page.tsx → fetch('/api/tryon') → route.ts → openaiClient.ts → OpenAI API
+```
+
+### Pain Points
+- Business logic mixed with UI logic in page component
+- Hard to test business logic independently
+- Difficult to reuse logic across different UIs
+- No caching or retry mechanisms
+- Manual error handling and loading states
+
+## Target Architecture
+
+### New Workflow
+```
+page.tsx → useTryonWorkflow() → useTryonMutation() → /api/tryon → openaiClient.ts
+```
+
+### Layer Responsibilities
+- **Presentation**: Pure UI components, event handling
+- **Bridge Layer**: UI-friendly custom hooks, state coordination
+- **Business Layer**: Smart React Query hooks with business logic
+- **Data Layer**: API routes and external service integration
+
+## Migration Requirements
+
+### Phase 1: Foundation Setup
+- Create business layer directory structure
+- Setup React Query provider configuration
+- Establish feature flag system
+- Create core TypeScript types
+
+### Phase 2: Business Logic Migration
+- Migrate try-on functionality to React Query mutation
+- Move image processing logic to business layer
+- Implement comprehensive error handling and retry logic
+- Add caching strategies for generated images
+
+### Phase 3: Bridge Layer Implementation
+- Create UI-friendly custom hooks
+- Migrate page component state management
+- Establish clean component interfaces
+- Maintain existing UI behavior
+
+### Phase 4: Integration and Testing
+- Connect all layers together
+- Ensure existing functionality works unchanged
+- Add testing framework for layered architecture
+- Document migration patterns for future features
+
+## Technical Specifications
+
+### Directory Structure
+```
+src/
+├── business-layer/
+│   ├── queries/
+│   ├── mutations/
+│   ├── providers/
+│   ├── config/
+│   └── types/
+├── hooks/              # Bridge layer
+├── components/         # Existing UI (unchanged)
+├── app/api/           # Existing API routes (unchanged)
+└── lib/               # Existing utilities (unchanged)
+```
+
+### Business Layer Components
+
+#### Core Provider Setup
+- React Query client configuration with sensible defaults
+- Feature flag provider for client customization
+- Error boundary integration for business logic failures
+
+#### Try-on Mutation Hook
+- Migrate existing try-on logic from page component
+- Implement React Query useMutation with proper typing
+- Add image processing pipeline (resize, compression, validation)
+- Include retry logic with exponential backoff
+- Comprehensive error handling with user-friendly messages
+
+#### Image Processing Query
+- File validation and metadata extraction
+- Preview generation for UI display
+- Processing status and optimization suggestions
+
+### Bridge Layer Hooks
+
+#### Try-on Workflow Hook
+- Coordinate try-on generation process
+- Manage UI-specific state (polaroid display, generated images)
+- Provide clean interface for page component
+- Handle success/error state transitions
+
+#### Image Upload Hooks
+- File upload handling with validation
+- Preview URL management
+- Upload progress and status tracking
+
+### Feature Flag System
+
+#### Client Configuration
+- Support for different feature sets per client
+- Runtime feature toggle capabilities
+- Environment-based configuration loading
+
+#### Feature Integration
+- Conditional business logic based on enabled features
+- UI component feature gating
+- Graceful degradation for disabled features
+
+## Success Criteria
+
+### Functional Requirements
+- All existing try-on functionality works identically
+- No regression in user experience or performance
+- Existing API routes and lib functions unchanged
+- Current UI components work without modification
+
+### Architectural Requirements
+- Clear separation between presentation, business, and data layers
+- Business logic testable independently from UI
+- Bridge hooks provide clean, reusable interfaces
+- Feature flag system enables client customization
+
+### Quality Requirements
+- Comprehensive error handling with user-friendly messages
+- Loading states and retry mechanisms for network failures
+- Proper TypeScript typing throughout all layers
+- Caching strategies to improve performance
+
+## Migration Strategy
+
+### Incremental Approach
+1. Build new architecture alongside existing code
+2. Gradually migrate functionality without breaking changes
+3. Keep existing page.tsx working during migration
+4. Switch to new hooks once fully implemented and tested
+
+### Risk Mitigation
+- Maintain existing functionality during migration
+- Create feature flags to enable/disable new architecture
+- Comprehensive testing at each migration step
+- Rollback plan if issues arise
+
+## Testing Strategy
+
+### Business Layer Testing
+- Unit tests for React Query hooks behavior
+- Business logic validation testing
+- Error handling and retry mechanism testing
+- Cache behavior and invalidation testing
+
+### Bridge Layer Testing
+- Integration tests for hook coordination
+- UI state management testing
+- Component interface compatibility testing
+
+### End-to-End Testing
+- Complete workflow testing from UI to API
+- Feature flag behavior validation
+- Performance regression testing
+
+## Future Considerations
+
+### Scalability Preparation
+- Architecture supports multiple client UIs
+- Feature flag system enables per-client customization
+- Business logic reusable across different platforms
+- Clear patterns for adding new features
+
+### Development Workflow
+- Independent team development on different layers
+- Clear interfaces between layers reduce conflicts
+- Testing strategy supports confident refactoring
+- Documentation patterns for future feature development
+
+## Deliverables
+
+### Core Infrastructure
+- Business layer directory structure and providers
+- Feature flag configuration system
+- TypeScript type definitions for all layers
+
+### Migrated Functionality
+- Try-on generation using React Query business hooks
+- Image processing and validation in business layer
+- UI state management through bridge hooks
+- Working page component using new architecture
+
+### Documentation and Testing
+- Architecture documentation and patterns
+- Testing framework for layered architecture
+- Migration guide for future features
+- Performance benchmarks and optimization guidelines

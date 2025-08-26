@@ -238,8 +238,10 @@ describe('SusFitPage - Coverage Tests', () => {
         fireEvent.change(userFileInput, { target: { files: [userMockFile] } })
       })
       
-      // Should log the image dimensions since onload was triggered synchronously
-      expect(consoleSpy).toHaveBeenCalledWith('Left card (original) image dimensions:', { width: 800, height: 600 })
+      // Should log the file objects update since onload was triggered synchronously
+      expect(consoleSpy).toHaveBeenCalledWith('File objects updated:', expect.objectContaining({
+        userImageFile: expect.any(String)
+      }))
       
       consoleSpy.mockRestore()
       global.Image = originalImage
@@ -322,9 +324,6 @@ describe('SusFitPage - Coverage Tests', () => {
       // Mock fetch to throw a generic error (not CompressionFailedError or AbortError)
       ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Generic network error'))
       
-      // Mock console.error to verify error logging
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-      
       // Simulate both image uploads
       const fileInputs = document.querySelectorAll('input[type="file"]')
       const userFileInput = fileInputs[0]
@@ -342,15 +341,10 @@ describe('SusFitPage - Coverage Tests', () => {
       const cameraButton = screen.getByRole('button', { name: /camera capture button/i })
       await user.click(cameraButton)
       
-      // Should handle generic error gracefully
+      // Should handle generic error gracefully (error logging is now handled by React Query)
       await waitFor(() => {
         expect(screen.getByText(/Failed to generate image/)).toBeInTheDocument()
       })
-      
-      // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error in handleCameraButtonClick:', expect.any(Error))
-      
-      consoleErrorSpy.mockRestore()
     })
 
     it('covers logImageDimensions function without onload callback', () => {
@@ -559,7 +553,7 @@ describe('SusFitPage - Coverage Tests', () => {
       
       // Should show compression error
       await waitFor(() => {
-        expect(screen.getByText(/Your image is still too large after compression/)).toBeInTheDocument()
+        expect(screen.getByText(/Image is too large even after compression/)).toBeInTheDocument()
       })
     })
   })

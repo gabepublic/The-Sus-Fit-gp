@@ -1,6 +1,6 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, HttpHandler } from 'msw'
 
-export const handlers = [
+export const handlers: HttpHandler[] = [
   // Mock Claude API
   http.post('https://api.anthropic.com/v1/messages', () => {
     return HttpResponse.json({
