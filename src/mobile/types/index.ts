@@ -43,7 +43,6 @@ export interface YellowBannerProps {
   className?: string
   children?: React.ReactNode
   animationDelay?: number
-  useSvgFallback?: boolean
 }
 
 export interface AnimatedBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
