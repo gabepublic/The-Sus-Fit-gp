@@ -33,3 +33,26 @@ export interface MobileAnalyticsEvent {
   deviceType: string
   action?: string
 }
+
+export interface HomeViewContentProps {
+  className?: string
+  animationDelay?: number
+}
+
+export interface YellowBannerProps {
+  className?: string
+  children?: React.ReactNode
+  animationDelay?: number
+  useSvgFallback?: boolean
+}
+
+export interface AnimatedBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+  src?: string
+  alt?: string
+  priority?: boolean
+  quality?: number
+  placeholder?: string
+  onLoadError?: () => void
+  onLoadSuccess?: () => void
+}

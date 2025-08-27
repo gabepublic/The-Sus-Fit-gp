@@ -3,10 +3,10 @@
     "tasks": [
       {
         "id": 1,
-        "title": "Create Mobile Route Group Directory Structure",
-        "description": "Establish the mobile route group directory structure under `/m` parent route with all five child routes using Next.js 14 App Router conventions",
-        "details": "Create the directory structure: `src/app/(mobile)/m/layout.tsx` for the mobile shell, and five page components: `src/app/(mobile)/m/home/page.tsx`, `src/app/(mobile)/m/upload-angle/page.tsx`, `src/app/(mobile)/m/upload-fit/page.tsx`, `src/app/(mobile)/m/tryon/page.tsx`, `src/app/(mobile)/m/share/page.tsx`. Each page should be a basic Server Component with placeholder content. Use Next.js 14 App Router route group syntax with parentheses for organizational grouping. Include proper TypeScript interfaces for page props.",
-        "testStrategy": "Verify all routes are accessible by navigating to each URL. Test that the route group doesn't interfere with existing routes. Confirm Server Components render correctly with placeholder content.",
+        "title": "Setup HomeViewContent Component Structure",
+        "description": "Create the foundational React component structure and TypeScript interfaces for the HomeViewContent component",
+        "details": "Create `src/mobile/components/HomeViewContent.tsx` as a functional React component with TypeScript. Define the HomeViewContentProps interface with optional className and animationDelay properties. Set up component export and basic JSX structure. Update `src/mobile/types/index.ts` to include the component interfaces. Use React.memo for optimization and implement error boundary handling for asset loading failures.",
+        "testStrategy": "Unit tests to verify component renders without errors, props are properly typed and accepted, and basic structure matches expected DOM elements. Test component isolation and proper TypeScript compilation.",
         "priority": "high",
         "dependencies": [],
         "status": "done",
@@ -14,10 +14,10 @@
       },
       {
         "id": 2,
-        "title": "Create Mobile Component Directory Structure",
-        "description": "Establish mobile-specific component and styling directories outside the app router structure for better organization",
-        "details": "Create `src/mobile/components/` directory for MobileHeader.tsx and MobileMenu.tsx components. Create `src/mobile/styles/mobile.css` for mobile-specific styles if needed. Create `src/mobile/types/` for mobile-specific TypeScript interfaces. Use barrel exports in `src/mobile/index.ts` for clean imports. Follow current project conventions for component structure and TypeScript interfaces.",
-        "testStrategy": "Verify directory structure is created correctly and imports work as expected. Test that mobile components can be imported from the mobile directory structure.",
+        "title": "Implement Yellow Banner Shape Design",
+        "description": "Create the distinctive curved yellow banner shape matching the reference design using CSS clip-path or SVG",
+        "details": "Analyze the reference image `docs/assets/mobile/reference-images/HomeView.png` to extract exact banner shape coordinates. Implement using CSS clip-path with organic curved edges, positioned centrally taking 60-70% of vertical space. Use SusFit yellow color token `--color-susfit-yellow: #f9b801` from existing palette. Add subtle shadow/depth effects as shown in reference. Ensure shape maintains proportions across responsive breakpoints (320px-428px). Consider SVG path as fallback for complex shapes.",
+        "testStrategy": "Visual regression testing against reference image, responsive testing across mobile breakpoints, CSS clip-path browser compatibility testing. Verify color consistency with design system tokens.",
         "priority": "high",
         "dependencies": [
           1
@@ -27,191 +27,145 @@
       },
       {
         "id": 3,
-        "title": "Research and Configure User Agent Detection Library",
-        "description": "Research current best practices for server-side User Agent detection in Next.js 14 and select appropriate library for phone device detection",
-        "details": "Research libraries like `ua-parser-js` (v1.0.37+), `device-detector-js`, or built-in Next.js headers API. Select library that provides accurate phone vs tablet distinction, has good TypeScript support, and works well with Next.js 14 middleware. Create utility functions in `src/mobile/utils/deviceDetection.ts` with functions like `isPhoneDevice(userAgent: string): boolean`. Include comprehensive device patterns for iOS phones, Android phones, while excluding tablets like iPad.",
-        "testStrategy": "Unit tests for device detection utility with various User Agent strings. Test edge cases like iPad, Android tablets, and unusual mobile browsers. Verify accuracy against known device User Agent strings.",
+        "title": "Integrate Animated GIF Asset",
+        "description": "Implement the animated GIF background with proper loading, optimization, and error handling",
+        "status": "done",
+        "dependencies": [
+          1
+        ],
         "priority": "high",
-        "dependencies": [],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 4,
-        "title": "Implement Transparent Mobile Header Component",
-        "description": "Create the MobileHeader component with transparent background, logo on left, and hamburger menu button on right",
-        "details": "Build MobileHeader as a Client Component in `src/mobile/components/MobileHeader.tsx`. Use CSS-in-JS with styled-components or Tailwind CSS classes for transparent background (`background: transparent`). Position logo as tappable Link component to `/m/home`. Implement hamburger button with proper ARIA attributes: `aria-expanded`, `aria-controls='mobile-menu'`, `aria-label='Open navigation menu'`. Use state management for menu open/close. Match design from HomeView.png reference with proper responsive sizing for mobile viewports (320px+).",
-        "testStrategy": "Visual regression tests comparing to HomeView.png design. Test header transparency by checking computed styles. Verify logo link navigation. Test hamburger button accessibility with screen readers and keyboard navigation.",
-        "priority": "high",
-        "dependencies": [
-          2
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 5,
-        "title": "Implement Mobile Navigation Menu Component",
-        "description": "Create the accessible overlay/drawer menu with focus trapping and keyboard navigation for the five mobile routes",
-        "details": "Build MobileMenu as Client Component with overlay/drawer pattern using libraries like `focus-trap-react` (v10.2.3+) and `react-transition-group` for animations. Implement five navigation links to the mobile routes with current route highlighting using `usePathname()` hook. Add backdrop click handling, Escape key support, and proper focus restoration. Use ARIA live regions for screen reader announcements. Style as full-screen overlay or slide-in drawer with proper z-index stacking. Include smooth animations with CSS transforms or Framer Motion.",
-        "testStrategy": "Accessibility testing with screen readers (NVDA, VoiceOver). Keyboard navigation testing (Tab, Escape, Enter). Test focus trapping and restoration. Verify current route highlighting. Test backdrop click and Escape key closing functionality.",
-        "priority": "high",
-        "dependencies": [
-          4
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 6,
-        "title": "Create Mobile Layout Component",
-        "description": "Implement the mobile layout.tsx that wraps all mobile routes with the header and menu components",
-        "details": "Create `src/app/(mobile)/m/layout.tsx` as the layout component for all mobile routes. Import and render MobileHeader with shared state for menu visibility. Use React Context or useState with prop drilling to manage menu open/close state between header and menu components. Ensure layout supports transparent header by not adding background colors. Include proper viewport meta tag handling and mobile-optimized CSS. Support both portrait and landscape orientations with CSS media queries.",
-        "testStrategy": "Test layout renders correctly on all five mobile routes. Verify header/menu state management works properly. Test responsive behavior on various screen sizes (320px to 768px). Confirm transparent header allows underlying view background to show through.",
-        "priority": "high",
-        "dependencies": [
-          5
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 7,
-        "title": "Implement Next.js Middleware for Device Detection",
-        "description": "Create middleware.ts for server-side User Agent detection and phone-to-mobile redirects with cookie-based loop prevention",
-        "details": "Create `src/middleware.ts` using Next.js 14 middleware API. Import device detection utility from task 3. Implement redirect logic: phones from `/` to `/m/home`, preserving query strings with `new URL()` and `searchParams`. Add cookie-based loop prevention with `cookies().set('view-preference', 'mobile', { maxAge: 300 })` (5-minute expiration). Support query override parameters `?view=mobile` and `?view=main` for development debugging. Use `NextResponse.redirect()` for redirects and `NextResponse.next()` to continue normal processing.",
-        "testStrategy": "Unit tests for middleware logic with mock requests. Test redirect scenarios: phone UA to mobile routes, tablet/desktop remaining on main routes. Verify query string preservation and cookie setting/reading. Test loop prevention and query override functionality.",
-        "priority": "high",
-        "dependencies": [
-          3
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 8,
-        "title": "Implement Deep-Link Mapping System",
-        "description": "Create mapping system for translating main app routes to mobile routes during redirects",
-        "details": "Create `src/mobile/utils/routeMapping.ts` with route mapping object and functions. Initial mappings: `/` -> `/m/home`. Build helper function `getMobileRoute(mainRoute: string): string | null` to handle route translation. Integrate into middleware to redirect to mapped mobile routes when available, otherwise stay on main version. Design extensible system for future route additions with TypeScript interfaces for route mappings. Include wildcard and parameterized route support for future scalability.",
-        "testStrategy": "Unit tests for route mapping functions with various input routes. Test middleware integration with mapped and unmapped routes. Verify fallback behavior when no mobile mapping exists. Test edge cases like routes with parameters and query strings.",
-        "priority": "medium",
-        "dependencies": [
-          7
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 9,
-        "title": "Add Client-Side Device Detection Safety Net",
-        "description": "Implement client-side device detection as backup for cases where server-side detection was inconclusive",
-        "details": "Create client-side device detection hook `useDeviceRedirect()` in `src/mobile/hooks/useDeviceRedirect.ts`. Use `useEffect` with `navigator.userAgent` to check device type after hydration. Only trigger redirect if no view preference cookie exists and device is detected as phone. Use `router.replace()` from `next/navigation` for client-side navigation. Implement debouncing to prevent multiple rapid checks. Add TypeScript interfaces for hook return values and configuration options.",
-        "testStrategy": "Test client-side detection triggers only when needed. Verify no redirect loops with existing cookies. Test edge cases where server-side detection fails. Ensure no hydration mismatches between server and client detection.",
-        "priority": "medium",
-        "dependencies": [
-          8
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 10,
-        "title": "Implement Mobile Route Analytics Hook Points",
-        "description": "Mobile analytics hook implementation with route tracking and placeholder integrations - COMPLETED",
-        "status": "done",
-        "dependencies": [
-          6
-        ],
-        "priority": "low",
-        "details": "✅ IMPLEMENTATION COMPLETE: Created comprehensive mobile analytics hook system with automatic route change detection, device type identification, and placeholder logging for future analytics integration. The `useMobileAnalytics` hook provides `trackRouteChange()` and `trackCustomEvent()` functions with TypeScript interfaces ready for future expansion. Hook automatically detects mobile routes (paths starting with '/m/') and logs analytics events with mobile emoji identifiers. Includes device type detection (mobile/tablet) based on window.innerWidth. System is fully tested with 100% coverage and ready for future analytics provider integration.",
-        "testStrategy": "✅ TESTS COMPLETE: Comprehensive Jest test suite implemented covering all hook functionality including route change detection, custom event tracking, device type detection, and error handling scenarios. Tests verify analytics events only fire for mobile routes, proper event data structure validation, console.log placeholder functionality, and proper cleanup on unmount.",
+        "details": "Successfully integrated `public/images/mobile/home-page-animated.gif` with Next.js Image component using `unoptimized` prop for proper GIF animation. Implemented comprehensive loading state management, error handling with fallback display, accessibility support including `prefers-reduced-motion` media query, and performance optimizations with priority loading and GPU acceleration.",
+        "testStrategy": "Asset loading tests including failure scenarios, performance testing for GIF optimization, accessibility testing for motion preferences, cross-device compatibility testing for animation smoothness, loading state transition testing, error fallback verification.",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create MobileAnalyticsEvent TypeScript Interface",
-            "description": "Define comprehensive TypeScript interface for mobile analytics events",
+            "title": "Implement Next.js Image Component Integration",
+            "description": "Set up Next.js Image component with proper GIF handling and unoptimized prop",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Created `MobileAnalyticsEvent` interface with properties: route, timestamp, deviceType, previousRoute, sessionId, and userAgent. Interface provides foundation for future analytics integration with proper typing.",
+            "details": "✅ Completed - Added Next.js Image component with `unoptimized` prop to properly handle GIF animation while maintaining Next.js optimization benefits for other image properties.",
             "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement useMobileAnalytics Hook Core Functions",
-            "description": "Create the main hook with trackRouteChange and trackCustomEvent functions",
+            "title": "Implement Loading State Management",
+            "description": "Create loading states with opacity transitions and smooth user experience",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Implemented `useMobileAnalytics` hook with two main functions: `trackRouteChange()` for automatic route tracking and `trackCustomEvent()` for custom analytics events. Both functions use console.log placeholders with mobile emoji (📱) identifiers for future analytics provider integration.",
+            "details": "✅ Completed - Implemented useState hooks for loading state management with opacity transitions (0 during load, 1 when loaded) and smooth 0.5s ease-in-out transitions.",
             "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Add Automatic Route Change Detection",
-            "description": "Implement usePathname and useEffect for automatic mobile route tracking",
+            "title": "Add Error Handling and Fallback",
+            "description": "Implement error handling with appropriate fallback display",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Added automatic route change detection using Next.js `usePathname()` hook with `useEffect` that only triggers analytics for mobile routes (paths starting with '/m/'). Includes proper cleanup and prevents duplicate events on initial render.",
+            "details": "✅ Completed - Added comprehensive error handling with fallback display featuring movie emoji and cream background for graceful degradation when GIF fails to load.",
             "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement Device Type Detection",
-            "description": "Add device type detection functionality for mobile vs tablet identification",
+            "title": "Implement Accessibility Features",
+            "description": "Add prefers-reduced-motion support and proper accessibility attributes",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Implemented device type detection based on `window.innerWidth` with mobile threshold at 768px. Function safely handles SSR environment and provides 'mobile' or 'tablet' classification for analytics events.",
+            "details": "✅ Completed - Implemented `prefers-reduced-motion` media query support to pause animations for accessibility, added empty alt attribute for decorative background image, and proper focus management.",
             "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Create Comprehensive Test Suite",
-            "description": "Build complete Jest test coverage for all hook functionality",
+            "title": "Configure Styling and Positioning",
+            "description": "Set up proper background positioning, centering, and responsive design",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Created comprehensive test suite in `__tests__/mobile/hooks/useMobileAnalytics.test.tsx` with 100% coverage. Tests include route change detection, custom events, device detection, error handling, and proper mocking of Next.js hooks.",
+            "details": "✅ Completed - Configured full viewport height background positioning with z-index: -1, centered background with `object-fit: cover` and `object-position: center`, responsive design for mobile breakpoints (320px-428px).",
             "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "Update Hook Barrel Exports",
-            "description": "Add useMobileAnalytics to mobile hooks index file",
+            "title": "Optimize Performance",
+            "description": "Implement performance optimizations for smooth animation and loading",
             "status": "done",
             "dependencies": [],
-            "details": "✅ COMPLETED: Updated `src/mobile/hooks/index.ts` to export the new `useMobileAnalytics` hook alongside existing mobile hooks for consistent import patterns.",
+            "details": "✅ Completed - Added priority loading for above-the-fold content, implemented `will-change: opacity, transform` for GPU acceleration, and proper image optimization settings for optimal performance.",
             "testStrategy": ""
           }
         ]
       },
       {
-        "id": 11,
-        "title": "Add Comprehensive Unit and Integration Tests",
-        "description": "Create comprehensive test suites for mobile routing logic, device detection, and component functionality",
-        "details": "Use Jest and React Testing Library for component tests. Test MobileHeader: logo link navigation, hamburger button functionality, ARIA attributes. Test MobileMenu: keyboard navigation, focus trapping, route highlighting. Test device detection utilities with mock User Agent strings. Test middleware with mock Next.js request/response objects using `next-test-utils`. Create test utilities in `__tests__/mobile/utils/` for common mobile testing patterns. Use MSW (Mock Service Worker) for API mocking if needed.",
-        "testStrategy": "Achieve >90% code coverage for mobile components and utilities. Test all accessibility features with @testing-library/jest-dom. Verify no regression in main app functionality. Run tests in CI/CD pipeline with mobile-specific test scenarios.",
+        "id": 4,
+        "title": "Implement Text Masking Animation Effect",
+        "description": "Create the 'Let's Get You Fitted' text as a mask overlay to reveal the animated GIF background",
+        "details": "Use CSS mask or clip-path to create text masking effect with 'Let's Get You Fitted' text using Fascinate font (`--font-tertiary`). Implement webkit-background-clip: text and background-clip: text for cross-browser support. Position text centrally within yellow banner with responsive font sizing. Add hardware acceleration with transform and opacity properties. Ensure text remains readable and visually striking across all device sizes. Implement smooth transitions and easing functions.",
+        "testStrategy": "Cross-browser testing for text masking support, visual verification of animation effect, performance testing for hardware acceleration, responsive testing for font scaling and positioning.",
         "priority": "high",
         "dependencies": [
-          9
+          2,
+          3
         ],
-        "status": "done",
+        "status": "pending",
         "subtasks": []
       },
       {
-        "id": 12,
-        "title": "Create End-to-End Mobile Flow Tests",
-        "description": "Implement E2E tests covering the complete mobile user journey from device detection to navigation",
-        "status": "done",
-        "dependencies": [
-          11
-        ],
+        "id": 5,
+        "title": "Implement Responsive Design System",
+        "description": "Create responsive layout system supporting mobile breakpoints from 320px to 428px with proper scaling",
+        "details": "Implement mobile-first responsive design with breakpoints: small phones (320px-375px), standard phones (375px-414px), and large phones (414px+). Use CSS Grid or Flexbox for layout with container queries if supported. Ensure banner shape and text scale proportionally. Add portrait/landscape orientation support with adjusted proportions. Integrate with existing mobile layout structure and Tailwind CSS classes. Maintain design consistency with current SusFit mobile patterns.",
+        "testStrategy": "Responsive testing across target device range, orientation testing, integration testing with existing mobile layout, visual consistency verification against design system.",
         "priority": "medium",
-        "details": "Complete E2E testing infrastructure implemented with Playwright for comprehensive mobile testing coverage. Includes full-featured mobile-flow.spec.ts for advanced scenarios, basic mobile-basic.spec.ts for core functionality, and mobile-helpers.ts utilities for device simulation. Tests cover device detection/redirect flows, complete mobile navigation journeys, hamburger menu functionality, accessibility compliance with axe-core, multiple viewport/orientation testing, and edge case handling. Real device User-Agent strings and mobile viewport configurations provide accurate device simulation.",
-        "testStrategy": "Comprehensive E2E test suite with 25+ tests covering mobile flows across multiple viewports (iPhone SE, iPhone 12, Pixel 5, iPad Mini). Real mobile User Agent strings for accurate device simulation. Automated accessibility audits with axe-core ensuring WCAG 2.1 AA compliance. Page Object Models for maintainable test structure. Tests validate happy path journey: device detection -> redirect -> mobile navigation -> route changes -> accessibility compliance.",
+        "dependencies": [
+          2,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Add Accessibility and Performance Optimizations",
+        "description": "Implement comprehensive accessibility features and performance optimizations for smooth mobile experience",
+        "details": "Add semantic HTML structure with proper ARIA labels and roles. Implement screen reader support with descriptive alt text and announcements. Ensure WCAG 2.1 AA color contrast compliance. Add keyboard navigation support for any interactive elements with 44px minimum touch targets. Implement `prefers-reduced-motion` support. Optimize animations with `will-change` properties and avoid layout thrashing. Add performance monitoring and lazy loading optimizations.",
+        "testStrategy": "Accessibility auditing with screen readers and automated tools, keyboard navigation testing, color contrast verification, performance profiling on target mobile devices, motion sensitivity testing.",
+        "priority": "high",
+        "dependencies": [
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Integrate Component with Home Page Layout",
+        "description": "Update the home page structure to use the new HomeViewContent component and ensure seamless integration",
+        "details": "Update `src/app/(mobile)/m/home/page.tsx` to import and render HomeViewContent component, replacing placeholder content. Ensure proper integration with existing mobile layout structure and pt-16 padding. Verify no conflicts with global styles or mobile.css patterns. Add proper component props and error boundary handling. Test integration with MobileHeader component and ensure consistent spacing and positioning within mobile viewport.",
+        "testStrategy": "Integration testing with existing mobile layout, styling conflict detection, end-to-end mobile user flow testing, component prop validation, error boundary testing.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Final Testing and Quality Assurance",
+        "description": "Comprehensive testing suite covering functionality, performance, accessibility, and cross-device compatibility",
+        "details": "Execute comprehensive test suite including unit tests for component functionality, integration tests with mobile layout, visual regression testing against reference design, performance testing for 60fps animations and 2-second load times, accessibility compliance verification, cross-browser testing on iOS Safari 14+ and Chrome 90+. Validate bundle size impact and memory usage during extended viewing. Test error scenarios and graceful degradation.",
+        "testStrategy": "Automated test suite with Jest and React Testing Library, visual regression with Playwright, performance profiling with Chrome DevTools, accessibility auditing with axe-core, cross-device testing on physical devices and emulators, load testing for various network conditions.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
         "subtasks": []
       }
     ],
     "metadata": {
-      "created": "2025-08-25T03:29:16.400Z",
-      "updated": "2025-08-25T20:01:46.231Z",
+      "created": "2025-08-26T22:59:04.075Z",
+      "updated": "2025-08-27T01:05:50.147Z",
       "description": "Tasks for master context"
     }
   }

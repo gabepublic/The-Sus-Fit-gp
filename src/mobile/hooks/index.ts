@@ -15,6 +15,5 @@ export type {
 // Mobile analytics hooks
 export {
   useMobileAnalytics,
-  type MobileAnalyticsEvent,
   type MobileAnalyticsHook
 } from './useMobileAnalytics'

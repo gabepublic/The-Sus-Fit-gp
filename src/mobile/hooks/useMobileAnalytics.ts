@@ -2,15 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
-
-export interface MobileAnalyticsEvent {
-  route: string;
-  timestamp: number;
-  deviceType: 'mobile' | 'tablet';
-  previousRoute?: string;
-  sessionId?: string;
-  userAgent?: string;
-}
+import { MobileAnalyticsEvent } from '../types';
 
 export interface MobileAnalyticsHook {
   trackRouteChange: (event: Omit<MobileAnalyticsEvent, 'timestamp'>) => void;
@@ -23,7 +15,7 @@ export const useMobileAnalytics = (): MobileAnalyticsHook => {
   const trackRouteChange = useCallback((event: Omit<MobileAnalyticsEvent, 'timestamp'>) => {
     const analyticsEvent: MobileAnalyticsEvent = {
       ...event,
-      timestamp: Date.now(),
+      timestamp: new Date(),
     };
 
     // Placeholder for future analytics implementation
@@ -33,7 +25,7 @@ export const useMobileAnalytics = (): MobileAnalyticsHook => {
   const trackCustomEvent = useCallback((eventName: string, data: Record<string, any>) => {
     const customEvent = {
       eventName,
-      timestamp: Date.now(),
+      timestamp: new Date(),
       route: pathname,
       ...data,
     };
@@ -51,7 +43,7 @@ export const useMobileAnalytics = (): MobileAnalyticsHook => {
       trackRouteChange({
         route: pathname,
         deviceType,
-        userAgent: navigator.userAgent,
+        action: 'page_view',
       });
     }
   }, [pathname, trackRouteChange]);
