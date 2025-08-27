@@ -453,54 +453,16 @@
   letter-spacing: -0.02em;
 }
 
-/* Text content with GIF fill and blue outline OUTSIDE */
-.home-view-content__text-content {
+
+/* Simple wrapper container */
+.home-view-content__text-mask-wrapper {
   position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
-/* Individual text lines stacked vertically */
-.home-view-content__text-line {
-  position: relative;
-  display: block;
-  line-height: 0.85;
-  margin: 0;
-
-  /* GIF shows through text INSIDE */
-  background-image: url('/images/mobile/home-page-animated.gif');
-  background-size: cover;
-  background-position: center;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* Blue outline OUTSIDE each text line using pseudo-element */
-.home-view-content__text-line::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-
-  /* Blue outline on the OUTSIDE */
-  -webkit-text-stroke: 6px #1a89a9;
-  text-stroke: 6px #1a89a9;
-  -webkit-text-fill-color: #1a89a9;
-  color: #1a89a9;
-
-  /* Additional shadow for thicker outline */
-  text-shadow: -4px -4px 0 #1a89a9, 4px -4px 0 #1a89a9, -4px 4px 0 #1a89a9,
-    4px 4px 0 #1a89a9, -6px 0 0 #1a89a9, 6px 0 0 #1a89a9, 0 -6px 0 #1a89a9,
-    0 6px 0 #1a89a9;
-}
-
-/* GIF container - hidden, used only for loading state */
-.home-view-content__gif-for-text-mask {
+/* Single background - completely hidden, only used for loading */
+.home-view-content__single-gif-background {
   position: absolute;
   top: 0;
   left: 0;
@@ -509,6 +471,69 @@
   opacity: 0;
   pointer-events: none;
   overflow: hidden;
+}
+
+/* Main text container */
+.home-view-content__text-with-gif-cutout {
+  position: relative;
+  font-family: var(--font-tertiary);
+  font-size: clamp(6rem, 25vw, 12rem);
+  font-weight: 500;
+  line-height: 0.75;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Text content container - apply single background here */
+.home-view-content__text-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  /* Single background applied to parent of all text */
+  background: url('/images/mobile/home-page-animated.gif') center center / cover no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Individual text lines - no backgrounds, just inherit */
+.home-view-content__text-line {
+  position: relative;
+  display: block;
+  line-height: 0.85;
+  margin: 0;
+  
+  /* Inherit everything from parent */
+  background: inherit;
+  color: inherit;
+  -webkit-background-clip: inherit;
+  -webkit-text-fill-color: inherit;
+}
+
+/* Blue outline behind each text line */
+.home-view-content__text-line::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+
+  /* Only stroke, no fill */
+  -webkit-text-stroke: 6px #1a89a9;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  /* Thick outline using text shadows */
+  text-shadow: 
+    -6px -6px 0 #1a89a9, 6px -6px 0 #1a89a9, -6px 6px 0 #1a89a9, 6px 6px 0 #1a89a9,
+    -6px 0 0 #1a89a9, 6px 0 0 #1a89a9, 0 -6px 0 #1a89a9, 0 6px 0 #1a89a9,
+    -4px -4px 0 #1a89a9, 4px -4px 0 #1a89a9, -4px 4px 0 #1a89a9, 4px 4px 0 #1a89a9,
+    -4px 0 0 #1a89a9, 4px 0 0 #1a89a9, 0 -4px 0 #1a89a9, 0 4px 0 #1a89a9;
 }
 
 .home-view-content__background {
