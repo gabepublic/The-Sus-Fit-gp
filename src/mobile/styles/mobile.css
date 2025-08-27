@@ -566,15 +566,44 @@
   }
 }
 
-/* Responsive adjustments */
+/* Responsive Design System for Phone-Only Breakpoints
+ * Target: 320px - 428px (mobile phones only, no tablets/desktop)
+ * Breakpoints: 428px (large), 414px (standard), 375px (small), 320px (extra small)
+ */
+/* Large phones (414px+) - iPhone Plus/Pro Max, large Android */
 @media (max-width: 428px) {
+  .home-view-content__container {
+    padding: 1.75rem 1.25rem;
+  }
+  
+  .home-view-content__masked-text {
+    font-size: clamp(2.25rem, 7.5vw, 4rem);
+    letter-spacing: 0.02em;
+  }
+  
+  .home-view-content__placeholder {
+    padding: 1.75rem;
+    border-radius: 0.875rem;
+  }
+  
+  .home-view-content__placeholder p {
+    font-size: 1.125rem;
+  }
+  
+  .home-view-content__fallback::after {
+    font-size: 2.75rem;
+  }
+}
+
+/* Standard phones (375px-414px) - iPhone 12-14, most Android */
+@media (max-width: 414px) {
   .home-view-content__container {
     padding: 1.5rem 1rem;
   }
   
   .home-view-content__masked-text {
     font-size: clamp(2rem, 7vw, 3.5rem);
-    letter-spacing: 0.01em;
+    letter-spacing: 0.015em;
   }
   
   .home-view-content__placeholder {
@@ -591,14 +620,15 @@
   }
 }
 
+/* Small phones (320px-375px) - iPhone SE, compact Android */
 @media (max-width: 375px) {
   .home-view-content__container {
-    padding: 1rem 0.75rem;
+    padding: 1.25rem 0.875rem;
   }
   
   .home-view-content__masked-text {
     font-size: clamp(1.75rem, 6.5vw, 3rem);
-    letter-spacing: 0;
+    letter-spacing: 0.01em;
   }
   
   .home-view-content__placeholder {
@@ -610,14 +640,15 @@
   }
 }
 
+/* Extra small phones (320px and below) - Older devices */
 @media (max-width: 320px) {
   .home-view-content__container {
-    padding: 1rem 0.5rem;
+    padding: 1rem 0.625rem;
   }
   
   .home-view-content__masked-text {
     font-size: clamp(1.5rem, 6vw, 2.5rem);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
   
   .home-view-content__placeholder {
@@ -634,27 +665,38 @@
   }
 }
 
-/* Mobile-specific responsive utilities */
-@media (max-width: 768px) {
-  .mobile-layout {
-    font-size: 16px;
+/* Enhanced phone-specific responsive utilities */
+/* Standard phones (375px-414px range) */
+@media (max-width: 414px) {
+  .mobile-main {
+    padding: 0.875rem;
+  }
+  
+  .animated-background__loading-spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 2.5px;
+  }
+  
+  .animated-background__error-icon {
+    font-size: 2.75rem;
+  }
+  
+  .animated-background__error-text {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small phones (320px-375px range) */
+@media (max-width: 375px) {
+  .mobile-main {
+    padding: 0.75rem;
   }
   
   .animated-background__loading-spinner {
     width: 32px;
     height: 32px;
     border-width: 2px;
-  }
-}
-
-@media (max-width: 480px) {
-  .mobile-main {
-    padding: 0.75rem;
-  }
-  
-  .mobile-menu-panel {
-    width: 100% !important;
-    max-width: 100% !important;
   }
   
   .animated-background__error-icon {
@@ -663,5 +705,26 @@
   
   .animated-background__error-text {
     font-size: 0.75rem;
+  }
+}
+
+/* Extra small phones (320px and below) */
+@media (max-width: 320px) {
+  .mobile-main {
+    padding: 0.5rem;
+  }
+  
+  .animated-background__loading-spinner {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+  }
+  
+  .animated-background__error-icon {
+    font-size: 2rem;
+  }
+  
+  .animated-background__error-text {
+    font-size: 0.6875rem;
   }
 }
