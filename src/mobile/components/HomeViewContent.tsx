@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { HomeViewContentProps } from '../types';
+import { YellowBanner } from './YellowBanner';
 
 export const HomeViewContent = React.memo<HomeViewContentProps>(function HomeViewContent({
   className,
@@ -67,65 +68,71 @@ export const HomeViewContent = React.memo<HomeViewContentProps>(function HomeVie
         aria-atomic="true"
       />
 
-      {/* Animated GIF Background */}
-      <div 
-        className="home-view-content__background"
-        role="img"
-        aria-label={gifError ? "Static background pattern" : gifLoaded ? "Animated background showcasing SusFit experience" : "Loading background content"}
-      >
-        {!gifError && (
-          <Image
-            src="/images/mobile/home-page-animated.gif"
-            alt=""
-            fill
-            priority
-            unoptimized
-            className={`home-view-content__gif ${gifLoaded ? 'loaded' : 'loading'} ${reducedMotion ? 'reduced-motion' : ''}`}
-            onLoad={() => setGifLoaded(true)}
-            onError={() => setGifError(true)}
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-            // Performance optimizations
-            sizes="100vw"
-            quality={reducedMotion ? 75 : 85}
-          />
-        )}
-        {gifError && (
-          <div 
-            className="home-view-content__fallback"
-            role="img"
-            aria-label="SusFit brand background pattern"
-          />
-        )}
-      </div>
+      {/* Layer 1: White background (automatic via CSS) */}
+      
+      {/* Layer 2: Yellow shape */}
+      <YellowBanner className="home-view-content__yellow-shape" animationDelay={animationDelay + 200} />
 
-      <div className="home-view-content__container">
-        {/* Text masking effect to reveal GIF background */}
+      {/* Layer 3: Text with GIF only visible through text cutout */}
+      <div className="home-view-content__text-mask-container">
         <section 
-          className="home-view-content__text-mask"
+          className="home-view-content__text-section"
           aria-labelledby="main-headline"
         >
           <h1 
             id="main-headline"
-            className="home-view-content__masked-text"
+            className="home-view-content__text-with-gif-cutout"
             aria-label="Let's Get You Fitted - Welcome to SusFit"
           >
-            <span aria-hidden="true">Let's Get You Fitted</span>
+            {/* Hidden GIF container for masking */}
+            <div className="home-view-content__gif-for-text-mask">
+              {!gifError && (
+                <Image
+                  src="/images/mobile/home-page-animated.gif"
+                  alt=""
+                  fill
+                  priority
+                  unoptimized
+                  className={`home-view-content__gif ${gifLoaded ? 'loaded' : 'loading'} ${reducedMotion ? 'reduced-motion' : ''}`}
+                  onLoad={() => setGifLoaded(true)}
+                  onError={() => setGifError(true)}
+                  style={{
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
+                  sizes="100vw"
+                  quality={reducedMotion ? 75 : 85}
+                />
+              )}
+              {gifError && (
+                <div 
+                  className="home-view-content__fallback"
+                  role="img"
+                  aria-label="SusFit brand background pattern"
+                />
+              )}
+            </div>
+            
+            {/* Text content */}
+            <span className="home-view-content__text-content" aria-hidden="true">
+              <span className="home-view-content__text-line" data-text="Let's">Let's</span>
+              <span className="home-view-content__text-line" data-text="Get">Get</span>
+              <span className="home-view-content__text-line" data-text="You">You</span>
+              <span className="home-view-content__text-line" data-text="Fitted">Fitted</span>
+            </span>
             <span className="sr-only">Let's Get You Fitted - Welcome to SusFit, your personal fitting experience</span>
           </h1>
         </section>
-
-        {/* Skip link for keyboard navigation */}
-        <a 
-          href="#main-content" 
-          className="skip-link"
-          tabIndex={0}
-        >
-          Skip to main content
-        </a>
       </div>
+
+      {/* Skip link for keyboard navigation */}
+      <a 
+        href="#main-content" 
+        className="skip-link"
+        tabIndex={0}
+      >
+        Skip to main content
+      </a>
 
       {/* Performance monitoring marker */}
       <div 

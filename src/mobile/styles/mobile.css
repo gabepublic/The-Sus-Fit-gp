@@ -4,6 +4,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Keep the original background as it was */
+  background: white;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 .mobile-header {
@@ -15,6 +20,9 @@
 .mobile-main {
   flex: 1;
   padding: 1rem;
+  /* Ensure no black background or borders */
+  background: transparent;
+  border: none;
 }
 
 /* Mobile Menu Animation Styles */
@@ -74,25 +82,25 @@
 
 .yellow-banner__shape {
   position: relative;
-  width: 90%;
-  height: 90%;
+  width: 85%;
+  height: 75%;
   background: var(--color-susfit-yellow);
-  /* Organic blob shape using CSS clip-path */
+  /* Organic blob shape matching reference - wider and more rounded */
   clip-path: polygon(
-    20% 10%,
-    40% 8%,
-    60% 12%,
-    80% 20%,
-    90% 35%,
-    95% 55%,
-    88% 75%,
-    75% 85%,
-    55% 90%,
-    35% 88%,
-    15% 78%,
+    15% 25%,
+    30% 15%,
+    50% 12%,
+    70% 15%,
+    85% 25%,
+    92% 40%,
+    90% 60%,
+    85% 75%,
+    70% 85%,
+    50% 88%,
+    30% 85%,
+    15% 75%,
     8% 60%,
-    12% 40%,
-    15% 25%
+    10% 40%
   );
   /* Shadow effects for depth */
   filter: drop-shadow(4px 8px 12px rgba(0, 0, 0, 0.15));
@@ -178,26 +186,26 @@
     height: 65vh;
     padding: 1.5rem 0.5rem;
   }
-  
+
   .yellow-banner__shape {
-    width: 95%;
-    height: 95%;
-    /* Adjusted organic shape for mobile */
+    width: 90%;
+    height: 70%;
+    /* Adjusted organic shape for mobile - wider and flatter */
     clip-path: polygon(
-      18% 12%,
-      38% 10%,
-      62% 14%,
-      82% 22%,
-      92% 38%,
-      96% 58%,
-      86% 78%,
-      72% 88%,
-      52% 92%,
-      32% 86%,
-      14% 76%,
-      6% 56%,
-      10% 36%,
-      14% 22%
+      12% 30%,
+      28% 18%,
+      48% 15%,
+      72% 18%,
+      88% 30%,
+      94% 45%,
+      92% 65%,
+      88% 80%,
+      72% 90%,
+      48% 92%,
+      28% 90%,
+      12% 80%,
+      6% 65%,
+      8% 45%
     );
   }
 }
@@ -206,7 +214,7 @@
   .yellow-banner {
     height: 60vh;
   }
-  
+
   .yellow-banner__content {
     width: 85%;
     height: 85%;
@@ -218,24 +226,22 @@
     height: 55vh;
     padding: 1rem 0.25rem;
   }
-  
+
   .yellow-banner__shape {
     /* Even more compact shape for smallest screens */
     clip-path: polygon(
-      15% 15%,
-      35% 12%,
-      65% 16%,
-      85% 25%,
-      94% 40%,
-      90% 60%,
-      80% 80%,
-      65% 88%,
-      45% 85%,
-      25% 78%,
-      10% 65%,
-      8% 45%,
-      12% 30%,
-      15% 20%
+      10% 35%,
+      25% 22%,
+      45% 18%,
+      75% 22%,
+      90% 35%,
+      95% 50%,
+      90% 70%,
+      75% 85%,
+      45% 88%,
+      25% 85%,
+      10% 70%,
+      5% 50%
     );
   }
 }
@@ -351,7 +357,8 @@
 
 /* Animation keyframes */
 @keyframes gradientShift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -373,17 +380,17 @@
   .animated-background__image--animated {
     filter: none;
   }
-  
+
   .animated-background__loading {
     animation: none;
     background: var(--color-susfit-cream);
   }
-  
+
   .animated-background__loading-spinner {
     animation: none;
     opacity: 0.5;
   }
-  
+
   .animated-background__image {
     transition: none;
   }
@@ -393,7 +400,113 @@
 .home-view-content {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
+  background: white; /* Layer 1: White background */
+  /* Remove any potential margins/padding that could cause black bars */
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+}
+
+/* Layer 2: Yellow shape positioned behind text */
+.home-view-content__yellow-shape {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Layer 3: Text mask container */
+.home-view-content__text-mask-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.home-view-content__text-section {
+  position: relative;
+  text-align: center;
+  opacity: 0;
+  animation: textMaskFadeIn 1.2s ease-out 0.3s forwards;
+}
+
+.home-view-content__text-with-gif-cutout {
+  position: relative;
+  font-family: var(--font-tertiary);
+  font-size: clamp(6rem, 25vw, 12rem);
+  font-weight: 900;
+  line-height: 0.75;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Text content with GIF fill and blue outline OUTSIDE */
+.home-view-content__text-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Individual text lines stacked vertically */
+.home-view-content__text-line {
+  position: relative;
+  display: block;
+  line-height: 0.85;
+  margin: 0;
+
+  /* GIF shows through text INSIDE */
+  background-image: url('/images/mobile/home-page-animated.gif');
+  background-size: cover;
+  background-position: center;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Blue outline OUTSIDE each text line using pseudo-element */
+.home-view-content__text-line::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+
+  /* Blue outline on the OUTSIDE */
+  -webkit-text-stroke: 6px #1a89a9;
+  text-stroke: 6px #1a89a9;
+  -webkit-text-fill-color: #1a89a9;
+  color: #1a89a9;
+
+  /* Additional shadow for thicker outline */
+  text-shadow: -4px -4px 0 #1a89a9, 4px -4px 0 #1a89a9, -4px 4px 0 #1a89a9,
+    4px 4px 0 #1a89a9, -6px 0 0 #1a89a9, 6px 0 0 #1a89a9, 0 -6px 0 #1a89a9,
+    0 6px 0 #1a89a9;
+}
+
+/* GIF container - hidden, used only for loading state */
+.home-view-content__gif-for-text-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
   overflow: hidden;
 }
 
@@ -437,7 +550,7 @@
 }
 
 .home-view-content__fallback::after {
-  content: "🎬";
+  content: '🎬';
   font-size: 3rem;
   opacity: 0.3;
   filter: grayscale(100%);
@@ -470,21 +583,21 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  
+
   /* Text masking effect - reveal GIF through text */
   background: url('/images/mobile/home-page-animated.gif') center/cover;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  
+
   /* Hardware acceleration */
   transform: translateZ(0);
   will-change: transform, opacity;
-  
+
   /* Enhanced text shadows for better contrast */
   text-shadow: none;
-  
+
   /* Fallback for browsers without mask support */
   position: relative;
 }
@@ -514,7 +627,7 @@
     border-radius: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
-  
+
   .home-view-content__masked-text::before {
     opacity: 1;
   }
@@ -555,8 +668,8 @@
 
 /* Skip link for keyboard navigation */
 .skip-link {
-  position: absolute;
-  top: -40px;
+  position: fixed;
+  top: -50px;
   left: 6px;
   background: var(--color-susfit-black);
   color: var(--color-susfit-yellow);
@@ -565,7 +678,7 @@
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.875rem;
-  z-index: 1000;
+  z-index: 10000;
   transition: top 0.2s ease-in-out;
 }
 
@@ -596,12 +709,12 @@
   .home-view-content__masked-text {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   }
-  
+
   .home-view-content__fallback {
     background: var(--color-susfit-black);
     color: var(--color-susfit-yellow);
   }
-  
+
   .skip-link {
     border: 2px solid var(--color-susfit-yellow);
     box-shadow: 0 0 0 2px var(--color-susfit-black);
@@ -665,27 +778,27 @@
     transition: none;
     animation-play-state: paused !important;
   }
-  
+
   .home-view-content__text-mask {
     animation: none;
     opacity: 1;
     transform: translateY(0);
   }
-  
+
   .home-view-content__masked-text {
     will-change: auto;
     transform: none;
   }
-  
+
   .home-view-content__fallback {
     background: var(--color-susfit-cream);
   }
-  
+
   .home-view-content__placeholder {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
-  
+
   /* Ensure skip link is always accessible */
   .skip-link {
     transition: none;
@@ -701,21 +814,21 @@
   .home-view-content__container {
     padding: 1.75rem 1.25rem;
   }
-  
+
   .home-view-content__masked-text {
     font-size: clamp(2.25rem, 7.5vw, 4rem);
     letter-spacing: 0.02em;
   }
-  
+
   .home-view-content__placeholder {
     padding: 1.75rem;
     border-radius: 0.875rem;
   }
-  
+
   .home-view-content__placeholder p {
     font-size: 1.125rem;
   }
-  
+
   .home-view-content__fallback::after {
     font-size: 2.75rem;
   }
@@ -726,21 +839,21 @@
   .home-view-content__container {
     padding: 1.5rem 1rem;
   }
-  
+
   .home-view-content__masked-text {
     font-size: clamp(2rem, 7vw, 3.5rem);
     letter-spacing: 0.015em;
   }
-  
+
   .home-view-content__placeholder {
     padding: 1.5rem;
     border-radius: 0.75rem;
   }
-  
+
   .home-view-content__placeholder p {
     font-size: 1rem;
   }
-  
+
   .home-view-content__fallback::after {
     font-size: 2.5rem;
   }
@@ -751,16 +864,16 @@
   .home-view-content__container {
     padding: 1.25rem 0.875rem;
   }
-  
+
   .home-view-content__masked-text {
     font-size: clamp(1.75rem, 6.5vw, 3rem);
     letter-spacing: 0.01em;
   }
-  
+
   .home-view-content__placeholder {
     padding: 1.25rem;
   }
-  
+
   .home-view-content__placeholder p {
     font-size: 0.9375rem;
   }
@@ -771,21 +884,21 @@
   .home-view-content__container {
     padding: 1rem 0.625rem;
   }
-  
+
   .home-view-content__masked-text {
     font-size: clamp(1.5rem, 6vw, 2.5rem);
     letter-spacing: 0;
   }
-  
+
   .home-view-content__placeholder {
     padding: 1rem;
     border-radius: 0.5rem;
   }
-  
+
   .home-view-content__placeholder p {
     font-size: 0.875rem;
   }
-  
+
   .home-view-content__fallback::after {
     font-size: 2rem;
   }
@@ -794,12 +907,11 @@
 /* Mobile Home Page Integration Styles */
 .mobile-home-page {
   position: relative;
-  width: 100%;
-  height: 100vh;
+  height: calc(100vh - 4rem); /* Account for header height */
   overflow: hidden;
-  /* Remove mobile-main padding for home page to use full viewport */
+  /* Remove mobile-main padding for home page to use full available space */
   margin: -1rem;
-  margin-top: -4rem; /* Offset the pt-16 from mobile-main */
+  margin-top: 0; /* Don't override header space */
 }
 
 .home-view-integrated {
@@ -919,7 +1031,7 @@
     animation: none;
     opacity: 0.6;
   }
-  
+
   .home-view-loading {
     background: var(--color-susfit-cream);
   }
@@ -931,17 +1043,17 @@
   .mobile-main {
     padding: 0.875rem;
   }
-  
+
   .animated-background__loading-spinner {
     width: 36px;
     height: 36px;
     border-width: 2.5px;
   }
-  
+
   .animated-background__error-icon {
     font-size: 2.75rem;
   }
-  
+
   .animated-background__error-text {
     font-size: 0.8125rem;
   }
@@ -952,17 +1064,17 @@
   .mobile-main {
     padding: 0.75rem;
   }
-  
+
   .animated-background__loading-spinner {
     width: 32px;
     height: 32px;
     border-width: 2px;
   }
-  
+
   .animated-background__error-icon {
     font-size: 2.5rem;
   }
-  
+
   .animated-background__error-text {
     font-size: 0.75rem;
   }
@@ -973,17 +1085,17 @@
   .mobile-main {
     padding: 0.5rem;
   }
-  
+
   .animated-background__loading-spinner {
     width: 28px;
     height: 28px;
     border-width: 2px;
   }
-  
+
   .animated-background__error-icon {
     font-size: 2rem;
   }
-  
+
   .animated-background__error-text {
     font-size: 0.6875rem;
   }

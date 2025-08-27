@@ -5,22 +5,26 @@ describe('HomeViewContent', () => {
   describe('Rendering', () => {
     it('renders the component without errors', () => {
       render(<HomeViewContent />)
-      const container = screen.getByText('Home View Content - Ready for implementation')
+      const container = screen.getByText('Let\'s Get You Fitted')
       expect(container).toBeInTheDocument()
     })
 
     it('renders with correct base structure', () => {
       const { container } = render(<HomeViewContent />)
-      const rootDiv = container.firstElementChild
+      const rootElement = container.firstElementChild
       
-      expect(rootDiv).toHaveClass('home-view-content')
-      expect(rootDiv?.firstElementChild).toHaveClass('home-view-content__container')
+      expect(rootElement).toHaveAttribute('role', 'main')
+      expect(rootElement).toHaveClass('home-view-content')
+      expect(rootElement).toHaveAttribute('aria-label', 'SusFit Homepage')
     })
 
-    it('renders placeholder content correctly', () => {
+    it('renders main content correctly', () => {
       render(<HomeViewContent />)
-      const placeholder = screen.getByText('Home View Content - Ready for implementation')
-      expect(placeholder).toBeInTheDocument()
+      const mainHeading = screen.getByText('Let\'s Get You Fitted')
+      expect(mainHeading).toBeInTheDocument()
+      
+      const headingElement = screen.getByRole('heading', { level: 1 })
+      expect(headingElement).toBeInTheDocument()
     })
   })
 
@@ -103,35 +107,49 @@ describe('HomeViewContent', () => {
     it('has correct nested structure', () => {
       const { container } = render(<HomeViewContent />)
       
-      // Check the DOM hierarchy
-      const rootDiv = container.firstElementChild
-      const containerDiv = rootDiv?.firstElementChild
-      const placeholderDiv = containerDiv?.firstElementChild
+      // Check the main structure
+      const mainElement = container.querySelector('main')
+      const backgroundDiv = container.querySelector('.home-view-content__background')
+      const containerDiv = container.querySelector('.home-view-content__container')
+      const textMask = container.querySelector('.home-view-content__text-mask')
       
-      expect(rootDiv).toHaveClass('home-view-content')
-      expect(containerDiv).toHaveClass('home-view-content__container')
-      expect(placeholderDiv).toHaveClass('home-view-content__placeholder')
+      expect(mainElement).toHaveClass('home-view-content')
+      expect(backgroundDiv).toBeInTheDocument()
+      expect(containerDiv).toBeInTheDocument()
+      expect(textMask).toBeInTheDocument()
     })
 
-    it('maintains semantic structure for future content', () => {
+    it('maintains semantic structure for content', () => {
       const { container } = render(<HomeViewContent />)
-      const containerDiv = container.querySelector('.home-view-content__container')
-      const placeholderDiv = container.querySelector('.home-view-content__placeholder')
+      const mainElement = container.querySelector('main')
+      const section = container.querySelector('section')
+      const heading = container.querySelector('h1')
       
-      expect(containerDiv).toBeInTheDocument()
-      expect(placeholderDiv).toBeInTheDocument()
-      expect(placeholderDiv?.tagName).toBe('DIV')
+      expect(mainElement).toHaveAttribute('role', 'main')
+      expect(section).toHaveAttribute('aria-labelledby', 'main-headline')
+      expect(heading).toHaveAttribute('id', 'main-headline')
     })
   })
 
   describe('Accessibility', () => {
     it('renders content that is accessible to screen readers', () => {
       render(<HomeViewContent />)
-      const content = screen.getByText('Home View Content - Ready for implementation')
       
-      // Content should be visible and accessible
-      expect(content).toBeInTheDocument()
-      expect(content).toBeVisible()
+      // Check for proper semantic structure
+      const mainHeading = screen.getByRole('heading', { level: 1 })
+      expect(mainHeading).toBeInTheDocument()
+      
+      // Check for main landmark
+      const mainLandmark = screen.getByRole('main')
+      expect(mainLandmark).toBeInTheDocument()
+      
+      // Check for text content that would be read by screen readers
+      const headingText = screen.getByText('Let\'s Get You Fitted')
+      expect(headingText).toBeInTheDocument()
+      expect(headingText).toBeVisible()
+      
+      // Check aria-label
+      expect(mainLandmark).toHaveAttribute('aria-label', 'SusFit Homepage')
     })
   })
 

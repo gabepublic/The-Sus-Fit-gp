@@ -24,7 +24,7 @@ function HomeViewLoading() {
 }
 
 // Error boundary component
-function HomeViewError() {
+function _HomeViewError() {
   return (
     <div className="home-view-error" role="alert">
       <h1>Welcome to SusFit</h1>
