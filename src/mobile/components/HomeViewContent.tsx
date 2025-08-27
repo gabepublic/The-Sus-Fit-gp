@@ -42,9 +42,11 @@ export const HomeViewContent = React.memo<HomeViewContentProps>(function HomeVie
       </div>
 
       <div className="home-view-content__container">
-        {/* Main content will be added in subsequent tasks */}
-        <div className="home-view-content__placeholder">
-          <p>Home View Content - Ready for implementation</p>
+        {/* Text masking effect to reveal GIF background */}
+        <div className="home-view-content__text-mask">
+          <h1 className="home-view-content__masked-text">
+            Let's Get You Fitted
+          </h1>
         </div>
       </div>
     </div>

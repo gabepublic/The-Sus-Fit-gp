@@ -157,6 +157,21 @@
   }
 }
 
+@keyframes textMaskFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Responsive adjustments for banner */
 @media (max-width: 428px) {
   .yellow-banner {
@@ -439,6 +454,72 @@
   padding: 2rem 1rem;
 }
 
+.home-view-content__text-mask {
+  position: relative;
+  text-align: center;
+  opacity: 0;
+  animation: textMaskFadeIn 1.2s ease-out 0.3s forwards;
+  transform: translateY(20px);
+}
+
+.home-view-content__masked-text {
+  font-family: var(--font-tertiary);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  
+  /* Text masking effect - reveal GIF through text */
+  background: url('/images/mobile/home-page-animated.gif') center/cover;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  
+  /* Enhanced text shadows for better contrast */
+  text-shadow: none;
+  
+  /* Fallback for browsers without mask support */
+  position: relative;
+}
+
+/* Fallback for browsers that don't support background-clip: text */
+.home-view-content__masked-text::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-susfit-black);
+  color: var(--color-susfit-yellow);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show fallback when background-clip is not supported */
+@supports not (background-clip: text) {
+  .home-view-content__masked-text {
+    color: var(--color-susfit-yellow);
+    -webkit-text-fill-color: var(--color-susfit-yellow);
+    background: var(--color-susfit-black);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .home-view-content__masked-text::before {
+    opacity: 1;
+  }
+}
+
 .home-view-content__placeholder {
   background: rgba(255, 255, 255, 0.9);
   padding: 2rem;
@@ -464,6 +545,17 @@
     animation-play-state: paused !important;
   }
   
+  .home-view-content__text-mask {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .home-view-content__masked-text {
+    will-change: auto;
+    transform: none;
+  }
+  
   .home-view-content__fallback {
     background: var(--color-susfit-cream);
   }
@@ -478,6 +570,11 @@
 @media (max-width: 428px) {
   .home-view-content__container {
     padding: 1.5rem 1rem;
+  }
+  
+  .home-view-content__masked-text {
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    letter-spacing: 0.01em;
   }
   
   .home-view-content__placeholder {
@@ -499,6 +596,11 @@
     padding: 1rem 0.75rem;
   }
   
+  .home-view-content__masked-text {
+    font-size: clamp(1.75rem, 6.5vw, 3rem);
+    letter-spacing: 0;
+  }
+  
   .home-view-content__placeholder {
     padding: 1.25rem;
   }
@@ -511,6 +613,11 @@
 @media (max-width: 320px) {
   .home-view-content__container {
     padding: 1rem 0.5rem;
+  }
+  
+  .home-view-content__masked-text {
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    letter-spacing: -0.01em;
   }
   
   .home-view-content__placeholder {
