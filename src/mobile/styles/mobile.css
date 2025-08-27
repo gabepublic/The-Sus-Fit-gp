@@ -538,6 +538,127 @@
   font-weight: 600;
 }
 
+/* Accessibility and Performance Optimizations */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-susfit-black);
+  color: var(--color-susfit-yellow);
+  padding: 8px 12px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  z-index: 1000;
+  transition: top 0.2s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 6px;
+  outline: 2px solid var(--color-susfit-yellow);
+  outline-offset: 2px;
+}
+
+/* Performance monitoring (hidden) */
+.performance-marker {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Enhanced reduced motion support */
+.home-view-content__gif.reduced-motion {
+  animation-play-state: paused !important;
+  filter: contrast(0.9) brightness(1.1);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .home-view-content__masked-text {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  
+  .home-view-content__fallback {
+    background: var(--color-susfit-black);
+    color: var(--color-susfit-yellow);
+  }
+  
+  .skip-link {
+    border: 2px solid var(--color-susfit-yellow);
+    box-shadow: 0 0 0 2px var(--color-susfit-black);
+  }
+}
+
+/* Focus management for better keyboard navigation */
+.home-view-content:focus-within .home-view-content__masked-text {
+  outline: 2px solid var(--color-susfit-yellow);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* Touch target optimization (44px minimum) */
+.skip-link {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Performance optimizations */
+.home-view-content {
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Optimize painting */
+  will-change: auto;
+}
+
+.home-view-content__gif {
+  /* GPU acceleration for smooth animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Optimize for animations */
+  will-change: opacity, transform;
+}
+
+.home-view-content__masked-text {
+  /* Optimize text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* GPU layers for text masking */
+  transform: translateZ(0);
+}
+
+/* Prevent layout shifts */
+.home-view-content__background {
+  contain: layout style paint;
+}
+
+.home-view-content__container {
+  contain: layout style;
+}
+
 /* Accessibility: Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .home-view-content__gif {
@@ -563,6 +684,11 @@
   .home-view-content__placeholder {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+  
+  /* Ensure skip link is always accessible */
+  .skip-link {
+    transition: none;
   }
 }
 
