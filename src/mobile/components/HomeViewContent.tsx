@@ -83,79 +83,60 @@ export const HomeViewContent = React.memo<HomeViewContentProps>(
             className='home-view-content__text-section'
             aria-labelledby='main-headline'
           >
-            <div className='home-view-content__text-mask-wrapper'>
-              {/* Single background image that will be masked */}
-              <div className='home-view-content__single-gif-background'>
-                {!gifError && (
-                  <Image
-                    src='/images/mobile/home-page-animated.gif'
-                    alt=''
-                    fill
-                    priority
-                    unoptimized
-                    className={`home-view-content__gif ${
-                      gifLoaded ? 'loaded' : 'loading'
-                    } ${reducedMotion ? 'reduced-motion' : ''}`}
-                    onLoad={() => setGifLoaded(true)}
-                    onError={() => setGifError(true)}
-                    style={{
-                      objectFit: 'cover',
-                      objectPosition: 'center'
-                    }}
-                    sizes='100vw'
-                    quality={reducedMotion ? 75 : 85}
-                  />
-                )}
-                {gifError && (
-                  <div
-                    className='home-view-content__fallback'
-                    role='img'
-                    aria-label='SusFit brand background pattern'
-                  />
-                )}
-              </div>
+            {/* Hidden image for loading state only */}
+            <div className='home-view-content__hidden-gif'>
+              {!gifError && (
+                <Image
+                  src='/images/mobile/home-page-animated.gif'
+                  alt=''
+                  fill
+                  priority
+                  unoptimized
+                  className={`home-view-content__gif ${
+                    gifLoaded ? 'loaded' : 'loading'
+                  } ${reducedMotion ? 'reduced-motion' : ''}`}
+                  onLoad={() => setGifLoaded(true)}
+                  onError={() => setGifError(true)}
+                  style={{
+                    objectFit: 'cover',
+                    objectPosition: 'center'
+                  }}
+                  sizes='100vw'
+                  quality={reducedMotion ? 75 : 85}
+                />
+              )}
+            </div>
 
+            {/* Text with blue stroke background layer */}
+            <div className='home-view-content__text-stroke-layer'>
               <h1
                 id='main-headline'
-                className='home-view-content__text-with-gif-cutout'
                 aria-label="Let's Get You Fitted - Welcome to SusFit"
               >
-                {/* Text content that creates the mask */}
-                <span
-                  className='home-view-content__text-content'
-                  aria-hidden='true'
-                >
-                  <span
-                    className='home-view-content__text-line splash-title-line1'
-                    data-text="Let's"
-                  >
-                    Let's
-                  </span>
-                  <span
-                    className='home-view-content__text-line splash-title-line2'
-                    data-text='Get'
-                  >
-                    Get
-                  </span>
-                  <span
-                    className='home-view-content__text-line splash-title-line3'
-                    data-text='You'
-                  >
-                    You
-                  </span>
-                  <span
-                    className='home-view-content__text-line'
-                    data-text='Fitted'
-                  >
-                    Fitted
-                  </span>
-                </span>
-                <span className='sr-only'>
-                  Let's Get You Fitted - Welcome to SusFit, your personal fitting
-                  experience
-                </span>
+                <div className='splash-title-line1'>Let's</div>
+                <div className='splash-title-line2'>Get</div>
+                <div className='splash-title-line3'>You</div>
+                <div>Fitted</div>
               </h1>
             </div>
+
+            {/* Text with GIF background layer - exactly like masking.html */}
+            <div className='home-view-content__animated-gif-text'>
+              <h1
+                id='main-headline-gif'
+                aria-hidden='true'
+              >
+                <div className='splash-title-line1'>Let's</div>
+                <div className='splash-title-line2'>Get</div>
+                <div className='splash-title-line3'>You</div>
+                <div>Fitted</div>
+              </h1>
+            </div>
+
+            <span className='sr-only'>
+              Let's Get You Fitted - Welcome to SusFit, your personal fitting
+              experience
+            </span>
           </section>
         </div>
 

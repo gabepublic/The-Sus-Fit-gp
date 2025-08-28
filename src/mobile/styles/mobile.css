@@ -445,7 +445,7 @@
 .home-view-content__text-with-gif-cutout {
   position: relative;
   font-family: var(--font-tertiary);
-  font-size: clamp(6rem, 25vw, 12rem);
+  font-size: clamp(6rem, 2vw, 12rem);
   font-weight: 500;
   line-height: 0.75;
   margin: 0;
@@ -453,16 +453,8 @@
   letter-spacing: -0.02em;
 }
 
-
-/* Simple wrapper container */
-.home-view-content__text-mask-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/* Single background - completely hidden, only used for loading */
-.home-view-content__single-gif-background {
+/* Hidden GIF for loading state only */
+.home-view-content__hidden-gif {
   position: absolute;
   top: 0;
   left: 0;
@@ -473,9 +465,56 @@
   overflow: hidden;
 }
 
-/* Main text container */
-.home-view-content__text-with-gif-cutout {
-  position: relative;
+/* Blue stroke text layer - positioned behind GIF text */
+.home-view-content__text-stroke-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 0rem;
+}
+
+.home-view-content__text-stroke-layer h1 {
+  font-family: var(--font-tertiary);
+  font-size: clamp(4rem, 25vw, 10rem);
+  font-weight: 500;
+  line-height: 0.75;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-align: center;
+
+  /* Blue stroke only */
+  -webkit-text-stroke-width: 4px;
+  -webkit-text-stroke-color: #1a89a9;
+  color: transparent;
+}
+
+.home-view-content__text-stroke-layer div {
+  display: block;
+  line-height: 1.5;
+}
+
+/* GIF text layer - exactly like masking.html */
+.home-view-content__animated-gif-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 0rem;
+}
+
+.home-view-content__animated-gif-text h1 {
   font-family: var(--font-tertiary);
   font-size: clamp(6rem, 25vw, 12rem);
   font-weight: 500;
@@ -483,57 +522,21 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-}
+  text-align: center;
 
-/* Text content container - apply single background here */
-.home-view-content__text-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  /* Single background applied to parent of all text */
-  background: url('/images/mobile/home-page-animated.gif') center center / cover no-repeat;
+  /* Exactly like masking.html */
+  background-image: url('/images/mobile/home-page-animated.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
   color: transparent;
 }
 
-/* Individual text lines - no backgrounds, just inherit */
-.home-view-content__text-line {
-  position: relative;
+.home-view-content__animated-gif-text div {
   display: block;
-  line-height: 0.85;
-  margin: 0;
-  
-  /* Inherit everything from parent */
-  background: inherit;
-  color: inherit;
-  -webkit-background-clip: inherit;
-  -webkit-text-fill-color: inherit;
-}
-
-/* Blue outline behind each text line */
-.home-view-content__text-line::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-
-  /* Only stroke, no fill */
-  -webkit-text-stroke: 6px #1a89a9;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-
-  /* Thick outline using text shadows */
-  text-shadow: 
-    -6px -6px 0 #1a89a9, 6px -6px 0 #1a89a9, -6px 6px 0 #1a89a9, 6px 6px 0 #1a89a9,
-    -6px 0 0 #1a89a9, 6px 0 0 #1a89a9, 0 -6px 0 #1a89a9, 0 6px 0 #1a89a9,
-    -4px -4px 0 #1a89a9, 4px -4px 0 #1a89a9, -4px 4px 0 #1a89a9, 4px 4px 0 #1a89a9,
-    -4px 0 0 #1a89a9, 4px 0 0 #1a89a9, 0 -4px 0 #1a89a9, 0 4px 0 #1a89a9;
+  line-height: 1.5;
 }
 
 .home-view-content__background {
@@ -1125,13 +1128,4 @@
   .animated-background__error-text {
     font-size: 0.6875rem;
   }
-}
-
-.splash-title-line1 {
-  font-size: 9.1rem;
-}
-
-.splash-title-line2,
-.splash-title-line3 {
-  font-size: 12.1rem;
 }

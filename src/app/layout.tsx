@@ -22,22 +22,23 @@ const fascinateSans= Fascinate({
   subsets: ["latin"],
 });
 
-const modakFont = localFont({
-  src: [
-    {
-      path: "../../public/fonts/Modak-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/Modak-Regular.woff",
-      weight: "400",
-      style: "normal",
-    }
-  ],
-  variable: "--font-modak",
-  display: "swap",
-});
+// Temporarily removing Modak font due to loading issues
+// const modakFont = localFont({
+//   src: [
+//     {
+//       path: "./fonts/Modak-Regular.woff2",
+//       weight: "400",
+//       style: "normal",
+//     },
+//     {
+//       path: "./fonts/Modak-Regular.woff",
+//       weight: "400",
+//       style: "normal",
+//     }
+//   ],
+//   variable: "--font-modak",
+//   display: "swap",
+// });
 
 export const metadata: Metadata = {
   title: "The Sus Fit",
@@ -52,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserratAlternatesSans.variable} ${nablaSans.variable} ${fascinateSans.variable} ${modakFont.variable} antialiased`}
+        className={`${montserratAlternatesSans.variable} ${nablaSans.variable} ${fascinateSans.variable} antialiased`}
       >
         <ErrorBoundary>
           <ReactQueryProvider>
