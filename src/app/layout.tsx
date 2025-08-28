@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import {Montserrat_Alternates, Nabla, Fascinate} from "next/font/google";
-import localFont from "next/font/local";
+import {Montserrat_Alternates, Nabla, Fascinate, Modak} from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ToastProvider";
 import { ReactQueryProvider, FeatureFlagProvider, ErrorBoundary } from "@/business-layer";
@@ -22,23 +21,11 @@ const fascinateSans= Fascinate({
   subsets: ["latin"],
 });
 
-// Temporarily removing Modak font due to loading issues
-// const modakFont = localFont({
-//   src: [
-//     {
-//       path: "./fonts/Modak-Regular.woff2",
-//       weight: "400",
-//       style: "normal",
-//     },
-//     {
-//       path: "./fonts/Modak-Regular.woff",
-//       weight: "400",
-//       style: "normal",
-//     }
-//   ],
-//   variable: "--font-modak",
-//   display: "swap",
-// });
+const modakFont = Modak({
+  variable: "--font-modak",
+  weight: "400",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "The Sus Fit",
@@ -53,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserratAlternatesSans.variable} ${nablaSans.variable} ${fascinateSans.variable} antialiased`}
+        className={`${montserratAlternatesSans.variable} ${nablaSans.variable} ${fascinateSans.variable} ${modakFont.variable} antialiased`}
       >
         <ErrorBoundary>
           <ReactQueryProvider>
