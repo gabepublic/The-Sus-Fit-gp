@@ -5,8 +5,10 @@ describe('HomeViewContent', () => {
   describe('Rendering', () => {
     it('renders the component without errors', () => {
       render(<HomeViewContent />)
-      const container = screen.getByText('Let\'s Get You Fitted')
-      expect(container).toBeInTheDocument()
+      // Check for the first line of text - there are 2 instances due to text layering
+      const letsParts = screen.getAllByText('Let\'s')
+      expect(letsParts).toHaveLength(2)
+      expect(letsParts[0]).toBeInTheDocument()
     })
 
     it('renders with correct base structure', () => {
@@ -20,8 +22,15 @@ describe('HomeViewContent', () => {
 
     it('renders main content correctly', () => {
       render(<HomeViewContent />)
-      const mainHeading = screen.getByText('Let\'s Get You Fitted')
-      expect(mainHeading).toBeInTheDocument()
+      // Check for individual text parts since they're in separate divs (2 layers each)
+      const letsParts = screen.getAllByText('Let\'s')
+      const getParts = screen.getAllByText('Get')
+      const youParts = screen.getAllByText('You')
+      const fittedParts = screen.getAllByText('Fitted')
+      expect(letsParts).toHaveLength(2)
+      expect(getParts).toHaveLength(2)
+      expect(youParts).toHaveLength(2)
+      expect(fittedParts).toHaveLength(2)
       
       const headingElement = screen.getByRole('heading', { level: 1 })
       expect(headingElement).toBeInTheDocument()
@@ -109,14 +118,14 @@ describe('HomeViewContent', () => {
       
       // Check the main structure
       const mainElement = container.querySelector('main')
-      const backgroundDiv = container.querySelector('.home-view-content__background')
-      const containerDiv = container.querySelector('.home-view-content__container')
-      const textMask = container.querySelector('.home-view-content__text-mask')
+      const yellowBanner = container.querySelector('.home-view-content__yellow-shape')
+      const textMaskContainer = container.querySelector('.home-view-content__text-mask-container')
+      const hiddenGif = container.querySelector('.home-view-content__hidden-gif')
       
       expect(mainElement).toHaveClass('home-view-content')
-      expect(backgroundDiv).toBeInTheDocument()
-      expect(containerDiv).toBeInTheDocument()
-      expect(textMask).toBeInTheDocument()
+      expect(yellowBanner).toBeInTheDocument()
+      expect(textMaskContainer).toBeInTheDocument()
+      expect(hiddenGif).toBeInTheDocument()
     })
 
     it('maintains semantic structure for content', () => {
@@ -144,9 +153,10 @@ describe('HomeViewContent', () => {
       expect(mainLandmark).toBeInTheDocument()
       
       // Check for text content that would be read by screen readers
-      const headingText = screen.getByText('Let\'s Get You Fitted')
-      expect(headingText).toBeInTheDocument()
-      expect(headingText).toBeVisible()
+      const letsTexts = screen.getAllByText('Let\'s')
+      expect(letsTexts).toHaveLength(2)
+      expect(letsTexts[0]).toBeInTheDocument()
+      expect(letsTexts[0]).toBeVisible()
       
       // Check aria-label
       expect(mainLandmark).toHaveAttribute('aria-label', 'SusFit Homepage')
