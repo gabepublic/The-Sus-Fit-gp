@@ -3,169 +3,695 @@
     "tasks": [
       {
         "id": 1,
-        "title": "Setup HomeViewContent Component Structure",
-        "description": "Create the foundational React component structure and TypeScript interfaces for the HomeViewContent component",
-        "details": "Create `src/mobile/components/HomeViewContent.tsx` as a functional React component with TypeScript. Define the HomeViewContentProps interface with optional className and animationDelay properties. Set up component export and basic JSX structure. Update `src/mobile/types/index.ts` to include the component interfaces. Use React.memo for optimization and implement error boundary handling for asset loading failures.",
-        "testStrategy": "Unit tests to verify component renders without errors, props are properly typed and accepted, and basic structure matches expected DOM elements. Test component isolation and proper TypeScript compilation.",
+        "title": "Setup Project Foundation and Directory Structure",
+        "description": "Create the complete isolated directory structure for UploadAngle components following the UPLOAD_ANGLE_ISOLATION_STRATEGY.md guidelines",
+        "details": "Create the complete directory structure at src/mobile/components/UploadAngle/ with all required subdirectories: containers/, components/, hooks/, utils/, types/, styles/, and __tests__/. Setup initial index files and ensure complete isolation from existing HomeView components. Configure TypeScript paths and module resolution for the isolated component system. Create package.json scripts for running isolated tests and development server if needed.",
+        "testStrategy": "Verify directory structure creation, validate TypeScript compilation without errors, ensure no import dependencies on HomeView components, and confirm isolated module resolution works correctly.",
         "priority": "high",
         "dependencies": [],
         "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 2,
-        "title": "Implement Yellow Banner Shape Design",
-        "description": "Create the distinctive curved yellow banner shape matching the reference design using CSS clip-path or SVG",
-        "details": "Analyze the reference image `docs/assets/mobile/reference-images/HomeView.png` to extract exact banner shape coordinates. Implement using CSS clip-path with organic curved edges, positioned centrally taking 60-70% of vertical space. Use SusFit yellow color token `--color-susfit-yellow: #f9b801` from existing palette. Add subtle shadow/depth effects as shown in reference. Ensure shape maintains proportions across responsive breakpoints (320px-428px). Consider SVG path as fallback for complex shapes.",
-        "testStrategy": "Visual regression testing against reference image, responsive testing across mobile breakpoints, CSS clip-path browser compatibility testing. Verify color consistency with design system tokens.",
-        "priority": "high",
-        "dependencies": [
-          1
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 3,
-        "title": "Integrate Animated GIF Asset",
-        "description": "Implement the animated GIF background with proper loading, optimization, and error handling",
-        "status": "done",
-        "dependencies": [
-          1
-        ],
-        "priority": "high",
-        "details": "Successfully integrated `public/images/mobile/home-page-animated.gif` with Next.js Image component using `unoptimized` prop for proper GIF animation. Implemented comprehensive loading state management, error handling with fallback display, accessibility support including `prefers-reduced-motion` media query, and performance optimizations with priority loading and GPU acceleration.",
-        "testStrategy": "Asset loading tests including failure scenarios, performance testing for GIF optimization, accessibility testing for motion preferences, cross-device compatibility testing for animation smoothness, loading state transition testing, error fallback verification.",
         "subtasks": [
           {
             "id": 1,
-            "title": "Implement Next.js Image Component Integration",
-            "description": "Set up Next.js Image component with proper GIF handling and unoptimized prop",
-            "status": "done",
+            "title": "Create UploadAngle Directory Structure",
+            "description": "Create the complete isolated directory structure at src/mobile/components/UploadAngle/ with all required subdirectories",
             "dependencies": [],
-            "details": "✅ Completed - Added Next.js Image component with `unoptimized` prop to properly handle GIF animation while maintaining Next.js optimization benefits for other image properties.",
-            "testStrategy": ""
+            "details": "Create the main directory src/mobile/components/UploadAngle/ and all required subdirectories: containers/, components/, hooks/, utils/, types/, styles/, and __tests__/. Each directory should have proper index.ts files for clean exports. Ensure the structure follows the isolation strategy guidelines and maintains separation from existing HomeView components.",
+            "status": "done",
+            "testStrategy": "Verify all directories are created correctly, confirm index files exist in each subdirectory, and validate directory structure matches the isolation strategy requirements"
           },
           {
             "id": 2,
-            "title": "Implement Loading State Management",
-            "description": "Create loading states with opacity transitions and smooth user experience",
+            "title": "Setup TypeScript Configuration and Path Mapping",
+            "description": "Configure TypeScript paths and module resolution for the isolated UploadAngle component system",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Update tsconfig.json to include path mapping for @/mobile/components/UploadAngle/* aliases. Configure module resolution to support the isolated component structure. Add proper type checking rules and ensure no circular dependencies. Update any existing TypeScript configuration to accommodate the new structure without breaking existing imports.",
             "status": "done",
-            "dependencies": [],
-            "details": "✅ Completed - Implemented useState hooks for loading state management with opacity transitions (0 during load, 1 when loaded) and smooth 0.5s ease-in-out transitions.",
-            "testStrategy": ""
+            "testStrategy": "Run TypeScript compiler to verify no errors, test import resolution with sample files, and confirm path aliases work correctly in VS Code IntelliSense"
           },
           {
             "id": 3,
-            "title": "Add Error Handling and Fallback",
-            "description": "Implement error handling with appropriate fallback display",
+            "title": "Create Initial Index Files and Export Structure",
+            "description": "Setup comprehensive index files with proper TypeScript exports for the UploadAngle component system",
+            "dependencies": [
+              "1.1",
+              "1.2"
+            ],
+            "details": "Create index.ts files in each subdirectory (components/, hooks/, utils/, types/, styles/) with proper TypeScript exports. Setup the main src/mobile/components/UploadAngle/index.ts file to expose the complete API surface. Implement barrel exports pattern for clean imports. Ensure proper TypeScript module declarations and export types.",
             "status": "done",
-            "dependencies": [],
-            "details": "✅ Completed - Added comprehensive error handling with fallback display featuring movie emoji and cream background for graceful degradation when GIF fails to load.",
-            "testStrategy": ""
+            "testStrategy": "Test imports from each index file, verify TypeScript compilation with no errors, and confirm all exports are accessible from the main index file"
           },
           {
             "id": 4,
-            "title": "Implement Accessibility Features",
-            "description": "Add prefers-reduced-motion support and proper accessibility attributes",
+            "title": "Configure Package.json Scripts for Isolated Development",
+            "description": "Add package.json scripts for running isolated tests and development server for UploadAngle components",
+            "dependencies": [
+              "1.1",
+              "1.2"
+            ],
+            "details": "Add scripts to package.json for isolated testing with 'test:upload-angle' using Jest with specific path patterns. Create 'dev:upload-angle' script for running Storybook or isolated development server. Add 'build:upload-angle' for component-specific builds if needed. Configure test coverage reporting specifically for the UploadAngle directory.",
             "status": "done",
-            "dependencies": [],
-            "details": "✅ Completed - Implemented `prefers-reduced-motion` media query support to pause animations for accessibility, added empty alt attribute for decorative background image, and proper focus management.",
-            "testStrategy": ""
+            "testStrategy": "Run each new script to verify they work correctly, confirm test isolation works properly, and validate development server starts without errors"
           },
           {
             "id": 5,
-            "title": "Configure Styling and Positioning",
-            "description": "Set up proper background positioning, centering, and responsive design",
+            "title": "Validate Complete Isolation and Dependency Management",
+            "description": "Verify the UploadAngle component system is completely isolated from existing HomeView components",
+            "dependencies": [
+              "1.1",
+              "1.2",
+              "1.3",
+              "1.4"
+            ],
+            "details": "Run dependency analysis to ensure no imports from HomeView or other non-isolated components. Create validation script to check import paths and detect any coupling issues. Test that the isolated system can be developed and tested independently. Verify that changes to UploadAngle components don't affect HomeView functionality.",
             "status": "done",
+            "testStrategy": "Run static analysis tools to detect unwanted dependencies, create integration tests to verify isolation, and confirm independent compilation and testing of the UploadAngle system"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Define TypeScript Types and Interfaces",
+        "description": "Create comprehensive TypeScript type definitions for upload functionality, state management, and component props",
+        "details": "Implement types/upload.types.ts with UploadState interface (status: 'idle' | 'uploading' | 'success' | 'error', file: File | null, imageUrl: string | null, error: string | null, progress: number), ImageValidationResult interface, UploadConfig interface, and component prop types. Include proper generic types for React components and hooks. Add JSDoc documentation for all interfaces. Use latest TypeScript 5.x features like satisfies operator and const assertions where appropriate.",
+        "testStrategy": "Compile TypeScript without errors, validate type safety with tsc --strict, create unit tests for type validation functions, and ensure proper IntelliSense support in VS Code.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Core Upload State Interface",
+            "description": "Define the UploadState interface with comprehensive state management properties",
             "dependencies": [],
-            "details": "✅ Completed - Configured full viewport height background positioning with z-index: -1, centered background with `object-fit: cover` and `object-position: center`, responsive design for mobile breakpoints (320px-428px).",
-            "testStrategy": ""
+            "details": "Implement the UploadState interface in types/upload.types.ts with status as union type ('idle' | 'uploading' | 'success' | 'error'), file as File | null, imageUrl as string | null, error as string | null, and progress as number (0-100). Include JSDoc documentation with @example tags showing typical usage patterns. Use TypeScript 5.x const assertions for status literals and implement proper type guards.",
+            "status": "pending",
+            "testStrategy": "Create type-only tests using TypeScript's satisfies operator, validate all possible state combinations, and ensure proper IntelliSense support in VS Code"
           },
           {
-            "id": 6,
-            "title": "Optimize Performance",
-            "description": "Implement performance optimizations for smooth animation and loading",
-            "status": "done",
+            "id": 2,
+            "title": "Define Image Validation and Configuration Types",
+            "description": "Create ImageValidationResult and UploadConfig interfaces for file validation and upload settings",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Implement ImageValidationResult interface with isValid boolean, errors string array, and file metadata properties (size, dimensions, type). Create UploadConfig interface with maxFileSize number, allowedTypes string array, maxDimensions object with width/height, and validation options. Include proper generic constraints and utility types for extensibility.",
+            "status": "pending",
+            "testStrategy": "Unit tests for validation result type guards, configuration object validation, and generic type parameter constraints"
+          },
+          {
+            "id": 3,
+            "title": "Create React Component Prop Types",
+            "description": "Define comprehensive prop types for all upload-related React components",
+            "dependencies": [
+              "2.1",
+              "2.2"
+            ],
+            "details": "Create PhotoFrameProps, UploadButtonProps, and UploadContainerProps interfaces extending appropriate React types (HTMLAttributes, ButtonHTMLAttributes). Include proper children typing with React.ReactNode, event handler types with proper generic parameters, and ref forwarding types. Use React 18+ types and implement proper component prop composition patterns.",
+            "status": "pending",
+            "testStrategy": "Component prop validation tests, React component type checking with @testing-library/react, and prop inheritance verification"
+          },
+          {
+            "id": 4,
+            "title": "Implement Hook Return Types and Generic Utilities",
+            "description": "Define return types for custom hooks and create generic utility types for upload functionality",
+            "dependencies": [
+              "2.1",
+              "2.2"
+            ],
+            "details": "Create UseUploadReturn interface for upload hook with state, actions (upload, reset, retry), and utility functions. Implement generic utility types like UploadResult<T>, ValidationFunction<T>, and ProgressCallback<T>. Include proper async/await typing for upload operations and error handling. Use TypeScript mapped types and conditional types for advanced type manipulation.",
+            "status": "pending",
+            "testStrategy": "Hook return type validation, generic type parameter testing, and async function type checking with proper error boundaries"
+          },
+          {
+            "id": 5,
+            "title": "Add JSDoc Documentation and Export Structure",
+            "description": "Complete comprehensive JSDoc documentation and organize type exports",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Add detailed JSDoc comments to all interfaces with @param, @returns, @example, and @since tags. Create comprehensive usage examples for each type. Organize exports with proper module structure using index.ts barrel exports and namespace declarations. Implement TypeScript module augmentation if needed for third-party library integration. Add @deprecated tags for any legacy type compatibility.",
+            "status": "pending",
+            "testStrategy": "Documentation completeness validation, TypeScript declaration file generation testing, and import/export structure verification across the module system"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement Core Utility Functions",
+        "description": "Create image validation, upload helpers, and constants utilities with comprehensive error handling",
+        "details": "Implement utils/imageValidation.ts with file type validation (JPEG, PNG, WebP), size limits (10MB max, 400x300 min resolution), and MIME type checking. Create utils/uploadHelpers.ts with image compression using browser-native Canvas API, blob URL management, and file processing functions. Add utils/constants.ts with configuration values. Use modern File API and ImageBitmap for optimal performance. Include proper error handling and user-friendly error messages.",
+        "testStrategy": "Unit tests for all validation functions with edge cases, test image compression with various file sizes and formats, validate error handling for corrupt/invalid files, and performance benchmarks for processing typical mobile photos.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Image Validation Utility",
+            "description": "Implement utils/imageValidation.ts with file type validation for JPEG, PNG, WebP formats, size limits (10MB max), and minimum resolution validation (400x300)",
             "dependencies": [],
-            "details": "✅ Completed - Added priority loading for above-the-fold content, implemented `will-change: opacity, transform` for GPU acceleration, and proper image optimization settings for optimal performance.",
-            "testStrategy": ""
+            "details": "Create comprehensive image validation functions including validateFileType() for MIME type checking, validateFileSize() for 10MB limit enforcement, validateImageDimensions() for minimum resolution requirements, and a master validateImage() function that orchestrates all validations. Include proper TypeScript interfaces for validation results and custom error types for different validation failures.",
+            "status": "pending",
+            "testStrategy": "Unit tests covering all supported file types, boundary testing for size limits, dimension validation with various image sizes, invalid file format handling, corrupted file detection, and comprehensive error message validation"
+          },
+          {
+            "id": 2,
+            "title": "Implement Upload Helper Functions",
+            "description": "Create utils/uploadHelpers.ts with image compression using Canvas API, blob URL management, and file processing utilities",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Implement compressImage() function using browser-native Canvas API with configurable quality settings, createBlobUrl() and revokeBlobUrl() for proper memory management, processImageFile() for coordinating validation and compression, and resizeImage() for maintaining aspect ratio. Use ImageBitmap API when available for optimal performance and include fallbacks for older browsers.",
+            "status": "pending",
+            "testStrategy": "Unit tests for compression quality and file size reduction, blob URL lifecycle management testing, memory leak detection during processing, performance benchmarks with various image sizes, and browser compatibility testing for Canvas API features"
+          },
+          {
+            "id": 3,
+            "title": "Create Constants Configuration File",
+            "description": "Implement utils/constants.ts with all configuration values, limits, and application constants",
+            "dependencies": [],
+            "details": "Define IMAGE_VALIDATION_CONSTANTS with supported file types array, size limits, dimension requirements, and quality settings. Include UPLOAD_CONFIG with compression settings, timeout values, and retry attempts. Add UI_CONSTANTS for animation durations, component sizing, and responsive breakpoints. Use const assertions and proper TypeScript typing for type safety.",
+            "status": "pending",
+            "testStrategy": "Type safety validation tests, constant value verification, integration tests ensuring constants are properly imported and used across the application, and validation that all magic numbers are replaced with named constants"
+          },
+          {
+            "id": 4,
+            "title": "Implement Comprehensive Error Handling",
+            "description": "Create robust error handling system with custom error classes and user-friendly error messages throughout all utility functions",
+            "dependencies": [
+              "3.1",
+              "3.2",
+              "3.3"
+            ],
+            "details": "Define custom error classes ImageValidationError, CompressionError, and FileProcessingError extending base Error class. Implement createUserFriendlyErrorMessage() function to convert technical errors into readable messages. Add error recovery mechanisms and logging utilities. Include error boundary integration points and proper error propagation through the utility chain.",
+            "status": "pending",
+            "testStrategy": "Error handling unit tests for all error types, user message clarity validation, error recovery flow testing, error boundary integration tests, and comprehensive error logging verification"
+          },
+          {
+            "id": 5,
+            "title": "Add Performance Optimization and Modern APIs",
+            "description": "Optimize utility functions using modern File API, ImageBitmap, and OffscreenCanvas for maximum performance",
+            "dependencies": [
+              "3.2"
+            ],
+            "details": "Implement progressive enhancement using OffscreenCanvas for background image processing when available. Add ImageBitmap usage for efficient image decoding and manipulation. Include Web Worker support for CPU-intensive operations. Implement proper cleanup mechanisms for all browser APIs and add performance monitoring hooks for tracking processing times.",
+            "status": "pending",
+            "testStrategy": "Performance benchmarks comparing Canvas vs OffscreenCanvas, memory usage profiling during image processing, Web Worker functionality testing, API feature detection validation, and cleanup verification to prevent memory leaks"
           }
         ]
       },
       {
         "id": 4,
-        "title": "Implement Text Masking Animation Effect",
-        "description": "Create the 'Let's Get You Fitted' text as a mask overlay to reveal the animated GIF background",
-        "status": "done",
+        "title": "Create Custom React Hooks",
+        "description": "Develop useAngleUpload and useImageProcessing hooks for state management and image processing",
+        "details": "Implement hooks/useAngleUpload.tsx using React 18's useCallback, useMemo, and useTransition for optimal performance. Manage upload state with useReducer for complex state transitions. Include progress tracking, error recovery, and cleanup logic. Create hooks/useImageProcessing.tsx for client-side image compression using OffscreenCanvas when available, falling back to regular Canvas. Implement proper memory management for blob URLs and avoid memory leaks.",
+        "testStrategy": "Unit tests with React Testing Library's renderHook, test all state transitions and edge cases, validate memory cleanup with React DevTools Profiler, test concurrent rendering compatibility, and ensure proper error boundaries.",
+        "priority": "high",
         "dependencies": [
-          2,
           3
         ],
-        "priority": "high",
-        "details": "✅ COMPLETED: Successfully implemented text masking animation effect with CSS `background-clip: text` and `-webkit-background-clip: text` for cross-browser support. Applied animated GIF as background texture visible through text using Fascinate font (var(--font-tertiary)). Implemented responsive font sizing using `clamp()` (2.5rem-4.5rem) with mobile-optimized breakpoints (428px, 375px, 320px). Added `textMaskFadeIn` keyframe animation with 1.2s duration, translateY and scale transforms, 0.3s delay for GIF sequence. Included hardware acceleration with `transform: translateZ(0)` and `will-change` properties. Added `@supports not (background-clip: text)` fallback with yellow text on black background. Implemented full `prefers-reduced-motion` support for accessibility with graceful animation disabling.",
-        "testStrategy": "✅ COMPLETED: Cross-browser testing verified for text masking support including fallback scenarios. Visual verification confirmed animation effect works across all target devices. Performance testing validated hardware acceleration implementation. Responsive testing confirmed font scaling and positioning works from 320px-428px breakpoints. Accessibility testing verified prefers-reduced-motion support functions correctly.",
-        "subtasks": []
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create useAngleUpload Hook Foundation",
+            "description": "Set up the basic structure for useAngleUpload hook with TypeScript interfaces and initial state management",
+            "dependencies": [],
+            "details": "Create hooks/useAngleUpload.tsx with TypeScript interfaces for upload state, error handling, and progress tracking. Define the hook's return type and initial state structure using useReducer for complex state transitions. Set up proper TypeScript types for file uploads, progress events, and error states. Include JSDoc documentation for all interfaces and the main hook function.",
+            "status": "pending",
+            "testStrategy": "Unit tests for hook initialization, TypeScript compilation validation, and initial state structure verification using React Testing Library's renderHook."
+          },
+          {
+            "id": 2,
+            "title": "Implement Upload State Management with useReducer",
+            "description": "Build the complete state management system using useReducer for handling upload lifecycle",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement reducer function to handle upload states (idle, uploading, success, error), progress updates, and file metadata. Use React 18's useTransition for non-blocking state updates. Include actions for start upload, update progress, handle success, handle error, and reset state. Ensure immutable state updates and proper error recovery mechanisms.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all reducer actions, state transition testing, error boundary integration tests, and validation of concurrent rendering compatibility."
+          },
+          {
+            "id": 3,
+            "title": "Add Progress Tracking and Error Recovery",
+            "description": "Implement comprehensive progress tracking and robust error recovery mechanisms",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Add progress tracking with percentage calculation, time estimation, and upload speed monitoring. Implement error recovery with retry logic, exponential backoff, and user-friendly error messages. Include cleanup functions for blob URLs and FormData objects. Use useCallback and useMemo for performance optimization of progress calculations.",
+            "status": "pending",
+            "testStrategy": "Unit tests for progress calculations, error recovery scenarios, retry logic validation, and memory leak detection using React DevTools Profiler."
+          },
+          {
+            "id": 4,
+            "title": "Create useImageProcessing Hook with Canvas API",
+            "description": "Develop the useImageProcessing hook for client-side image compression and processing",
+            "dependencies": [],
+            "details": "Create hooks/useImageProcessing.tsx with OffscreenCanvas support detection and Canvas API fallback. Implement image compression with quality controls, resize functionality, and format conversion (JPEG/WebP). Include proper memory management for canvas contexts and blob URLs. Use Web Workers if available for non-blocking image processing.",
+            "status": "pending",
+            "testStrategy": "Unit tests for image processing functions, Canvas API feature detection, compression quality validation, and cross-browser compatibility testing."
+          },
+          {
+            "id": 5,
+            "title": "Implement Memory Management and Cleanup Logic",
+            "description": "Add comprehensive memory management and cleanup systems for both hooks",
+            "dependencies": [
+              "4.3",
+              "4.4"
+            ],
+            "details": "Implement cleanup logic using useEffect cleanup functions and AbortController for canceling uploads. Add blob URL revocation, canvas context cleanup, and FormData disposal. Include memory monitoring and leak detection in development mode. Ensure proper cleanup on component unmount and route changes.",
+            "status": "pending",
+            "testStrategy": "Memory leak testing with React DevTools Profiler, cleanup validation on component unmount, AbortController signal testing, and performance monitoring for memory usage patterns."
+          }
+        ]
       },
       {
         "id": 5,
-        "title": "Implement Responsive Design System",
-        "description": "Create simplified responsive layout system for phone-only breakpoints within 320px-428px range with optimized scaling",
-        "status": "done",
+        "title": "Build PhotoFrame Component",
+        "description": "Create the main photo display component with upload states, animations, and accessibility features",
+        "details": "Implement components/PhotoFrame.tsx as a fully accessible component with proper ARIA labels and roles. Use CSS-in-JS with styled-components or emotion for styling isolation. Include states for empty (upload icon), uploading (progress spinner), loaded (image display), and error (retry option). Implement touch-friendly interactions with React's touch events. Add smooth animations using Framer Motion or CSS transitions. Ensure 4:3 aspect ratio with proper image cropping using object-fit: cover.",
+        "testStrategy": "Unit tests for all component states, accessibility testing with jest-axe, visual regression tests with Storybook and Chromatic, touch interaction testing with user-event, and animation performance validation.",
+        "priority": "high",
         "dependencies": [
-          2,
           4
         ],
-        "priority": "medium",
-        "details": "✅ COMPLETED: Successfully implemented streamlined mobile-first responsive design system with four optimized phone-specific breakpoints: extra small phones (≤320px) for older/budget devices, small phones (320px-375px) for iPhone SE and compact Android devices, standard phones (375px-414px) for iPhone 12-14 and most Android devices, and large phones (414px+) for iPhone Plus/Pro Max and large Android devices. Removed unnecessary 768px and 480px breakpoints, streamlined for phone-only usage. Enhanced scaling system with progressive padding adjustments (1.75rem → 1.5rem → 1.25rem → 1rem), smooth font scaling using clamp() with viewport-aware sizing, letter-spacing adjustments for optimal readability, and proportional icon/element scaling. Improved typography responsiveness with device-specific clamp() values and spacing. Seamlessly integrated with existing banner and content components while maintaining consistency with current mobile-first CSS structure. Optimized for portrait orientation with clear documentation and efficient cascading media queries.",
-        "testStrategy": "✅ COMPLETED: Comprehensive responsive testing verified across four phone breakpoint ranges (≤320px, 320px-375px, 375px-414px, 414px+), smooth scaling verification between breakpoints confirmed, integration testing with existing mobile layout components successful, visual consistency testing against current mobile patterns validated, performance testing with cascading media queries optimized.",
-        "subtasks": []
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create PhotoFrame Base Component Structure",
+            "description": "Set up the foundational PhotoFrame component with TypeScript interfaces and basic structure",
+            "dependencies": [],
+            "details": "Create components/PhotoFrame.tsx with proper TypeScript interfaces for props (PhotoFrameProps including onUpload, onError, imageUrl, isUploading, error state). Define component state types and establish the basic component structure with proper imports for styled-components/emotion and React hooks. Include proper prop validation and default props.",
+            "status": "pending",
+            "testStrategy": "Unit tests for component rendering, prop validation tests, TypeScript compilation tests to ensure proper type definitions"
+          },
+          {
+            "id": 2,
+            "title": "Implement Four Component States",
+            "description": "Build the four distinct visual states: empty, uploading, loaded, and error",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Implement conditional rendering for all four states: empty state with upload icon and proper ARIA labels, uploading state with progress spinner and loading indicator, loaded state with image display using object-fit: cover, and error state with retry button and error message. Ensure proper accessibility attributes (aria-live, role, aria-label) for each state.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each state rendering, accessibility tests with jest-axe for ARIA compliance, visual regression tests for state transitions"
+          },
+          {
+            "id": 3,
+            "title": "Add Responsive Styling and 4:3 Aspect Ratio",
+            "description": "Implement CSS-in-JS styling with proper aspect ratio and responsive design",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Use styled-components or emotion to create responsive PhotoFrame with fixed 4:3 aspect ratio using aspect-ratio CSS property or padding-bottom technique. Implement object-fit: cover for proper image cropping. Add responsive breakpoints for mobile, tablet, and desktop. Include proper z-index layering and positioning for overlay states.",
+            "status": "pending",
+            "testStrategy": "Visual tests for aspect ratio maintenance across screen sizes, responsive design testing, CSS-in-JS rendering validation"
+          },
+          {
+            "id": 4,
+            "title": "Implement Touch Interactions and Animations",
+            "description": "Add touch-friendly interactions and smooth animations using Framer Motion",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Implement touch event handlers for upload trigger, retry actions, and image preview. Add Framer Motion animations for state transitions, hover effects, and loading states. Include gesture handling for touch devices with proper preventDefault calls. Implement smooth transitions between states with appropriate timing functions and easing curves.",
+            "status": "pending",
+            "testStrategy": "Touch interaction tests with user-event library, animation performance testing with React DevTools Profiler, gesture handling validation on mobile devices"
+          },
+          {
+            "id": 5,
+            "title": "Add Accessibility Features and Error Handling",
+            "description": "Implement comprehensive accessibility features and robust error handling",
+            "dependencies": [
+              "5.2",
+              "5.4"
+            ],
+            "details": "Add comprehensive ARIA attributes including aria-live regions for status updates, proper role definitions, keyboard navigation support with tabindex and event handlers. Implement screen reader announcements for state changes. Add error boundary integration, proper error message display, and retry mechanisms. Include focus management for better UX.",
+            "status": "pending",
+            "testStrategy": "Accessibility testing with jest-axe and manual screen reader testing, keyboard navigation tests, error boundary testing with intentional errors, focus management validation"
+          }
+        ]
       },
       {
         "id": 6,
-        "title": "Add Accessibility and Performance Optimizations",
-        "description": "Implement comprehensive accessibility features and performance optimizations for smooth mobile experience",
-        "status": "done",
+        "title": "Implement Upload and Next Button Components",
+        "description": "Create interactive button components with brutalist styling and state-based behavior",
+        "details": "Build components/UploadButton.tsx and components/NextButton.tsx with brutalist design system colors (pink #ff69b4, black borders, blue #0066cc shadows). Use CSS Modules for styling isolation. Implement button states (default, loading, success) with smooth transitions. Add proper focus management and keyboard navigation. Include ripple effects or scale animations for touch feedback. Use React's Suspense for code splitting if needed.",
+        "testStrategy": "Unit tests for button states and interactions, accessibility testing for keyboard navigation, visual tests for design system compliance, and integration tests for state synchronization with PhotoFrame.",
+        "priority": "medium",
         "dependencies": [
-          4,
           5
         ],
-        "priority": "high",
-        "details": "✅ COMPLETED: Successfully implemented comprehensive accessibility and performance features including semantic HTML structure with proper ARIA labels and roles, screen reader support with descriptive alt text and announcements, WCAG 2.1 AA color contrast compliance, keyboard navigation support with 44px minimum touch targets, prefers-reduced-motion support with JavaScript detection, performance optimizations with will-change properties and GPU acceleration, and comprehensive accessibility test suite. All features are now production-ready with proper error handling and fallback states.",
-        "testStrategy": "✅ COMPLETED: Comprehensive accessibility testing completed including screen reader compatibility (NVDA, JAWS, VoiceOver), keyboard navigation verification, color contrast validation, performance profiling on target mobile devices, motion sensitivity testing with MediaQuery API, and automated accessibility auditing. All WCAG 2.1 AA compliance requirements verified.",
-        "subtasks": []
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create UploadButton Component Structure",
+            "description": "Build the base UploadButton.tsx component with TypeScript interfaces and core functionality",
+            "dependencies": [],
+            "details": "Create components/UploadButton.tsx with TypeScript interface for props (disabled, loading, onUpload, className, children). Implement basic component structure with proper typing. Set up CSS Modules file (UploadButton.module.css) and import structure. Include proper JSDoc documentation and export statements.",
+            "status": "pending",
+            "testStrategy": "Unit tests for component rendering, prop validation, and TypeScript compilation without errors"
+          },
+          {
+            "id": 2,
+            "title": "Implement Brutalist Styling for UploadButton",
+            "description": "Apply brutalist design system styling with CSS Modules for visual appearance",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Implement CSS Modules styling with brutalist design colors (pink #ff69b4 background, black 3px borders, blue #0066cc shadow effects). Create responsive button sizing with proper touch targets (44px minimum). Apply typography using system fonts with bold weights. Ensure high contrast for accessibility compliance.",
+            "status": "pending",
+            "testStrategy": "Visual tests for design system compliance, accessibility contrast testing, and responsive design validation across devices"
+          },
+          {
+            "id": 3,
+            "title": "Add UploadButton State Management and Transitions",
+            "description": "Implement button states (default, loading, success) with smooth CSS transitions",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Create state-based styling classes (default, loading, success, disabled) in CSS Modules. Implement smooth transitions using CSS transform and opacity properties. Add loading spinner component with CSS animations. Include hover and focus states with scale transforms. Implement proper state management using React useState and useCallback hooks.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all button states, transition performance testing, and user interaction validation"
+          },
+          {
+            "id": 4,
+            "title": "Create NextButton Component with Interactive Features",
+            "description": "Build NextButton.tsx component with brutalist styling and touch interactions",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Create components/NextButton.tsx with similar structure to UploadButton but optimized for navigation actions. Implement ripple effects using CSS pseudo-elements and animations. Add touch feedback with scale animations on press. Include keyboard navigation support with proper focus management. Apply brutalist styling consistent with design system.",
+            "status": "pending",
+            "testStrategy": "Unit tests for component functionality, touch interaction testing with user-event, and keyboard navigation validation"
+          },
+          {
+            "id": 5,
+            "title": "Implement Accessibility and Performance Optimizations",
+            "description": "Add comprehensive accessibility features and performance optimizations to both button components",
+            "dependencies": [
+              "6.3",
+              "6.4"
+            ],
+            "details": "Implement proper ARIA labels, roles, and states for screen readers. Add keyboard navigation with Enter and Space key handling. Include focus management with visible focus indicators. Implement React.memo for performance optimization. Add proper semantic HTML structure. Include error announcements for screen readers using aria-live regions.",
+            "status": "pending",
+            "testStrategy": "Accessibility testing with jest-axe, keyboard navigation testing, screen reader compatibility testing, and performance benchmarking with React DevTools"
+          }
+        ]
       },
       {
         "id": 7,
-        "title": "Integrate Component with Home Page Layout",
-        "description": "Update the home page structure to use the new HomeViewContent component and ensure seamless integration",
-        "status": "done",
+        "title": "Create CSS Modules and Styling System",
+        "description": "Implement the complete styling system with mobile-first responsive design and brutalist aesthetics",
+        "details": "Create styles/upload.module.css with mobile-first approach using CSS Custom Properties for design tokens. Implement brutalist styling with sharp borders, drop shadows (4px 4px 0px #0066cc), and bold typography. Use CSS Grid and Flexbox for responsive layouts. Include CSS animations for state transitions using transform and opacity for performance. Add proper focus styles for accessibility. Use PostCSS for vendor prefixing and optimization.",
+        "testStrategy": "Visual regression testing across mobile devices, performance testing for animation smoothness, accessibility contrast ratio validation, and CSS validation for standards compliance.",
+        "priority": "medium",
         "dependencies": [
-          1,
           6
         ],
-        "priority": "medium",
-        "details": "✅ COMPLETED: Successfully integrated HomeViewContent component with mobile home page layout. Updated `src/app/(mobile)/m/home/page.tsx` to import and render HomeViewContent component, replacing placeholder content with fully functional component. Implemented proper React Suspense boundary for loading states and integrated with existing mobile layout structure (MobileHeader, mobile-main). Added proper layout padding handling (pt-16) with CSS adjustments including full viewport integration (-4rem margin-top to offset mobile-main padding). Created HomeViewLoading and HomeViewError components with accessible loading spinner and proper fallback content. Implemented comprehensive accessibility features including #main-content anchor for skip link navigation, proper tabIndex management, and screen reader support. Added integration-specific styling with home-view-integrated CSS class and 100ms animation delay. Resolved all styling conflicts with global styles and mobile.css patterns. Component is now fully integrated and functional within the mobile home page layout with proper error handling, accessibility, and performance optimizations.",
-        "testStrategy": "✅ COMPLETED: Comprehensive integration testing completed including component rendering verification within layout, accessibility features integration testing, proper prop passing validation, styling conflict detection with no conflicts found, error boundary testing, and responsive integration validation across all mobile breakpoints.",
-        "subtasks": []
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup CSS Variables and Design Tokens",
+            "description": "Create the foundational CSS custom properties system with brutalist design tokens",
+            "dependencies": [],
+            "details": "Implement CSS custom properties in styles/upload.module.css defining design tokens: --color-primary: #ff69b4, --color-secondary: #0066cc, --color-border: #000000, --shadow-brutalist: 4px 4px 0px #0066cc, --font-weight-bold: 700, --border-radius: 0px, --transition-fast: 0.2s ease-out. Setup responsive breakpoints using custom properties for consistent mobile-first scaling. Include fallback values for older browser support.",
+            "status": "pending",
+            "testStrategy": "CSS validation testing, cross-browser compatibility checks for custom properties support, visual verification of design tokens rendering correctly"
+          },
+          {
+            "id": 2,
+            "title": "Implement Mobile-First Responsive Grid System",
+            "description": "Create CSS Grid and Flexbox layout system with mobile-first breakpoints",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Build responsive layout classes using CSS Grid for complex layouts and Flexbox for component-level alignment. Implement mobile-first media queries starting from 320px, with breakpoints at 768px, 1024px, and 1440px. Create utility classes for common layout patterns: .grid-upload, .flex-center, .responsive-container. Use CSS Grid areas for semantic layout structure and ensure proper spacing using CSS custom properties.",
+            "status": "pending",
+            "testStrategy": "Responsive design testing across multiple device sizes, CSS Grid browser compatibility validation, layout shift testing during viewport changes"
+          },
+          {
+            "id": 3,
+            "title": "Create Brutalist Component Styles",
+            "description": "Implement brutalist aesthetic styling for upload components with sharp borders and bold typography",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Style .uploadContainer, .photoFrame, .uploadButton, and .nextButton classes with brutalist design principles. Apply sharp borders (border: 3px solid #000000), bold drop shadows (box-shadow: var(--shadow-brutalist)), and high contrast colors. Use system fonts with heavy weights for typography. Implement hover and focus states with transform: translate(-2px, -2px) and adjusted shadows for depth effect.",
+            "status": "pending",
+            "testStrategy": "Visual regression testing for brutalist aesthetics, accessibility contrast ratio validation (minimum 4.5:1), focus state visibility testing"
+          },
+          {
+            "id": 4,
+            "title": "Implement CSS Animations and State Transitions",
+            "description": "Create performant animations using transform and opacity for component state changes",
+            "dependencies": [
+              "7.2",
+              "7.3"
+            ],
+            "details": "Implement CSS animations for upload states using transform and opacity properties for optimal performance. Create @keyframes for loading spinners, success checkmarks, and error shake animations. Use transition: transform 0.2s ease-out, opacity 0.2s ease-out for state changes. Add prefers-reduced-motion media queries to respect accessibility preferences. Include will-change property for elements with frequent animations.",
+            "status": "pending",
+            "testStrategy": "Performance testing with DevTools for 60fps animation smoothness, reduced motion accessibility testing, animation timing validation across different devices"
+          },
+          {
+            "id": 5,
+            "title": "Add Accessibility Focus Styles and PostCSS Configuration",
+            "description": "Implement comprehensive focus management and optimize CSS with PostCSS processing",
+            "dependencies": [
+              "7.3",
+              "7.4"
+            ],
+            "details": "Create accessible focus styles with high contrast outlines (outline: 3px solid #ff69b4, outline-offset: 2px) and skip-to-content functionality. Implement focus-visible pseudo-class for keyboard-only focus indicators. Configure PostCSS with autoprefixer for vendor prefixes, cssnano for minification, and postcss-preset-env for modern CSS features. Setup PostCSS imports and CSS optimization pipeline.",
+            "status": "pending",
+            "testStrategy": "Keyboard navigation testing, screen reader compatibility validation, WCAG 2.1 AA compliance testing, CSS bundle size analysis and optimization verification"
+          }
+        ]
       },
       {
         "id": 8,
-        "title": "Final Testing and Quality Assurance",
-        "description": "Comprehensive testing suite covering functionality, performance, accessibility, and cross-device compatibility - COMPLETED with excellent results",
-        "status": "done",
+        "title": "Build Main Container Component",
+        "description": "Integrate all components into the main UploadAngleContainer with complete upload workflow",
+        "details": "Implement containers/UploadAngleContainer.tsx as the main orchestrating component. Integrate all child components with proper state management and event handling. Add error boundary with components/ErrorBoundary.tsx for graceful error handling. Implement complete upload workflow from file selection through preview and navigation. Include proper loading states, progress indication, and error recovery. Use React's Error Boundaries and Suspense for robust error handling.",
+        "testStrategy": "Integration tests for complete upload workflow, error boundary testing with intentional errors, performance testing with React DevTools Profiler, and end-to-end testing with Playwright or Cypress.",
+        "priority": "high",
         "dependencies": [
           7
         ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create UploadAngleContainer.tsx structure and state management",
+            "description": "Build the main container component file with comprehensive state management using useReducer for upload workflow states",
+            "dependencies": [],
+            "details": "Create containers/UploadAngleContainer.tsx with TypeScript interfaces for all state types. Implement useReducer hook to manage complex state transitions including file selection, upload progress, preview mode, and error states. Define action creators and reducer logic for all workflow steps. Setup initial component structure with proper TypeScript generics and export patterns.",
+            "status": "pending",
+            "testStrategy": "Unit tests for state reducer logic, test all action creators and state transitions, validate TypeScript interfaces, and ensure proper initial state setup."
+          },
+          {
+            "id": 2,
+            "title": "Integrate child components with proper props and event handlers",
+            "description": "Connect PhotoFrame, UploadButton, and NextButton components with proper data flow and event handling",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Import and integrate PhotoFrame, UploadButton, and NextButton components into the main container. Setup proper props drilling with TypeScript interfaces. Implement event handlers for file selection, upload triggering, and navigation. Create callback functions that dispatch actions to the reducer. Ensure proper component composition and data flow patterns.",
+            "status": "pending",
+            "testStrategy": "Integration tests for component interactions, test event handler execution, validate props are correctly passed, and ensure state updates propagate to child components."
+          },
+          {
+            "id": 3,
+            "title": "Implement complete upload workflow orchestration",
+            "description": "Build the end-to-end upload process including file validation, processing, and state transitions",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Implement the complete upload workflow using useAngleUpload and useImageProcessing hooks. Add file validation logic for size, type, and format constraints. Create upload progress tracking with percentage updates. Implement success and error handling with appropriate state updates. Include cleanup logic for blob URLs and memory management.",
+            "status": "pending",
+            "testStrategy": "End-to-end tests for complete upload workflow, test file validation edge cases, validate progress tracking accuracy, test error recovery scenarios, and ensure proper cleanup."
+          },
+          {
+            "id": 4,
+            "title": "Create ErrorBoundary component with graceful error handling",
+            "description": "Implement React Error Boundary component for catching and handling component errors gracefully",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create components/ErrorBoundary.tsx using React's Error Boundary pattern with componentDidCatch and getDerivedStateFromError. Implement fallback UI with retry functionality and error reporting. Add logging capabilities for error tracking. Include proper TypeScript types for error objects and recovery mechanisms. Design user-friendly error messages with actionable recovery options.",
+            "status": "pending",
+            "testStrategy": "Error boundary testing with intentional component errors, test fallback UI rendering, validate error logging functionality, test retry mechanisms, and ensure errors don't crash the entire app."
+          },
+          {
+            "id": 5,
+            "title": "Add loading states, progress indication, and Suspense integration",
+            "description": "Implement comprehensive loading states with React Suspense and smooth progress indicators",
+            "dependencies": [
+              "8.3",
+              "8.4"
+            ],
+            "details": "Wrap the container with React Suspense boundaries for lazy loading and code splitting. Implement loading spinners and progress bars with smooth animations. Add skeleton loading states for better perceived performance. Create loading state transitions with proper timing and visual feedback. Integrate with React 18's concurrent features for optimal user experience.",
+            "status": "pending",
+            "testStrategy": "Test Suspense boundary behavior, validate loading state transitions, test progress indicator accuracy, verify skeleton loading displays correctly, and ensure smooth animation performance."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Integrate with Next.js Routing and Mobile Infrastructure",
+        "description": "Setup the /upload-angle route and integrate with existing mobile navigation system",
+        "details": "Create pages/upload-angle.tsx or app/upload-angle/page.tsx (depending on Next.js version) with proper route configuration. Integrate with existing mobile header component for back navigation and progress indication. Add route-level error boundaries and loading states. Implement proper SEO meta tags and Open Graph tags. Configure Next.js Image optimization if needed. Add proper route guards and navigation flow integration.",
+        "testStrategy": "Integration tests for routing functionality, mobile navigation testing on actual devices, SEO validation with Lighthouse, and performance testing for route transitions.",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Determine Next.js version and create route structure",
+            "description": "Identify whether project uses Pages Router or App Router and create appropriate route file structure",
+            "dependencies": [],
+            "details": "Examine package.json and existing route structure to determine Next.js version. Create either pages/upload-angle.tsx for Pages Router or app/upload-angle/page.tsx for App Router. Set up proper TypeScript configuration and export structure. Include route metadata and basic page component shell.",
+            "status": "pending",
+            "testStrategy": "Verify route accessibility, test routing configuration, and ensure proper TypeScript compilation"
+          },
+          {
+            "id": 2,
+            "title": "Integrate mobile header component with navigation",
+            "description": "Connect existing mobile header component with back navigation and progress indication for upload flow",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Locate and integrate existing mobile header component. Configure back navigation to return to appropriate previous route. Add upload progress indicator to header. Implement proper navigation state management and ensure consistent mobile UI patterns. Handle navigation guards for unsaved uploads.",
+            "status": "pending",
+            "testStrategy": "Test back navigation functionality, validate progress indication updates, and verify mobile responsive behavior"
+          },
+          {
+            "id": 3,
+            "title": "Implement error boundaries and loading states",
+            "description": "Add route-level error boundaries and loading states for robust error handling and user experience",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Create route-specific error boundary component wrapping the upload page. Implement loading states for route transitions and component initialization. Add fallback UI for error scenarios. Configure proper error logging and recovery mechanisms. Include loading skeletons for better perceived performance.",
+            "status": "pending",
+            "testStrategy": "Test error boundary activation with intentional errors, validate loading state transitions, and verify error recovery flows"
+          },
+          {
+            "id": 4,
+            "title": "Configure SEO meta tags and Open Graph integration",
+            "description": "Implement proper SEO meta tags, Open Graph tags, and social media sharing optimization",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Add Next.js Head component or metadata export with appropriate title, description, and keywords. Configure Open Graph tags for social media sharing. Add canonical URLs and proper viewport meta tags. Implement dynamic meta tag generation based on upload state. Include Twitter Card meta tags.",
+            "status": "pending",
+            "testStrategy": "Validate meta tags with SEO tools, test social media sharing previews, and run Lighthouse SEO audit"
+          },
+          {
+            "id": 5,
+            "title": "Setup route guards and navigation flow integration",
+            "description": "Implement route protection, navigation flow logic, and Next.js Image optimization configuration",
+            "dependencies": [
+              "9.2",
+              "9.3"
+            ],
+            "details": "Create route guards to prevent unauthorized access or navigation away from unsaved uploads. Implement proper navigation flow integration with existing app routing. Configure Next.js Image component optimization for uploaded images. Add proper route preloading and prefetching. Include navigation confirmation dialogs for unsaved changes.",
+            "status": "pending",
+            "testStrategy": "Test route protection scenarios, validate navigation flow integration, verify Image optimization performance, and test unsaved changes warnings"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Comprehensive Testing and Quality Assurance",
+        "description": "Implement complete test suite, accessibility audit, and performance optimization",
+        "details": "Create comprehensive test suite with Jest and React Testing Library covering all components, hooks, and utilities. Add integration tests with Playwright for end-to-end workflows. Implement accessibility testing with jest-axe and manual screen reader testing. Add visual regression testing with Storybook and Chromatic. Create performance benchmarks and memory leak detection. Include cross-browser compatibility testing. Add bundle size analysis and optimization. Ensure >95% code coverage and zero impact on existing HomeView functionality.",
+        "testStrategy": "Run full test suite with coverage reporting, automated accessibility auditing, performance benchmarking on mobile devices, visual regression validation, and HomeView isolation verification through automated regression tests.",
         "priority": "medium",
-        "details": "✅ COMPLETED: Successfully executed comprehensive test suite with 97.9% pass rate (47/48 tests). Achieved 87.87% statement coverage and 93.33% branch coverage for HomeViewContent component. Verified unit tests for component functionality (19 tests passing), integration tests with mobile layout (6/6 passing), accessibility compliance with WCAG 2.1 AA standards (8/8 tests passing), performance testing with 87.5% pass rate (15/16 tests), cross-browser compatibility across iOS Safari 14+ and Chrome 90+, and comprehensive error handling scenarios. Bundle size optimized with React.memo, memory management validated, and hardware acceleration confirmed. All performance targets met including 60fps animations and responsive design across 320px-428px mobile viewports.",
-        "testStrategy": "✅ COMPLETED: Executed automated test suite with Jest and React Testing Library achieving excellent coverage. Performed accessibility auditing with axe-core confirming WCAG 2.1 AA compliance, cross-device testing validated across all mobile breakpoints, performance profiling confirmed GPU optimization and memory management, error boundary testing verified graceful degradation, and ESLint compliance achieved. Production-ready with comprehensive quality assurance validation.",
-        "subtasks": []
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up comprehensive test infrastructure and configuration",
+            "description": "Configure Jest, React Testing Library, Playwright, and testing utilities with coverage reporting and CI integration",
+            "dependencies": [],
+            "details": "Install and configure Jest with React Testing Library for unit/component testing. Set up Playwright for E2E testing with cross-browser support (Chrome, Firefox, Safari). Configure jest-axe for accessibility testing. Set up MSW (Mock Service Worker) for API mocking. Configure test coverage reporting with NYC/Istanbul targeting >95% coverage. Add testing scripts to package.json and integrate with CI/CD pipeline. Create test utilities and custom matchers for consistent testing patterns.",
+            "status": "pending",
+            "testStrategy": "Verify all testing frameworks initialize correctly, run sample tests to validate configuration, ensure coverage reports generate properly, and confirm CI integration works with automated test runs."
+          },
+          {
+            "id": 2,
+            "title": "Implement unit and component tests for all React components",
+            "description": "Create comprehensive test suites for UploadButton, NextButton, PhotoFrame, and custom hooks with full coverage",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Write unit tests for useAngleUpload and useImageProcessing hooks using renderHook. Create component tests for UploadButton and NextButton covering all states (default, loading, success, error). Test PhotoFrame component with different image loading scenarios and error states. Include tests for prop validation, event handlers, state transitions, and edge cases. Mock file uploads and image processing operations. Test accessibility features like keyboard navigation and ARIA attributes.",
+            "status": "pending",
+            "testStrategy": "Achieve >95% code coverage for all components and hooks, validate all user interactions work correctly, ensure proper error handling, and verify accessibility compliance with automated and manual testing."
+          },
+          {
+            "id": 3,
+            "title": "Create end-to-end integration tests with Playwright",
+            "description": "Build comprehensive E2E test suite covering complete upload workflow across different browsers and devices",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Implement Playwright tests for complete user journey: file selection, upload progress, image preview, and navigation flow. Test cross-browser compatibility (Chrome, Firefox, Safari) and responsive design on mobile/tablet viewports. Include tests for file validation, error handling, network failures, and performance scenarios. Add visual regression tests using Playwright's screenshot capabilities. Test accessibility with automated tools and keyboard-only navigation. Create page object models for maintainable test structure.",
+            "status": "pending",
+            "testStrategy": "Run full E2E test suite across all target browsers and devices, validate visual consistency with screenshot comparisons, ensure accessibility compliance, and verify performance meets benchmarks under various network conditions."
+          },
+          {
+            "id": 4,
+            "title": "Implement performance benchmarking and optimization testing",
+            "description": "Create performance test suite with bundle analysis, memory leak detection, and mobile performance validation",
+            "dependencies": [
+              "10.2",
+              "10.3"
+            ],
+            "details": "Set up bundle size analysis with webpack-bundle-analyzer and size-limit. Implement memory leak detection tests using Chrome DevTools and automated profiling. Create performance benchmarks for image processing, component rendering, and state management operations. Add Lighthouse CI for automated performance auditing. Test Core Web Vitals (LCP, FID, CLS) on mobile devices. Implement progressive loading tests and measure time-to-interactive. Create performance regression detection in CI pipeline.",
+            "status": "pending",
+            "testStrategy": "Establish baseline performance metrics, validate bundle size stays under limits, ensure no memory leaks in long-running sessions, verify Core Web Vitals meet Google's thresholds, and confirm smooth 60fps animations on mobile devices."
+          },
+          {
+            "id": 5,
+            "title": "Set up visual regression testing and accessibility audit automation",
+            "description": "Implement automated visual testing with Storybook and comprehensive accessibility validation across all components",
+            "dependencies": [
+              "10.1",
+              "10.2",
+              "10.3"
+            ],
+            "details": "Set up Storybook with all component stories and states. Integrate Chromatic for automated visual regression testing. Configure jest-axe for automated accessibility testing in unit tests. Set up axe-playwright for E2E accessibility validation. Create manual testing checklist for screen reader compatibility (NVDA, JAWS, VoiceOver). Implement color contrast validation and keyboard navigation testing. Add ARIA compliance verification and semantic HTML structure validation. Integrate accessibility testing into CI pipeline with failure thresholds.",
+            "status": "pending",
+            "testStrategy": "Run complete accessibility audit with zero critical violations, validate visual consistency across all component states, ensure screen reader compatibility with manual testing, verify keyboard navigation works for all interactive elements, and maintain WCAG 2.1 AA compliance."
+          }
+        ]
       }
     ],
     "metadata": {
-      "created": "2025-08-26T22:59:04.075Z",
-      "updated": "2025-08-27T02:13:32.390Z",
+      "created": "2025-08-31T22:44:28.597Z",
+      "updated": "2025-09-01T02:38:57.456Z",
       "description": "Tasks for master context"
     }
   }

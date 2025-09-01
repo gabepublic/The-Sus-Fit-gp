@@ -25,9 +25,10 @@ describe('HomeViewContent Accessibility', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByLabelText('SusFit Homepage')).toBeInTheDocument();
     
-    // Check heading structure
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByText('Let\'s Get You Fitted')).toBeInTheDocument();
+    // Check heading structure - only the visible h1 is exposed to screen readers
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveAttribute('aria-label', 'Let\'s Get You Fitted - Welcome to SusFit');
   });
 
   it('provides screen reader announcements', async () => {
@@ -52,10 +53,10 @@ describe('HomeViewContent Accessibility', () => {
   it('provides proper image descriptions', () => {
     render(<HomeViewContent />);
     
-    // Background should have role="img" with dynamic aria-label
-    const background = screen.getByLabelText('Loading background content');
-    expect(background).toBeInTheDocument();
-    expect(background).toHaveAttribute('role', 'img');
+    // Background GIF should be present with empty alt (decorative)
+    const backgroundImage = document.querySelector('.home-view-content__gif');
+    expect(backgroundImage).toBeInTheDocument();
+    expect(backgroundImage).toHaveAttribute('alt', '');
   });
 
   it('supports reduced motion preferences', () => {
@@ -98,10 +99,15 @@ describe('HomeViewContent Accessibility', () => {
   it('has proper ARIA labelledby relationships', () => {
     render(<HomeViewContent />);
     
+    // Check for section with labelledby pointing to main headline
     const section = document.querySelector('[aria-labelledby="main-headline"]');
-    const heading = document.querySelector('#main-headline');
-    
     expect(section).toBeInTheDocument();
-    expect(heading).toBeInTheDocument();
+    
+    // Check both headline elements exist (visible and gif versions)
+    const mainHeading = document.querySelector('#main-headline');
+    const gifHeading = document.querySelector('#main-headline-gif');
+    
+    expect(mainHeading).toBeInTheDocument();
+    expect(gifHeading).toBeInTheDocument();
   });
 });

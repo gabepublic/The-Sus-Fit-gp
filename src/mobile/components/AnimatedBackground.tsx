@@ -47,7 +47,8 @@ export const AnimatedBackground = React.memo<AnimatedBackgroundProps>(function A
   // For reduced motion users, we'll use a static version if provided
   const defaultPlaceholder = '/images/mobile/static-fallback.jpg';
   const effectivePlaceholder = placeholder ?? defaultPlaceholder;
-  const imageSrc = respectsMotion ? effectivePlaceholder : src;
+  // When placeholder is explicitly null, fall back to original src even with reduced motion
+  const imageSrc = respectsMotion ? (placeholder === null ? src : effectivePlaceholder) : src;
   const imageClassName = `
     animated-background__image
     ${respectsMotion ? 'animated-background__image--static' : 'animated-background__image--animated'}
