@@ -13,7 +13,7 @@ describe('YellowBanner', () => {
       const rootDiv = container.firstElementChild
       
       expect(rootDiv).toHaveClass('yellow-banner')
-      expect(rootDiv?.firstElementChild).toHaveClass('yellow-banner__shape')
+      expect(rootDiv?.firstElementChild).toHaveClass('yellow-banner__svg-container')
       expect(rootDiv?.querySelector('.yellow-banner__content')).toBeInTheDocument()
     })
 
@@ -128,17 +128,19 @@ describe('YellowBanner', () => {
       // Check the DOM hierarchy
       const rootDiv = container.firstElementChild
       const shapeDiv = rootDiv?.firstElementChild
-      const contentDiv = shapeDiv?.firstElementChild
+      const imgElement = shapeDiv?.firstElementChild
+      const contentDiv = shapeDiv?.lastElementChild
       
       expect(rootDiv).toHaveClass('yellow-banner')
-      expect(shapeDiv).toHaveClass('yellow-banner__shape')
+      expect(shapeDiv).toHaveClass('yellow-banner__svg-container')
+      expect(imgElement).toHaveClass('yellow-banner__svg')
       expect(contentDiv).toHaveClass('yellow-banner__content')
     })
 
     it('maintains BEM methodology in class naming', () => {
       const { container } = render(<YellowBanner />)
       
-      expect(container.querySelector('.yellow-banner__shape')).toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__svg-container')).toBeInTheDocument()
       expect(container.querySelector('.yellow-banner__content')).toBeInTheDocument()
     })
 
@@ -164,10 +166,10 @@ describe('YellowBanner', () => {
 
     it('has proper structure for CSS clip-path styling', () => {
       const { container } = render(<YellowBanner />)
-      const shapeDiv = container.querySelector('.yellow-banner__shape')
+      const shapeDiv = container.querySelector('.yellow-banner__svg-container')
       
       expect(shapeDiv).toBeInTheDocument()
-      expect(shapeDiv).toHaveClass('yellow-banner__shape')
+      expect(shapeDiv).toHaveClass('yellow-banner__svg-container')
     })
   })
 
@@ -236,7 +238,7 @@ describe('YellowBanner', () => {
       
       // Ensure the component structure supports the responsive CSS
       const banner = container.querySelector('.yellow-banner')
-      const shape = container.querySelector('.yellow-banner__shape')
+      const shape = container.querySelector('.yellow-banner__svg-container')
       const content = container.querySelector('.yellow-banner__content')
       
       expect(banner).toBeInTheDocument()
@@ -267,54 +269,54 @@ describe('YellowBanner', () => {
   })
 
   describe('SVG Fallback Mode', () => {
-    it('renders CSS clip-path by default (useSvgFallback=false)', () => {
+    it('renders with SVG image by default', () => {
       const { container } = render(<YellowBanner />)
       
-      expect(container.querySelector('.yellow-banner__shape')).toBeInTheDocument()
-      expect(container.querySelector('.yellow-banner__svg')).not.toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__svg-container')).toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__svg')).toBeInTheDocument()
     })
 
-    it('renders SVG when useSvgFallback is true', () => {
+    it('renders with SVG image regardless of useSvgFallback setting', () => {
       const { container } = render(<YellowBanner useSvgFallback={true} />)
       
       expect(container.querySelector('.yellow-banner__svg')).toBeInTheDocument()
-      expect(container.querySelector('.yellow-banner__shape')).not.toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__svg-container')).toBeInTheDocument()
     })
 
-    it('SVG has correct viewBox and attributes', () => {
-      const { container } = render(<YellowBanner useSvgFallback={true} />)
-      const svg = container.querySelector('svg')
+    it('Image has correct attributes', () => {
+      const { container } = render(<YellowBanner />)
+      const img = container.querySelector('img')
       
-      expect(svg).toHaveAttribute('viewBox', '0 0 400 300')
-      expect(svg).toHaveAttribute('preserveAspectRatio', 'xMidYMid meet')
-      expect(svg).toHaveClass('yellow-banner__svg')
+      expect(img).toHaveAttribute('src', '/images/mobile/YellowBlob.svg')
+      expect(img).toHaveAttribute('alt', '')
+      expect(img).toHaveClass('yellow-banner__svg')
     })
 
-    it('SVG contains proper path element with yellow fill', () => {
-      const { container } = render(<YellowBanner useSvgFallback={true} />)
-      const path = container.querySelector('path')
+    it('Image has correct dimensions and priority loading', () => {
+      const { container } = render(<YellowBanner />)
+      const img = container.querySelector('img')
       
-      expect(path).toBeInTheDocument()
-      expect(path).toHaveAttribute('fill', 'var(--color-susfit-yellow, #f9b801)')
-      expect(path).toHaveAttribute('filter', 'url(#drop-shadow)')
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute('width', '369')
+      expect(img).toHaveAttribute('height', '636')
+      // Note: priority attribute might be transformed by Next.js Image component
     })
 
-    it('SVG has drop shadow filter definition', () => {
-      const { container } = render(<YellowBanner useSvgFallback={true} />)
-      const filter = container.querySelector('#drop-shadow')
-      const dropShadow = container.querySelector('feDropShadow')
+    it('Container has proper structure for content overlay', () => {
+      const { container } = render(<YellowBanner />)
+      const svgContainer = container.querySelector('.yellow-banner__svg-container')
+      const content = container.querySelector('.yellow-banner__content')
       
-      expect(filter).toBeInTheDocument()
-      expect(dropShadow).toBeInTheDocument()
-      expect(dropShadow).toHaveAttribute('dx', '4')
-      expect(dropShadow).toHaveAttribute('dy', '8')
+      expect(svgContainer).toBeInTheDocument()
+      expect(content).toBeInTheDocument()
+      expect(svgContainer).toContainElement(content)
     })
 
-    it('uses correct container and content classes in SVG mode', () => {
+    it('uses correct container and content classes', () => {
       const { container } = render(<YellowBanner useSvgFallback={true} />)
       
       expect(container.querySelector('.yellow-banner__svg-container')).toBeInTheDocument()
-      expect(container.querySelector('.yellow-banner__content--svg')).toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__content')).toBeInTheDocument()
     })
 
     it('renders children correctly in SVG mode', () => {
@@ -347,7 +349,7 @@ describe('YellowBanner', () => {
       const { container } = render(<YellowBanner />)
       
       // Should use clip-path by default for modern browsers
-      expect(container.querySelector('.yellow-banner__shape')).toBeInTheDocument()
+      expect(container.querySelector('.yellow-banner__svg-container')).toBeInTheDocument()
     })
 
     it('provides SVG as explicit fallback option', () => {

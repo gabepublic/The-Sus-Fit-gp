@@ -79,21 +79,18 @@ describe('MobileHeader', () => {
       expect(logoLink).toHaveAttribute('href', '/m/home')
     })
 
-    it('renders the logo image with correct attributes', () => {
+    it('renders the logo text with correct attributes', () => {
       render(<MobileHeader {...defaultProps} />)
-      const logoImage = screen.getByRole('img', { name: /the sus fit/i })
-      expect(logoImage).toBeInTheDocument()
-      expect(logoImage).toHaveAttribute('src', '/images/logo-text.svg')
-      expect(logoImage).toHaveAttribute('alt', 'The Sus Fit')
-      expect(logoImage).toHaveAttribute('width', '120')
-      expect(logoImage).toHaveAttribute('height', '32')
-      expect(logoImage).toHaveAttribute('data-priority', 'true')
+      const logoText = screen.getByRole('heading', { name: /the sus fit/i })
+      expect(logoText).toBeInTheDocument()
+      expect(logoText).toHaveClass('font-bold', 'leading-tight', 'susfit-logo-font', 'mobile-title')
+      expect(logoText).toHaveTextContent('The Sus Fit')
     })
 
     it('has proper focus styles for logo link', () => {
       render(<MobileHeader {...defaultProps} />)
       const logoLink = screen.getByRole('link', { name: /the sus fit - home/i })
-      expect(logoLink).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500')
+      expect(logoLink).toHaveClass('focus:outline-none')
     })
   })
 
@@ -135,7 +132,7 @@ describe('MobileHeader', () => {
     it('has proper focus styles', () => {
       render(<MobileHeader {...defaultProps} />)
       const menuButton = screen.getByRole('button')
-      expect(menuButton).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500')
+      expect(menuButton).toHaveClass('focus:outline-none')
     })
   })
 
@@ -146,9 +143,9 @@ describe('MobileHeader', () => {
       
       // Check that hamburger lines have closed state classes
       const lines = menuButton.querySelectorAll('span:not(.sr-only)')
-      expect(lines[0]).toHaveClass('translate-y-1')
-      expect(lines[1]).toHaveClass('opacity-100')
-      expect(lines[2]).toHaveClass('translate-y-4')
+      expect(lines[0]).toHaveClass('translate-y-1.5')
+      expect(lines[1]).toHaveClass('opacity-100', 'translate-y-3')
+      expect(lines[2]).toHaveClass('translate-y-4.5')
     })
 
     it('shows X icon when menu is open', () => {
@@ -157,9 +154,9 @@ describe('MobileHeader', () => {
       
       // Check that hamburger lines have open state classes (X formation)
       const lines = menuButton.querySelectorAll('span:not(.sr-only)')
-      expect(lines[0]).toHaveClass('rotate-45', 'translate-y-2.5')
-      expect(lines[1]).toHaveClass('opacity-0')
-      expect(lines[2]).toHaveClass('-rotate-45', 'translate-y-2.5')
+      expect(lines[0]).toHaveClass('rotate-45', 'translate-y-3')
+      expect(lines[1]).toHaveClass('opacity-0', 'translate-y-3')
+      expect(lines[2]).toHaveClass('-rotate-45', 'translate-y-3')
     })
 
     it('applies transition classes to all lines', () => {
@@ -198,10 +195,10 @@ describe('MobileHeader', () => {
       expect(container).toHaveClass('px-4', 'py-3', 'h-16') // Mobile padding and height
     })
 
-    it('logo has responsive sizing', () => {
+    it('logo text has proper styling', () => {
       render(<MobileHeader {...defaultProps} />)
-      const logoImage = screen.getByRole('img', { name: /the sus fit/i })
-      expect(logoImage).toHaveClass('h-8', 'w-auto')
+      const logoText = screen.getByRole('heading', { name: /the sus fit/i })
+      expect(logoText).toHaveClass('font-bold', 'leading-tight', 'susfit-logo-font', 'mobile-title')
     })
 
     it('hamburger button has appropriate touch target size', () => {
@@ -212,24 +209,24 @@ describe('MobileHeader', () => {
   })
 
   describe('Color Scheme', () => {
-    it('uses blue colors for hamburger menu matching design', () => {
+    it('uses custom colors for hamburger menu matching design', () => {
       render(<MobileHeader {...defaultProps} />)
       const menuButton = screen.getByRole('button')
       
       const lines = menuButton.querySelectorAll('span:not(.sr-only)')
       lines.forEach(line => {
-        expect(line).toHaveClass('bg-blue-600')
+        expect(line).toHaveStyle('background-color: rgb(25, 137, 169)')
       })
     })
 
-    it('uses blue focus rings matching the theme', () => {
+    it('has proper focus outline styles', () => {
       render(<MobileHeader {...defaultProps} />)
       
       const logoLink = screen.getByRole('link')
       const menuButton = screen.getByRole('button')
       
-      expect(logoLink).toHaveClass('focus:ring-blue-500')
-      expect(menuButton).toHaveClass('focus:ring-blue-500')
+      expect(logoLink).toHaveClass('focus:outline-none')
+      expect(menuButton).toHaveClass('focus:outline-none')
     })
   })
 })

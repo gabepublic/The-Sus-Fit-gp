@@ -76,20 +76,26 @@ export const mockWindowProperties = (properties: Partial<Window>) => {
  * Mock navigator.userAgent for testing
  */
 export const mockUserAgent = (userAgent: string) => {
-  const originalUserAgent = navigator.userAgent;
+  // Store original navigator if not already stored
+  if (!(global as any).__originalNavigator) {
+    (global as any).__originalNavigator = window.navigator;
+  }
   
-  Object.defineProperty(navigator, 'userAgent', {
-    value: userAgent,
-    writable: true,
-    configurable: true,
-  });
+  const originalNavigator = window.navigator;
+  
+  // Replace the entire navigator object to ensure clean mocking
+  (window as any).navigator = { 
+    ...originalNavigator, 
+    userAgent 
+  };
+  (global as any).navigator = (window as any).navigator;
 
   return () => {
-    Object.defineProperty(navigator, 'userAgent', {
-      value: originalUserAgent,
-      writable: true,
-      configurable: true,
-    });
+    const storedOriginal = (global as any).__originalNavigator;
+    if (storedOriginal) {
+      (window as any).navigator = storedOriginal;
+      (global as any).navigator = storedOriginal;
+    }
   };
 };
 
