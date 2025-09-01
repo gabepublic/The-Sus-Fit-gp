@@ -101,7 +101,7 @@ export function useDeviceRedirect(config: DeviceRedirectConfig = {}): DeviceRedi
   const [mobileRoute, setMobileRoute] = useState<string | null>(null)
   
   // Refs for managing timeouts and preventing duplicate checks
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const hasCheckedRef = useRef(false)
   const isClientSideRef = useRef(false)
   

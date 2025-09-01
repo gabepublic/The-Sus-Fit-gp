@@ -32,6 +32,7 @@ export interface MobileAnalyticsEvent {
   timestamp: Date
   deviceType: string
   action?: string
+  previousRoute?: string
 }
 
 export interface HomeViewContentProps {
@@ -43,6 +44,7 @@ export interface YellowBannerProps {
   className?: string
   children?: React.ReactNode
   animationDelay?: number
+  useSvgFallback?: boolean
 }
 
 export interface AnimatedBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {

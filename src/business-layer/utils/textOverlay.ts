@@ -626,7 +626,7 @@ export class TextOverlayUtils {
     if (!ctx) throw new Error('Could not get canvas context');
 
     let fontSize = style.fontSize || 16;
-    let testStyle = { ...style, fontSize };
+    const testStyle = { ...style, fontSize };
     
     // Binary search for optimal font size
     let minSize = 1;

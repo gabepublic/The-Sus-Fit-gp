@@ -281,9 +281,9 @@ describe('HomeViewContent CSS/Styling Regression Tests', () => {
       expect(textStrokeLayer).toBeInTheDocument();
       
       // Verify nesting structure
-      expect(main).toContainElement(textMaskContainer as Element);
-      expect(textMaskContainer).toContainElement(textSection as Element);
-      expect(textSection).toContainElement(textStrokeLayer as Element);
+      expect(main).toContainElement(textMaskContainer as HTMLElement);
+      expect(textMaskContainer).toContainElement(textSection as HTMLElement);
+      expect(textSection).toContainElement(textStrokeLayer as HTMLElement);
     });
   });
 });

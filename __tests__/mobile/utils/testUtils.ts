@@ -228,7 +228,7 @@ export const isElementFocused = (element: Element): boolean => {
 /**
  * Test helper to check accessibility attributes
  */
-export const checkAccessibilityAttributes = (element: Element) => {
+export const checkAccessibilityAttributes = (element: HTMLElement) => {
   const checks = {
     hasAriaLabel: element.hasAttribute('aria-label'),
     hasAriaLabelledBy: element.hasAttribute('aria-labelledby'),

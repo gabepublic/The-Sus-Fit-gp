@@ -8,6 +8,7 @@ export const YellowBanner = React.memo<YellowBannerProps>(function YellowBanner(
   className,
   children,
   animationDelay = 0,
+  useSvgFallback = false,
 }) {
   return (
     <div 

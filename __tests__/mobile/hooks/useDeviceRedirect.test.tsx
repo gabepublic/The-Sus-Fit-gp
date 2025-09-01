@@ -27,6 +27,7 @@ const mockRouter = {
   back: jest.fn(),
   forward: jest.fn(),
   refresh: jest.fn(),
+  prefetch: jest.fn(),
 }
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
