@@ -206,6 +206,21 @@ export interface BaseComponentProps {
 }
 
 /**
+ * PhotoFrame component state enumeration
+ */
+export const PHOTO_FRAME_STATE = {
+  EMPTY: 'empty',
+  UPLOADING: 'uploading',
+  LOADED: 'loaded',
+  ERROR: 'error'
+} as const;
+
+/**
+ * PhotoFrame state union type
+ */
+export type PhotoFrameState = typeof PHOTO_FRAME_STATE[keyof typeof PHOTO_FRAME_STATE];
+
+/**
  * PhotoFrame component props interface
  * 
  * @interface PhotoFrameProps
@@ -216,7 +231,10 @@ export interface BaseComponentProps {
  *   imageUrl: 'https://example.com/image.jpg',
  *   alt: 'User uploaded image',
  *   onImageLoad: () => console.log('Image loaded'),
- *   aspectRatio: '1:1'
+ *   onUpload: (file) => console.log('Upload triggered'),
+ *   onRetry: () => console.log('Retry triggered'),
+ *   aspectRatio: '4:3',
+ *   state: 'loaded'
  * };
  * ```
  */
@@ -225,14 +243,32 @@ export interface PhotoFrameProps extends BaseComponentProps {
   imageUrl: string | null;
   /** Alternative text for accessibility */
   alt: string;
+  /** Current component state */
+  state?: PhotoFrameState;
+  /** Upload progress percentage (0-100) */
+  progress?: number;
+  /** Error message to display */
+  error?: string | null;
+  /** Aspect ratio string (e.g., '4:3', '16:9') */
+  aspectRatio?: AspectRatio;
+  /** Whether to show loading spinner */
+  loading?: boolean;
+  /** Whether component is disabled */
+  disabled?: boolean;
   /** Callback when image loads successfully */
   onImageLoad?: () => void;
   /** Callback when image fails to load */
   onImageError?: (error: Event) => void;
-  /** Aspect ratio string (e.g., '1:1', '16:9') */
-  aspectRatio?: string;
-  /** Whether to show loading spinner */
-  loading?: boolean;
+  /** Callback when upload is triggered */
+  onUpload?: (event: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => void;
+  /** Callback when retry is triggered */
+  onRetry?: () => void;
+  /** Callback for touch start events */
+  onTouchStart?: (event: React.TouchEvent) => void;
+  /** Callback for touch end events */
+  onTouchEnd?: (event: React.TouchEvent) => void;
+  /** Accept attribute for file input */
+  accept?: string;
 }
 
 /**

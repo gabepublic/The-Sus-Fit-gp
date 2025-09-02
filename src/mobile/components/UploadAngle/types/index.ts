@@ -80,6 +80,7 @@ export type {
   
   // Component-specific props
   PhotoFrameProps,
+  PhotoFrameState,
   UploadButtonProps,
   ProgressIndicatorProps,
   ErrorDisplayProps,
@@ -87,6 +88,11 @@ export type {
   
   // Utility types for components
   AspectRatio
+} from './upload.types';
+
+export {
+  // PhotoFrame constants
+  PHOTO_FRAME_STATE
 } from './upload.types';
 
 // =============================================================================
