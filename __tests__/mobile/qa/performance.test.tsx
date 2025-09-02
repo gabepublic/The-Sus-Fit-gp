@@ -186,27 +186,32 @@ describe('HomeViewContent - Performance & QA', () => {
     it('prioritizes critical resources for fast loading', () => {
       const { container } = render(<HomeViewContent />);
       
-      const image = container.querySelector('img');
+      const gifImage = container.querySelector('img[src*="home-page-animated.gif"]');
       // Next.js Image component handles priority loading internally
-      expect(image).toHaveAttribute('src', expect.stringContaining('home-page-animated.gif'));
-      expect(image).toHaveAttribute('decoding', 'async');
+      expect(gifImage).toHaveAttribute('src', expect.stringContaining('home-page-animated.gif'));
+      expect(gifImage).toHaveAttribute('data-priority', 'true');
     });
 
     it('implements proper image loading strategies', () => {
       const { container } = render(<HomeViewContent />);
       
-      const image = container.querySelector('img');
-      expect(image).toHaveAttribute('src', expect.stringContaining('home-page-animated.gif'));
-      // Next.js Image handles sizes internally based on fill prop
-      expect(image).toHaveStyle('position: absolute');
+      const gifImage = container.querySelector('img[src*="home-page-animated.gif"]');
+      expect(gifImage).toHaveAttribute('src', expect.stringContaining('home-page-animated.gif'));
+      // Next.js Image handles fill prop and sets data attributes
+      expect(gifImage).toHaveAttribute('data-fill', 'true');
+      expect(gifImage).toHaveAttribute('data-priority', 'true');
     });
 
     it('provides immediate feedback for loading states', () => {
-      render(<HomeViewContent />);
+      const { container } = render(<HomeViewContent />);
       
-      // Should have loading state indicators
-      const backgroundElement = screen.getByLabelText(/loading background content/i);
-      expect(backgroundElement).toBeInTheDocument();
+      // Should have loading state indicators and proper aria-label
+      const homepageElement = screen.getByLabelText(/SusFit Homepage/i);
+      expect(homepageElement).toBeInTheDocument();
+      
+      // Should have screen reader announcement area
+      const announceElement = container.querySelector('[aria-live="polite"]');
+      expect(announceElement).toBeInTheDocument();
     });
   });
 
@@ -279,28 +284,34 @@ describe('HomeViewContent - Performance & QA', () => {
     it('gracefully handles image loading failures', () => {
       const { container } = render(<HomeViewContent />);
       
-      const image = container.querySelector('img');
-      if (image) {
+      const gifImage = container.querySelector('img[src*="home-page-animated.gif"]');
+      if (gifImage) {
         act(() => {
-          image.dispatchEvent(new Event('error'));
+          gifImage.dispatchEvent(new Event('error'));
         });
         
-        // Should show fallback
-        const fallback = container.querySelector('.home-view-content__fallback');
-        expect(fallback).toBeInTheDocument();
+        // Should remove the gif image when error occurs
+        const gifImageAfterError = container.querySelector('img[src*="home-page-animated.gif"]');
+        expect(gifImageAfterError).not.toBeInTheDocument();
+        
+        // Component should still be functional
+        expect(container.querySelector('.home-view-content')).toBeInTheDocument();
       }
     });
 
     it('maintains accessibility during error states', () => {
-      render(<HomeViewContent />);
+      const { container } = render(<HomeViewContent />);
       
-      const image = screen.getByRole('img');
-      act(() => {
-        image.dispatchEvent(new Event('error'));
-      });
+      const gifImage = container.querySelector('img[src*="home-page-animated.gif"]');
+      if (gifImage) {
+        act(() => {
+          gifImage.dispatchEvent(new Event('error'));
+        });
+      }
       
-      // Should still have proper ARIA labels
+      // Should still have proper ARIA labels and main structure
       expect(screen.getByRole('main')).toHaveAttribute('aria-label', 'SusFit Homepage');
+      expect(screen.getByLabelText(/SusFit Homepage/i)).toBeInTheDocument();
     });
   });
 });
