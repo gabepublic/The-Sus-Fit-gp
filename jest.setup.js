@@ -80,6 +80,57 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
+// Mock Next.js Image component to prevent performance API issues
+jest.mock('next/image', () => {
+  return function Image({ 
+    src, 
+    alt, 
+    className, 
+    width, 
+    height, 
+    priority, 
+    fill,
+    unoptimized,
+    sizes,
+    quality,
+    placeholder,
+    blurDataURL,
+    loader,
+    onLoad,
+    onError,
+    ...restProps 
+  }) {
+    // Filter out Next.js specific props that shouldn't go to DOM
+    const domProps = {};
+    Object.keys(restProps).forEach(key => {
+      // Only pass through standard HTML attributes
+      if (!key.startsWith('data-') && !['onLoadingComplete', 'loading'].includes(key)) {
+        return;
+      }
+      domProps[key] = restProps[key];
+    });
+
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img 
+        src={src} 
+        alt={alt} 
+        className={className}
+        width={width}
+        height={height}
+        data-priority={priority ? 'true' : 'false'}
+        data-fill={fill ? 'true' : 'false'}
+        data-unoptimized={unoptimized ? 'true' : 'false'}
+        data-sizes={sizes}
+        data-quality={quality}
+        onLoad={onLoad}
+        onError={onError}
+        {...domProps}
+      />
+    );
+  };
+})
+
 // Next.js response is now part of next/server, so we don't need a separate mock for next/response
 
 // Mock environment variables
@@ -98,6 +149,39 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }))
+
+// Mock PerformanceObserver for performance monitoring tests
+global.PerformanceObserver = class PerformanceObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  
+  observe(options) {
+    // Mock implementation - can trigger callback if needed for testing
+    return;
+  }
+  
+  disconnect() {
+    return;
+  }
+  
+  takeRecords() {
+    return [];
+  }
+}
+
+// Enhanced performance API mock
+global.performance = {
+  ...global.performance,
+  mark: jest.fn(),
+  measure: jest.fn(),
+  now: jest.fn(() => Date.now()),
+  getEntries: jest.fn(() => []),
+  getEntriesByName: jest.fn(() => []),
+  getEntriesByType: jest.fn(() => []),
+  clearMarks: jest.fn(),
+  clearMeasures: jest.fn(),
+}
 
 // Mock matchMedia (only if window exists)
 if (typeof window !== 'undefined') {
