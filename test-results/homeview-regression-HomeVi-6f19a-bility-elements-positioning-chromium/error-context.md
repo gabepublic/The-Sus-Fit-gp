@@ -13,7 +13,6 @@
     - main [ref=e13]:
       - generic [ref=e14]:
         - main "SusFit Homepage" [ref=e15]:
-          - generic [ref=e16]: Welcome to SusFit. Interactive background loaded successfully.
           - generic [ref=e20]:
             - region "Let's Get You Fitted - Welcome to SusFit":
               - heading "Let's Get You Fitted - Welcome to SusFit" [level=1] [ref=e21]:
@@ -32,11 +31,4 @@
         - generic [ref=e33]: Main content loaded
   - region "Notifications (F8)":
     - list
-  - generic [ref=e34]:
-    - img [ref=e36]
-    - button "Open Tanstack query devtools" [ref=e84] [cursor=pointer]:
-      - img [ref=e85] [cursor=pointer]
-  - alert [ref=e133]
-  - button "Open Next.js Dev Tools" [ref=e139] [cursor=pointer]:
-    - img [ref=e140] [cursor=pointer]
 ```
