@@ -3,5 +3,8 @@
  * @module @/mobile/components/UploadAngle/styles
  */
 
-// Export placeholder for future styles
-export {};
+// Export the main upload styles module
+export { default as uploadStyles } from './upload.module.css';
+
+// Re-export for convenience
+export * as upload from './upload.module.css';
