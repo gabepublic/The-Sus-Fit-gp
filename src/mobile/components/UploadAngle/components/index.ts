@@ -44,6 +44,12 @@ export { PhotoFrame } from './PhotoFrame';
 export { UploadButton } from './UploadButton';
 
 /**
+ * NextButton component for workflow progression
+ * Provides state-aware navigation with brutalist design
+ */
+export { NextButton } from './NextButton';
+
+/**
  * ProgressIndicator component for upload progress
  * Supports both linear and circular progress indicators
  */
@@ -63,6 +69,7 @@ export type {
   UploadAngleProps,
   PhotoFrameProps,
   UploadButtonProps,
+  NextButtonProps,
   ProgressIndicatorProps,
   ErrorDisplayProps,
   BaseComponentProps

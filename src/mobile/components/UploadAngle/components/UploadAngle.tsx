@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { UploadAngleProps, UploadState, ImageValidationResult, ImageMetadata, DEFAULT_UPLOAD_CONFIG } from '../types';
 import { PhotoFrame } from './PhotoFrame';
 import { UploadButton } from './UploadButton';
+import { NextButton } from './NextButton';
 import { ProgressIndicator } from './ProgressIndicator';
 import { ErrorDisplay } from './ErrorDisplay';
 
@@ -27,6 +28,7 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
   onUploadSuccess,
   onUploadError,
   onProgressChange,
+  onNext,
   disabled = false,
   initialImageUrl,
   className = '',
@@ -328,6 +330,17 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
               </svg>
               <span>Image uploaded successfully!</span>
             </div>
+          )}
+
+          {/* Next Button - only show when upload is successful */}
+          {uploadState.status === 'success' && uploadState.imageUrl && onNext && (
+            <NextButton
+              onClick={onNext}
+              disabled={disabled}
+              variant="primary"
+              size="medium"
+              className="upload-angle__next-button"
+            />
           )}
         </div>
 

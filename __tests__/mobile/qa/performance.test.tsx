@@ -73,16 +73,16 @@ describe('HomeViewContent - Performance & QA', () => {
       const performanceMarker = container.querySelector('.performance-marker');
       expect(performanceMarker).toHaveAttribute('data-loaded', 'false');
       
-      // Simulate image load
-      const image = container.querySelector('img');
-      if (image) {
+      // Simulate GIF image load (the specific image that affects loading state)
+      const gifImage = container.querySelector('.home-view-content__gif');
+      if (gifImage) {
         act(() => {
-          image.dispatchEvent(new Event('load'));
+          gifImage.dispatchEvent(new Event('load'));
         });
         
         await waitFor(() => {
           expect(performanceMarker).toHaveAttribute('data-loaded', 'true');
-        });
+        }, { timeout: 3000 });
       }
     });
 
@@ -92,11 +92,11 @@ describe('HomeViewContent - Performance & QA', () => {
       const performanceMarker = container.querySelector('.performance-marker');
       expect(performanceMarker).toHaveAttribute('data-error', 'false');
       
-      // Simulate image error
-      const image = container.querySelector('img');
-      if (image) {
+      // Simulate GIF image error (the specific image that affects error state)
+      const gifImage = container.querySelector('.home-view-content__gif');
+      if (gifImage) {
         act(() => {
-          image.dispatchEvent(new Event('error'));
+          gifImage.dispatchEvent(new Event('error'));
         });
         
         expect(performanceMarker).toHaveAttribute('data-error', 'true');

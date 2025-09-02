@@ -336,6 +336,36 @@ export interface ErrorDisplayProps extends BaseComponentProps {
 }
 
 /**
+ * NextButton component props interface
+ * 
+ * @interface NextButtonProps  
+ * @extends BaseComponentProps
+ * @example
+ * ```typescript
+ * const props: NextButtonProps = {
+ *   onClick: () => console.log('Next clicked'),
+ *   disabled: false,
+ *   variant: 'primary',
+ *   loading: false
+ * };
+ * ```
+ */
+export interface NextButtonProps extends BaseComponentProps {
+  /** Callback when button is clicked */
+  onClick: () => void;
+  /** Whether button is disabled */
+  disabled?: boolean;
+  /** Button variant style */
+  variant?: 'primary' | 'secondary' | 'outline';
+  /** Button size */
+  size?: 'small' | 'medium' | 'large';
+  /** Whether button is in loading state */
+  loading?: boolean;
+  /** Optional children content */
+  children?: React.ReactNode;
+}
+
+/**
  * Main UploadAngle container props interface
  * 
  * @interface UploadAngleProps
@@ -350,6 +380,8 @@ export interface UploadAngleProps extends BaseComponentProps {
   onUploadError?: (error: string) => void;
   /** Callback when upload progress changes */
   onProgressChange?: (progress: number) => void;
+  /** Callback when Next button is clicked */
+  onNext?: () => void;
   /** Whether component is disabled */
   disabled?: boolean;
   /** Initial image URL */

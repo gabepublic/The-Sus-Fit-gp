@@ -2,18 +2,20 @@
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { UploadButtonProps } from '../types';
+import styles from './UploadButton.module.css';
 
 /**
- * UploadButton Component - File selection with drag-and-drop support
+ * UploadButton Component - File selection with brutalist design and drag-and-drop support
  * 
  * Features:
+ * - Brutalist design system (Pink #ff69b4, black borders, blue shadows)
  * - File input with custom styling
  * - Drag and drop functionality
  * - Multiple file type support
  * - Keyboard accessibility (Space/Enter activation)
  * - Visual feedback for drag states
- * - Mobile-friendly touch interactions
- * - Multiple size and variant options
+ * - Mobile-friendly touch interactions with 44px minimum targets
+ * - High contrast and reduced motion support
  * 
  * @param props UploadButtonProps
  * @returns JSX.Element
@@ -31,7 +33,6 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
-  const [isFocused, setIsFocused] = useState(false);
 
   // Handle file input change
   const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,15 +130,6 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
     }
   }, [disabled, accept, onFileSelect]);
 
-  // Focus handlers
-  const handleFocus = useCallback(() => {
-    setIsFocused(true);
-  }, []);
-
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-  }, []);
-
   // Prevent default drag behaviors on the window
   useEffect(() => {
     const preventDefaults = (e: Event) => {
@@ -157,35 +149,34 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
     };
   }, []);
 
-  const buttonClasses = `
-    upload-button
-    upload-button--${variant}
-    upload-button--${size}
-    ${isDragActive ? 'upload-button--drag-active' : ''}
-    ${disabled ? 'upload-button--disabled' : ''}
-    ${isFocused ? 'upload-button--focused' : ''}
-    ${className}
-  `.trim();
+  // Build CSS classes
+  const buttonClasses = [
+    styles.button,
+    styles[size],
+    isDragActive ? styles.dragActive : '',
+    disabled ? styles.disabled : '',
+    className
+  ].filter(Boolean).join(' ');
 
   const defaultContent = (
-    <div className="upload-button__content">
+    <div className={styles.content}>
       <svg
-        className="upload-button__icon"
+        className={styles.icon}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="3"
         aria-hidden="true"
       >
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="17,8 12,3 7,8"/>
         <line x1="12" y1="3" x2="12" y2="15"/>
       </svg>
-      <span className="upload-button__text">
-        {isDragActive ? 'Drop image here' : 'Upload Image'}
+      <span className={styles.text}>
+        {isDragActive ? 'Drop Here' : 'Upload Image'}
       </span>
       {!isDragActive && (
-        <span className="upload-button__hint">
+        <span className={styles.hint}>
           or drag and drop
         </span>
       )}
@@ -193,13 +184,13 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   );
 
   return (
-    <div className="upload-button-container">
+    <div className={styles.container}>
       <input
         ref={fileInputRef}
         type="file"
         accept={accept}
         onChange={handleFileChange}
-        className="upload-button__input"
+        className={styles.input}
         disabled={disabled}
         aria-hidden="true"
         tabIndex={-1}
@@ -210,8 +201,6 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
         className={buttonClasses}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -222,197 +211,6 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
       >
         {children || defaultContent}
       </button>
-
-      <style jsx>{`
-        .upload-button-container {
-          position: relative;
-          display: inline-block;
-        }
-
-        .upload-button__input {
-          position: absolute;
-          opacity: 0;
-          width: 1px;
-          height: 1px;
-          overflow: hidden;
-        }
-
-        .upload-button {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border: none;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease-in-out;
-          text-decoration: none;
-          user-select: none;
-          outline: none;
-          min-width: 120px;
-        }
-
-        /* Size variants */
-        .upload-button--small {
-          padding: 8px 16px;
-          font-size: 14px;
-          line-height: 1.25;
-          gap: 6px;
-        }
-
-        .upload-button--medium {
-          padding: 12px 24px;
-          font-size: 16px;
-          line-height: 1.5;
-          gap: 8px;
-        }
-
-        .upload-button--large {
-          padding: 16px 32px;
-          font-size: 18px;
-          line-height: 1.5;
-          gap: 10px;
-        }
-
-        /* Variant styles */
-        .upload-button--primary {
-          background: linear-gradient(145deg, #3b82f6, #2563eb);
-          color: white;
-          border: 2px solid transparent;
-          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-        }
-
-        .upload-button--primary:hover:not(.upload-button--disabled) {
-          background: linear-gradient(145deg, #2563eb, #1d4ed8);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .upload-button--secondary {
-          background: white;
-          color: #3b82f6;
-          border: 2px solid #e2e8f0;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .upload-button--secondary:hover:not(.upload-button--disabled) {
-          border-color: #3b82f6;
-          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-        }
-
-        .upload-button--outline {
-          background: transparent;
-          color: #3b82f6;
-          border: 2px solid #3b82f6;
-        }
-
-        .upload-button--outline:hover:not(.upload-button--disabled) {
-          background: rgba(59, 130, 246, 0.05);
-          border-color: #2563eb;
-        }
-
-        /* State variants */
-        .upload-button--focused {
-          outline: 2px solid #3b82f6;
-          outline-offset: 2px;
-        }
-
-        .upload-button--drag-active {
-          border-color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
-          color: #065f46;
-          transform: scale(1.02);
-        }
-
-        .upload-button--drag-active.upload-button--primary {
-          background: linear-gradient(145deg, #10b981, #059669);
-          color: white;
-        }
-
-        .upload-button--disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none !important;
-        }
-
-        .upload-button__content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .upload-button__icon {
-          width: 20px;
-          height: 20px;
-        }
-
-        .upload-button--large .upload-button__icon {
-          width: 24px;
-          height: 24px;
-        }
-
-        .upload-button--small .upload-button__icon {
-          width: 16px;
-          height: 16px;
-        }
-
-        .upload-button__text {
-          font-weight: 600;
-        }
-
-        .upload-button__hint {
-          font-size: 0.75em;
-          opacity: 0.8;
-          font-weight: 400;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-          .upload-button {
-            min-width: 100px;
-          }
-          
-          .upload-button--medium {
-            padding: 10px 20px;
-            font-size: 15px;
-          }
-          
-          .upload-button--large {
-            padding: 12px 24px;
-            font-size: 16px;
-          }
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-          .upload-button {
-            transition: none;
-          }
-          
-          .upload-button:hover:not(.upload-button--disabled) {
-            transform: none;
-          }
-          
-          .upload-button--drag-active {
-            transform: none;
-          }
-        }
-
-        /* High contrast mode */
-        @media (prefers-contrast: high) {
-          .upload-button--primary {
-            background: #000;
-            border-color: #000;
-          }
-          
-          .upload-button--secondary,
-          .upload-button--outline {
-            border-width: 3px;
-          }
-        }
-      `}</style>
     </div>
   );
 });

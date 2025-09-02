@@ -309,7 +309,7 @@ describe('YellowBanner', () => {
       
       expect(svgContainer).toBeInTheDocument()
       expect(content).toBeInTheDocument()
-      expect(svgContainer).toContainElement(content)
+      expect(svgContainer).toContainElement(content as HTMLElement)
     })
 
     it('uses correct container and content classes', () => {

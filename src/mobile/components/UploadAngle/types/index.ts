@@ -82,6 +82,7 @@ export type {
   PhotoFrameProps,
   PhotoFrameState,
   UploadButtonProps,
+  NextButtonProps,
   ProgressIndicatorProps,
   ErrorDisplayProps,
   UploadAngleProps,
