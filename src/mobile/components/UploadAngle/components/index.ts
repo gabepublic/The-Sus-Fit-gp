@@ -61,6 +61,12 @@ export { ProgressIndicator } from './ProgressIndicator';
  */
 export { ErrorDisplay } from './ErrorDisplay';
 
+/**
+ * ErrorBoundary component for React error boundaries
+ * Provides graceful error handling and recovery for component trees
+ */
+export { ErrorBoundary, withErrorBoundary, useErrorHandler, useErrorRecovery } from './ErrorBoundary';
+
 // =============================================================================
 // COMPONENT TYPES RE-EXPORTS
 // =============================================================================

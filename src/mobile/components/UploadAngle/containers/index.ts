@@ -3,5 +3,8 @@
  * @module @/mobile/components/UploadAngle/containers
  */
 
-// Export placeholder for future containers
-export {};
+export { UploadAngleContainer } from './UploadAngleContainer';
+export { default as UploadAngleContainerDefault } from './UploadAngleContainer';
+
+export { UploadAngleWithErrorBoundary } from './UploadAngleWithErrorBoundary';
+export { default as UploadAngleWithErrorBoundaryDefault } from './UploadAngleWithErrorBoundary';
