@@ -558,7 +558,7 @@ export function useAngleUpload(
         const startTime = Date.now();
         const totalSize = file.size;
         let uploadedBytes = 0;
-        let stableSpeedWindow: number[] = [];
+        const stableSpeedWindow: number[] = [];
         
         const updateInterval = 100; // Update every 100ms
         

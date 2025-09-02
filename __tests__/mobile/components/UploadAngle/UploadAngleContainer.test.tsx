@@ -7,8 +7,8 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { UploadAngleContainer } from '../containers/UploadAngleContainer';
-import { ErrorBoundary } from '../components/ErrorBoundary';
+import { UploadAngleContainer } from '../../../../src/mobile/components/UploadAngle/containers/UploadAngleContainer';
+import { ErrorBoundary } from '../../../../src/mobile/components/UploadAngle/components/ErrorBoundary';
 
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({

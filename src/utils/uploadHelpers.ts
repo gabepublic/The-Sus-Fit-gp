@@ -521,7 +521,7 @@ export async function compressImage(
           ctx.drawImage(img, 0, 0);
           
           // Iterative compression
-          let currentQuality = initialQuality;
+          const currentQuality = initialQuality;
           let bestBlob: Blob | null = null;
           let attempts = 0;
           

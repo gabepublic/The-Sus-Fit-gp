@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { MobileHeader, MobileMenu } from '../../../mobile/components'
 import '../../../mobile/styles/mobile.css'
 
@@ -10,6 +11,8 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children }: MobileLayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const pathname = usePathname()
 
   const handleMenuToggle = () => {
     setIsMenuOpen(prev => !prev)
@@ -19,12 +22,43 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
     setIsMenuOpen(false)
   }
 
+  // Determine header configuration based on current route
+  const isUploadAnglePage = pathname === '/m/upload-angle'
+  const showBackButton = isUploadAnglePage
+  const showProgress = isUploadAnglePage && uploadProgress > 0 && uploadProgress < 100
+  const title = isUploadAnglePage ? 'Upload Your Angle' : undefined
+
+  // Listen for upload progress events
+  useEffect(() => {
+    const handleUploadProgress = (event: CustomEvent) => {
+      setUploadProgress(event.detail.progress || 0)
+    }
+
+    // Listen for custom upload progress events
+    window.addEventListener('upload-progress', handleUploadProgress as EventListener)
+    
+    return () => {
+      window.removeEventListener('upload-progress', handleUploadProgress as EventListener)
+    }
+  }, [])
+
+  // Reset upload progress when leaving upload page
+  useEffect(() => {
+    if (!isUploadAnglePage) {
+      setUploadProgress(0)
+    }
+  }, [isUploadAnglePage])
+
   return (
     <div className="mobile-layout min-h-screen bg-gradient-to-b from-pink-50 to-yellow-50">
       {/* Mobile Header */}
       <MobileHeader 
         isMenuOpen={isMenuOpen} 
-        onMenuToggle={handleMenuToggle} 
+        onMenuToggle={handleMenuToggle}
+        showBackButton={showBackButton}
+        showProgress={showProgress}
+        progress={uploadProgress}
+        title={title}
       />
       
       {/* Mobile Navigation Menu */}

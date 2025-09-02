@@ -7,6 +7,11 @@ export interface MobileLayoutProps {
 export interface MobileHeaderProps {
   isMenuOpen: boolean
   onMenuToggle: () => void
+  showBackButton?: boolean
+  onBackClick?: () => void
+  showProgress?: boolean
+  progress?: number
+  title?: string
 }
 
 export interface MobileMenuProps {
