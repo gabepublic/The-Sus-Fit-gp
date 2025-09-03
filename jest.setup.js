@@ -36,6 +36,115 @@ global.Response = Response
 global.Headers = Headers
 
 import '@testing-library/jest-dom'
+import { toHaveNoViolations } from 'jest-axe'
+import 'jest-canvas-mock'
+
+// Add jest-axe accessibility matchers
+expect.extend(toHaveNoViolations)
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+}
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+}
+
+// Mock URL.createObjectURL and revokeObjectURL for file uploads
+global.URL.createObjectURL = jest.fn(() => 'mocked-object-url')
+global.URL.revokeObjectURL = jest.fn()
+
+// Mock File and FileReader for upload testing
+global.File = class MockFile {
+  constructor(bits, name, options = {}) {
+    this.bits = bits
+    this.name = name
+    this.type = options.type || 'text/plain'
+    this.size = bits.reduce((acc, bit) => acc + bit.length, 0)
+    this.lastModified = Date.now()
+  }
+}
+
+global.FileReader = class MockFileReader {
+  constructor() {
+    this.readyState = 0
+    this.result = null
+    this.error = null
+    this.onload = null
+    this.onerror = null
+    this.onabort = null
+    this.onloadstart = null
+    this.onloadend = null
+    this.onprogress = null
+  }
+  
+  readAsDataURL() {
+    this.readyState = 2
+    this.result = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD'
+    if (this.onload) this.onload({ target: this })
+  }
+  
+  readAsArrayBuffer() {
+    this.readyState = 2
+    this.result = new ArrayBuffer(8)
+    if (this.onload) this.onload({ target: this })
+  }
+  
+  abort() {
+    if (this.onabort) this.onabort({ target: this })
+  }
+}
+
+// Mock Canvas for image processing tests
+HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
+  drawImage: jest.fn(),
+  getImageData: jest.fn(() => ({ data: new Uint8ClampedArray(4) })),
+  putImageData: jest.fn(),
+  createImageData: jest.fn(),
+  clearRect: jest.fn(),
+  fillRect: jest.fn(),
+  strokeRect: jest.fn(),
+  save: jest.fn(),
+  restore: jest.fn(),
+  scale: jest.fn(),
+  rotate: jest.fn(),
+  translate: jest.fn(),
+  transform: jest.fn(),
+  setTransform: jest.fn(),
+}))
+
+// Mock Image constructor for image loading tests
+global.Image = class MockImage {
+  constructor() {
+    this.onload = null
+    this.onerror = null
+    this.src = ''
+    this.width = 800
+    this.height = 600
+    this.naturalWidth = 800
+    this.naturalHeight = 600
+  }
+  
+  set src(value) {
+    this._src = value
+    // Simulate async image loading
+    setTimeout(() => {
+      if (this.onload) this.onload()
+    }, 0)
+  }
+  
+  get src() {
+    return this._src
+  }
+}
 
 // Mock Next.js router
 jest.mock('next/router', () => ({

@@ -7,8 +7,8 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { UploadAngleContainer } from '../../../../src/mobile/components/UploadAngle/containers/UploadAngleContainer';
-import { ErrorBoundary } from '../../../../src/mobile/components/UploadAngle/components/ErrorBoundary';
+import { UploadAngleContainer } from '@/mobile/components/UploadAngle/containers/UploadAngleContainer';
+import { ErrorBoundary } from '@/mobile/components/UploadAngle/components/ErrorBoundary';
 
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
@@ -21,16 +21,16 @@ jest.mock('framer-motion', () => ({
 }));
 
 // Mock hooks to control their behavior in tests
-jest.mock('../hooks/useAngleUpload', () => ({
+jest.mock('@/mobile/components/UploadAngle/hooks/useAngleUpload', () => ({
   useAngleUpload: jest.fn()
 }));
 
-jest.mock('../hooks/useImageProcessing', () => ({
+jest.mock('@/mobile/components/UploadAngle/hooks/useImageProcessing', () => ({
   useImageProcessing: jest.fn()
 }));
 
-const mockUseAngleUpload = require('../hooks/useAngleUpload').useAngleUpload;
-const mockUseImageProcessing = require('../hooks/useImageProcessing').useImageProcessing;
+const mockUseAngleUpload = require('@/mobile/components/UploadAngle/hooks/useAngleUpload').useAngleUpload;
+const mockUseImageProcessing = require('@/mobile/components/UploadAngle/hooks/useImageProcessing').useImageProcessing;
 
 describe('UploadAngleContainer', () => {
   const defaultUploadHookReturn = {

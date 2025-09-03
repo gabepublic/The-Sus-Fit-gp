@@ -272,6 +272,7 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
   const containerRef = useRef<HTMLDivElement>(null);
   const lastErrorRef = useRef<string | null>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastUploadStateRef = useRef<typeof uploadState | null>(null);
 
   // Memoized configuration
   const uploadConfig = useMemo(
@@ -296,38 +297,49 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
     return () => clearTimeout(initTimeout);
   }, []);
 
-  // Sync upload state with container state
+  // Memoized upload payload to prevent unnecessary dispatches
+  const uploadPayload = useMemo(() => ({
+    status: uploadState.status,
+    file: uploadState.file,
+    imageUrl: uploadState.imageUrl,
+    error: uploadState.error,
+    progress: uploadState.progress
+  }), [uploadState.status, uploadState.file, uploadState.imageUrl, uploadState.error, uploadState.progress]);
+
+  // Sync upload state with container state - only when payload changes
   useEffect(() => {
     dispatch({
       type: CONTAINER_ACTIONS.UPDATE_UPLOAD,
-      payload: {
-        status: uploadState.status,
-        file: uploadState.file,
-        imageUrl: uploadState.imageUrl,
-        error: uploadState.error,
-        progress: uploadState.progress
-      }
+      payload: uploadPayload
     });
+  }, [uploadPayload]);
 
-    // Notify parent of progress changes
+  // Handle progress changes
+  useEffect(() => {
     if (onProgressChange && uploadState.progress !== containerState.progress) {
       onProgressChange(uploadState.progress);
     }
+  }, [onProgressChange, uploadState.progress, containerState.progress]);
 
-    // Handle upload success
+  // Handle upload success
+  useEffect(() => {
     if (uploadState.status === STATUS.SUCCESS && uploadState.imageUrl) {
       dispatch({ type: CONTAINER_ACTIONS.TRACK_INTERACTION, payload: { interaction: 'hasCompletedUpload' } });
-      onUploadSuccess?.(uploadState.imageUrl, containerState.metadata!);
+      if (onUploadSuccess && containerState.metadata) {
+        onUploadSuccess(uploadState.imageUrl, containerState.metadata);
+      }
     }
+  }, [uploadState.status, uploadState.imageUrl, onUploadSuccess, containerState.metadata]);
 
-    // Handle upload error
+  // Handle upload error
+  useEffect(() => {
     if (uploadState.status === STATUS.ERROR && uploadState.error) {
       if (lastErrorRef.current !== uploadState.error) {
         lastErrorRef.current = uploadState.error;
         onUploadError?.(uploadState.error);
       }
     }
-  }, [uploadState, onProgressChange, onUploadSuccess, onUploadError, containerState.progress, containerState.metadata]);
+  }, [uploadState.status, uploadState.error, onUploadError]);
 
   // Cleanup on unmount
   useEffect(() => {
