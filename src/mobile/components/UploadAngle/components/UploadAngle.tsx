@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { UploadAngleProps, UploadState, ImageValidationResult, ImageMetadata, DEFAULT_UPLOAD_CONFIG } from '../types';
+import {
+  UploadAngleProps,
+  UploadState,
+  ImageValidationResult,
+  ImageMetadata,
+  DEFAULT_UPLOAD_CONFIG
+} from '../types';
+import { useAngleUpload } from '../hooks/useAngleUpload';
 import { PhotoFrame } from './PhotoFrame';
 import { UploadButton } from './UploadButton';
 import { NextButton } from './NextButton';
@@ -10,7 +17,7 @@ import { ErrorDisplay } from './ErrorDisplay';
 
 /**
  * UploadAngle Component - Main container for the Upload Your Angle functionality
- * 
+ *
  * Features:
  * - Complete upload workflow management
  * - File validation and processing
@@ -19,7 +26,7 @@ import { ErrorDisplay } from './ErrorDisplay';
  * - Responsive layout adaptation
  * - Accessibility compliance
  * - Integration with upload hooks (ready for Task 4)
- * 
+ *
  * @param props UploadAngleProps
  * @returns JSX.Element
  */
@@ -35,185 +42,70 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
   testId = 'upload-angle'
 }) {
   // Merge user config with defaults
-  const config = useMemo(() => ({
-    ...DEFAULT_UPLOAD_CONFIG,
-    ...userConfig
-  }), [userConfig]);
+  const config = useMemo(
+    () => ({
+      ...DEFAULT_UPLOAD_CONFIG,
+      ...userConfig
+    }),
+    [userConfig]
+  );
 
-  // Upload state management
-  const [uploadState, setUploadState] = useState<UploadState>({
-    status: 'idle',
-    file: null,
-    imageUrl: initialImageUrl || null,
-    error: null,
-    progress: 0
-  });
+  // Use the real upload hook
+  const uploadHook = useAngleUpload(config);
 
-  // File validation function
-  const validateFile = useCallback((file: File): ImageValidationResult => {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    // Check file size
-    if (file.size > config.maxFileSize) {
-      const maxSizeMB = (config.maxFileSize / (1024 * 1024)).toFixed(1);
-      errors.push(`File size exceeds ${maxSizeMB}MB limit`);
-    }
-
-    // Check file type
-    if (config.allowedTypes.length > 0) {
-      const isAllowed = config.allowedTypes.some(type => {
-        if (type.startsWith('.')) {
-          return file.name.toLowerCase().endsWith(type.toLowerCase());
-        }
-        return file.type === type || file.type.startsWith(type.replace('/*', ''));
-      });
-      
-      if (!isAllowed) {
-        errors.push('File type not supported. Please select a valid image file.');
-      }
-    }
-
-    // Add warnings for large files
-    if (file.size > config.maxFileSize * 0.8) {
-      warnings.push('Large file size may result in slower processing');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-      warnings
-    };
-  }, [config]);
-
-  // Extract image metadata
-  const extractMetadata = useCallback((file: File): Promise<ImageMetadata> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      
-      img.onload = () => {
-        resolve({
-          filename: file.name,
-          size: file.size,
-          type: file.type,
-          width: img.naturalWidth,
-          height: img.naturalHeight,
-          lastModified: file.lastModified
-        });
-        URL.revokeObjectURL(img.src);
-      };
-      
-      img.onerror = () => {
-        URL.revokeObjectURL(img.src);
-        reject(new Error('Failed to load image for metadata extraction'));
-      };
-      
-      img.src = URL.createObjectURL(file);
-    });
-  }, []);
-
-  // Simulate upload process (will be replaced with actual upload logic in Task 4)
-  const simulateUpload = useCallback(async (file: File, imageUrl: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        progress = Math.min(progress, 100);
-        
-        setUploadState(prev => ({ ...prev, progress }));
-        onProgressChange?.(progress);
-        
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            // Simulate occasional failures for testing
-            if (Math.random() > 0.9) {
-              reject(new Error('Upload failed due to network error'));
-            } else {
-              resolve();
-            }
-          }, 500);
-        }
-      }, 200);
-    });
-  }, [onProgressChange]);
+  // Create simplified upload state for component
+  const uploadState: UploadState = useMemo(
+    () => ({
+      status: uploadHook.state.status,
+      file: uploadHook.state.file,
+      imageUrl: uploadHook.state.imageUrl || initialImageUrl || null,
+      error: uploadHook.state.error,
+      progress: uploadHook.state.progress
+    }),
+    [uploadHook.state, initialImageUrl]
+  );
 
   // Handle file selection
-  const handleFileSelect = useCallback(async (file: File) => {
-    if (disabled) return;
+  const handleFileSelect = useCallback(
+    async (file: File) => {
+      if (disabled) return;
 
-    // Validate file
-    const validation = validateFile(file);
-    if (!validation.isValid) {
-      const error = validation.errors[0];
-      setUploadState(prev => ({
-        ...prev,
-        status: 'error',
-        error,
-        file: null,
-        imageUrl: null
-      }));
-      onUploadError?.(error);
-      return;
-    }
+      try {
+        // Use the real upload hook
+        const result = await uploadHook.uploadFile(file);
 
-    // Create image URL
-    const imageUrl = URL.createObjectURL(file);
-    
-    // Set uploading state
-    setUploadState({
-      status: 'uploading',
-      file,
-      imageUrl,
-      error: null,
-      progress: 0
-    });
+        if (result.success && result.data) {
+          // Success - extract metadata if needed
+          const metadata: ImageMetadata = {
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            width: 0, // Will be filled by hook if needed
+            height: 0, // Will be filled by hook if needed
+            lastModified: file.lastModified
+          };
 
-    try {
-      // Extract metadata
-      const metadata = await extractMetadata(file);
-      
-      // Perform upload simulation
-      await simulateUpload(file, imageUrl);
-      
-      // Success state
-      setUploadState(prev => ({
-        ...prev,
-        status: 'success',
-        progress: 100
-      }));
-      
-      onUploadSuccess?.(imageUrl, metadata);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-      setUploadState(prev => ({
-        ...prev,
-        status: 'error',
-        error: errorMessage
-      }));
-      onUploadError?.(errorMessage);
-      
-      // Clean up failed upload
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+          onUploadSuccess?.(result.data, metadata);
+        } else {
+          onUploadError?.(result.error || 'Upload failed');
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Upload failed';
+        onUploadError?.(errorMessage);
       }
-    }
-  }, [disabled, validateFile, extractMetadata, simulateUpload, onUploadSuccess, onUploadError]);
+    },
+    [disabled, uploadHook, onUploadSuccess, onUploadError]
+  );
 
   // Handle retry
-  const handleRetry = useCallback(() => {
+  const handleRetry = useCallback(async () => {
     if (uploadState.file) {
-      handleFileSelect(uploadState.file);
+      await handleFileSelect(uploadState.file);
     } else {
-      setUploadState({
-        status: 'idle',
-        file: null,
-        imageUrl: initialImageUrl || null,
-        error: null,
-        progress: 0
-      });
+      uploadHook.reset();
     }
-  }, [uploadState.file, handleFileSelect, initialImageUrl]);
+  }, [uploadState.file, handleFileSelect, uploadHook]);
 
   // Handle image load success
   const handleImageLoad = useCallback(() => {
@@ -222,21 +114,23 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
 
   // Handle image load error
   const handleImageError = useCallback((error: Event) => {
-    setUploadState(prev => ({
-      ...prev,
-      status: 'error',
-      error: 'Failed to display image'
-    }));
+    // Image display error - would be handled by hook in real implementation
+    console.warn('Image display error:', error);
   }, []);
 
-  // Clean up object URLs on unmount
+  // Handle progress updates
+  React.useEffect(() => {
+    if (uploadHook.state.progress > 0) {
+      onProgressChange?.(uploadHook.state.progress);
+    }
+  }, [uploadHook.state.progress, onProgressChange]);
+
+  // Clean up on unmount
   React.useEffect(() => {
     return () => {
-      if (uploadState.imageUrl && uploadState.imageUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(uploadState.imageUrl);
-      }
+      uploadHook.cleanup();
     };
-  }, [uploadState.imageUrl]);
+  }, [uploadHook]);
 
   const containerClasses = `
     upload-angle
@@ -248,36 +142,36 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
   const acceptedTypes = config.allowedTypes.join(',');
 
   return (
-    <div 
+    <div
       className={containerClasses}
       data-testid={testId}
-      role="region"
-      aria-label="Upload your angle image"
+      role='region'
+      aria-label='Upload your angle image'
     >
-      <div className="upload-angle__container">
+      <div className='upload-angle__container'>
         {/* Photo Display Area */}
-        <div className="upload-angle__photo-section">
+        <div className='upload-angle__photo-section'>
           <PhotoFrame
             imageUrl={uploadState.imageUrl}
-            alt="Your uploaded angle photo"
+            alt='Your uploaded angle photo'
             loading={uploadState.status === 'uploading'}
             onImageLoad={handleImageLoad}
             onImageError={handleImageError}
-            aspectRatio="1:1"
-            className="upload-angle__photo-frame"
+            aspectRatio='1:1'
+            className='upload-angle__photo-frame'
           />
         </div>
 
         {/* Upload Controls */}
-        <div className="upload-angle__controls">
+        <div className='upload-angle__controls'>
           {uploadState.status !== 'uploading' && (
             <UploadButton
               onFileSelect={handleFileSelect}
               accept={acceptedTypes}
               disabled={disabled}
               variant={uploadState.status === 'error' ? 'secondary' : 'primary'}
-              size="medium"
-              className="upload-angle__upload-button"
+              size='medium'
+              className='upload-angle__upload-button'
             >
               {uploadState.imageUrl ? 'Change Image' : 'Upload Image'}
             </UploadButton>
@@ -285,15 +179,15 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
 
           {/* Progress Indicator */}
           {uploadState.status === 'uploading' && (
-            <div className="upload-angle__progress-section">
+            <div className='upload-angle__progress-section'>
               <ProgressIndicator
                 progress={uploadState.progress}
                 showPercentage={true}
-                variant="linear"
-                color="primary"
-                className="upload-angle__progress"
+                variant='linear'
+                color='primary'
+                className='upload-angle__progress'
               />
-              <p className="upload-angle__progress-text">
+              <p className='upload-angle__progress-text'>
                 Uploading your image...
               </p>
             </div>
@@ -305,56 +199,65 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
               error={uploadState.error}
               onRetry={handleRetry}
               showRetry={true}
-              severity="error"
-              className="upload-angle__error"
+              severity='error'
+              className='upload-angle__error'
             />
           )}
 
           {/* Success Message */}
           {uploadState.status === 'success' && (
-            <div 
-              className="upload-angle__success"
-              role="status"
-              aria-live="polite"
+            <div
+              className='upload-angle__success'
+              role='status'
+              aria-live='polite'
             >
               <svg
-                className="upload-angle__success-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
+                className='upload-angle__success-icon'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                aria-hidden='true'
               >
-                <path d="m9 12 2 2 4-4"/>
-                <circle cx="12" cy="12" r="10"/>
+                <path d='m9 12 2 2 4-4' />
+                <circle
+                  cx='12'
+                  cy='12'
+                  r='10'
+                />
               </svg>
               <span>Image uploaded successfully!</span>
             </div>
           )}
 
           {/* Next Button - only show when upload is successful */}
-          {uploadState.status === 'success' && uploadState.imageUrl && onNext && (
-            <NextButton
-              onClick={onNext}
-              disabled={disabled}
-              variant="primary"
-              size="medium"
-              className="upload-angle__next-button"
-            />
-          )}
+          {uploadState.status === 'success' &&
+            uploadState.imageUrl &&
+            onNext && (
+              <NextButton
+                onClick={onNext}
+                disabled={disabled}
+                variant='primary'
+                size='medium'
+                className='upload-angle__next-button'
+              />
+            )}
         </div>
 
         {/* Upload Instructions */}
         {uploadState.status === 'idle' && !uploadState.imageUrl && (
-          <div className="upload-angle__instructions">
-            <h3 className="upload-angle__instructions-title">
+          <div className='upload-angle__instructions'>
+            <h3 className='upload-angle__instructions-title'>
               Upload Your Angle
             </h3>
-            <ul className="upload-angle__instructions-list">
+            <ul className='upload-angle__instructions-list'>
               <li>Select an image from your device</li>
               <li>Or drag and drop an image file</li>
               <li>Supported formats: JPEG, PNG, WebP</li>
-              <li>Maximum file size: {(config.maxFileSize / (1024 * 1024)).toFixed(1)}MB</li>
+              <li>
+                Maximum file size:{' '}
+                {(config.maxFileSize / (1024 * 1024)).toFixed(1)}MB
+              </li>
             </ul>
           </div>
         )}
@@ -487,23 +390,23 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
             margin: 16px;
             border-radius: 12px;
           }
-          
+
           .upload-angle__container {
             gap: 20px;
           }
-          
+
           .upload-angle__photo-section {
             min-height: 250px;
           }
-          
+
           .upload-angle__upload-button {
             min-width: 160px;
           }
-          
+
           .upload-angle__instructions-title {
             font-size: 16px;
           }
-          
+
           .upload-angle__instructions-list {
             font-size: 13px;
           }
@@ -515,15 +418,15 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
             background: #1f2937;
             color: #f3f4f6;
           }
-          
+
           .upload-angle__instructions-title {
             color: #f3f4f6;
           }
-          
+
           .upload-angle__progress-text {
             color: #9ca3af;
           }
-          
+
           .upload-angle__success {
             background-color: #064e3b;
             border-color: #065f46;
@@ -536,7 +439,7 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
           .upload-angle {
             border: 2px solid currentColor;
           }
-          
+
           .upload-angle__success {
             border-width: 2px;
           }

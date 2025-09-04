@@ -4,7 +4,21 @@
  * @version 1.0.0
  */
 
-import { useReducer, useCallback, useMemo, useTransition, useRef, useEffect } from 'react';
+import {
+  useReducer,
+  useCallback,
+  useMemo,
+  useTransition,
+  useRef,
+  useEffect
+} from 'react';
+import {
+  useSingleImageUpload,
+  type UploadConfig as MainUploadConfig,
+  type UploadedFile as MainUploadedFile,
+  type UploadError as MainUploadError,
+  type FileValidationResult as MainFileValidationResult
+} from '../../../../hooks/useImageUpload';
 import type {
   UploadState,
   UploadAction,
@@ -17,7 +31,11 @@ import type {
   UploadFunction,
   ImageMetadata
 } from '../types/upload.types';
-import { UPLOAD_STATUS, UPLOAD_ACTIONS, DEFAULT_UPLOAD_CONFIG } from '../types/upload.types';
+import {
+  UPLOAD_STATUS,
+  UPLOAD_ACTIONS,
+  DEFAULT_UPLOAD_CONFIG
+} from '../types/upload.types';
 
 // =============================================================================
 // ENHANCED UPLOAD STATE INTERFACES (Task 4.1)
@@ -25,7 +43,7 @@ import { UPLOAD_STATUS, UPLOAD_ACTIONS, DEFAULT_UPLOAD_CONFIG } from '../types/u
 
 /**
  * Enhanced upload state with React 18 features and memory management
- * 
+ *
  * @interface EnhancedUploadState
  * @extends UploadState
  * @example
@@ -69,9 +87,9 @@ interface EnhancedUploadState extends UploadState {
  */
 interface StartUploadAction {
   type: typeof UPLOAD_ACTIONS.SET_FILE;
-  payload: { 
-    file: File; 
-    imageUrl: string; 
+  payload: {
+    file: File;
+    imageUrl: string;
     abortController: AbortController;
     metadata: ImageMetadata;
   };
@@ -79,8 +97,8 @@ interface StartUploadAction {
 
 interface UpdateProgressAction {
   type: typeof UPLOAD_ACTIONS.SET_PROGRESS;
-  payload: { 
-    progress: number; 
+  payload: {
+    progress: number;
     uploadSpeed: number;
     timeRemaining: number | null;
   };
@@ -93,8 +111,8 @@ interface SetSuccessAction {
 
 interface SetErrorAction {
   type: typeof UPLOAD_ACTIONS.SET_ERROR;
-  payload: { 
-    error: string; 
+  payload: {
+    error: string;
     retryCount: number;
   };
 }
@@ -116,9 +134,9 @@ interface AddBlobUrlAction {
 /**
  * Union type of all enhanced upload actions
  */
-type EnhancedUploadAction = 
+type EnhancedUploadAction =
   | StartUploadAction
-  | UpdateProgressAction 
+  | UpdateProgressAction
   | SetSuccessAction
   | SetErrorAction
   | ResetAction
@@ -127,7 +145,7 @@ type EnhancedUploadAction =
 
 /**
  * Enhanced UseUploadReturn interface with React 18 features and memory management
- * 
+ *
  * @interface EnhancedUseUploadReturn
  * @extends UseUploadReturn
  * @example
@@ -183,11 +201,11 @@ const initialState: EnhancedUploadState = {
 
 /**
  * Upload state reducer with immutable updates and React 18 support
- * 
+ *
  * @param state Current upload state
  * @param action Action to process
  * @returns New upload state
- * 
+ *
  * @example
  * ```typescript
  * const newState = uploadReducer(currentState, {
@@ -197,7 +215,7 @@ const initialState: EnhancedUploadState = {
  * ```
  */
 function uploadReducer(
-  state: EnhancedUploadState, 
+  state: EnhancedUploadState,
   action: EnhancedUploadAction
 ): EnhancedUploadState {
   switch (action.type) {
@@ -215,7 +233,10 @@ function uploadReducer(
         abortController: action.payload.abortController,
         startTime: Date.now(),
         metadata: action.payload.metadata,
-        blobUrls: new Set([...Array.from(state.blobUrls), action.payload.imageUrl])
+        blobUrls: new Set([
+          ...Array.from(state.blobUrls),
+          action.payload.imageUrl
+        ])
       };
 
     case UPLOAD_ACTIONS.SET_PROGRESS:
@@ -234,7 +255,10 @@ function uploadReducer(
         error: null,
         progress: 100,
         abortController: null,
-        blobUrls: new Set([...Array.from(state.blobUrls), action.payload.imageUrl])
+        blobUrls: new Set([
+          ...Array.from(state.blobUrls),
+          action.payload.imageUrl
+        ])
       };
 
     case UPLOAD_ACTIONS.SET_ERROR:
@@ -262,7 +286,10 @@ function uploadReducer(
     case 'ADD_BLOB_URL':
       return {
         ...state,
-        blobUrls: new Set([...Array.from(state.blobUrls), action.payload.blobUrl])
+        blobUrls: new Set([
+          ...Array.from(state.blobUrls),
+          action.payload.blobUrl
+        ])
       };
 
     default:
@@ -276,10 +303,10 @@ function uploadReducer(
 
 /**
  * Custom React hook for managing upload state with React 18 features and memory management
- * 
+ *
  * @param config - Optional upload configuration
  * @returns Enhanced upload state and methods
- * 
+ *
  * @example
  * ```typescript
  * function MyComponent() {
@@ -296,11 +323,11 @@ function uploadReducer(
  *     maxFileSize: 5 * 1024 * 1024,
  *     quality: 0.8
  *   });
- * 
+ *
  *   return (
  *     <div>
- *       <input 
- *         type="file" 
+ *       <input
+ *         type="file"
  *         onChange={(e) => {
  *           const file = e.target.files?.[0];
  *           if (file && validateFile(file).isValid) {
@@ -316,6 +343,28 @@ function uploadReducer(
  * }
  * ```
  */
+/**
+ * Convert main app upload config to mobile config format
+ */
+function convertToMainConfig(
+  mobileConfig: UploadConfig
+): Partial<MainUploadConfig> {
+  return {
+    maxSizeBytes: mobileConfig.maxFileSize,
+    allowedTypes: mobileConfig.allowedTypes,
+    generateThumbnails: true,
+    thumbnailSizes: [150, 300],
+    enableDragDrop: false, // Mobile doesn't need drag/drop
+    autoProcess: false,
+    validation: {
+      minWidth: 256,
+      minHeight: 256,
+      maxWidth: 4096,
+      maxHeight: 4096
+    }
+  };
+}
+
 export function useAngleUpload(
   config: Partial<UploadConfig> = {}
 ): EnhancedUseUploadReturn {
@@ -323,6 +372,12 @@ export function useAngleUpload(
   const uploadConfig = useMemo(
     () => ({ ...DEFAULT_UPLOAD_CONFIG, ...config }),
     [config]
+  );
+
+  // Convert to main app config format
+  const mainAppConfig = useMemo(
+    () => convertToMainConfig(uploadConfig),
+    [uploadConfig]
   );
 
   // State management with useReducer
@@ -337,6 +392,32 @@ export function useAngleUpload(
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Initialize the main app upload hook
+  const mainUpload = useSingleImageUpload(
+    mainAppConfig,
+    (uploadedFile: MainUploadedFile) => {
+      // Handle successful upload
+      startTransition(() => {
+        dispatch({
+          type: UPLOAD_ACTIONS.SET_SUCCESS,
+          payload: { imageUrl: uploadedFile.preview }
+        });
+      });
+    },
+    (error: MainUploadError) => {
+      // Handle upload error
+      startTransition(() => {
+        dispatch({
+          type: UPLOAD_ACTIONS.SET_ERROR,
+          payload: {
+            error: error.message,
+            retryCount: state.retryCount + 1
+          }
+        });
+      });
+    }
+  );
+
   // Update transitioning state when isPending changes
   useEffect(() => {
     if (state.isTransitioning !== isPending) {
@@ -347,11 +428,31 @@ export function useAngleUpload(
     }
   }, [isPending, state.isTransitioning]);
 
+  // Sync progress from main upload hook
+  useEffect(() => {
+    if (
+      mainUpload.progress &&
+      mainUpload.progress.percentage &&
+      state.status === UPLOAD_STATUS.UPLOADING
+    ) {
+      startTransition(() => {
+        dispatch({
+          type: UPLOAD_ACTIONS.SET_PROGRESS,
+          payload: {
+            progress: mainUpload.progress.percentage,
+            uploadSpeed: 0, // Main hook doesn't provide speed
+            timeRemaining: null // Main hook doesn't provide time remaining
+          }
+        });
+      });
+    }
+  }, [mainUpload.progress, state.status]);
+
   // Cleanup effect for blob URLs, abort controllers, and timers
   useEffect(() => {
     return () => {
       // Cleanup on unmount
-      Array.from(state.blobUrls).forEach(url => {
+      Array.from(state.blobUrls).forEach((url) => {
         try {
           URL.revokeObjectURL(url);
         } catch (error) {
@@ -376,14 +477,18 @@ export function useAngleUpload(
 
   /**
    * Calculates exponential backoff delay for retry attempts
-   * 
+   *
    * @param retryCount - Current retry attempt number
    * @param baseDelay - Base delay in milliseconds (default: 1000)
    * @param maxDelay - Maximum delay in milliseconds (default: 30000)
    * @returns Delay in milliseconds
    */
   const calculateBackoffDelay = useCallback(
-    (retryCount: number, baseDelay: number = 1000, maxDelay: number = 30000): number => {
+    (
+      retryCount: number,
+      baseDelay: number = 1000,
+      maxDelay: number = 30000
+    ): number => {
       const exponentialDelay = baseDelay * Math.pow(2, retryCount);
       const jitterDelay = exponentialDelay * (0.5 + Math.random() * 0.5); // Add jitter
       return Math.min(jitterDelay, maxDelay);
@@ -393,7 +498,7 @@ export function useAngleUpload(
 
   /**
    * Determines if an error is retryable based on error type and retry count
-   * 
+   *
    * @param error - Error to check
    * @param retryCount - Current retry count
    * @returns Whether the error is retryable
@@ -401,23 +506,27 @@ export function useAngleUpload(
   const isRetryableError = useCallback(
     (error: Error, retryCount: number): boolean => {
       const maxRetries = 3;
-      
+
       if (retryCount >= maxRetries) {
         return false;
       }
 
       // Network errors are retryable
-      if (error.message.includes('network') || 
-          error.message.includes('timeout') ||
-          error.message.includes('fetch')) {
+      if (
+        error.message.includes('network') ||
+        error.message.includes('timeout') ||
+        error.message.includes('fetch')
+      ) {
         return true;
       }
 
       // Server errors (5xx) are retryable
-      if (error.message.includes('500') || 
-          error.message.includes('502') ||
-          error.message.includes('503') ||
-          error.message.includes('504')) {
+      if (
+        error.message.includes('500') ||
+        error.message.includes('502') ||
+        error.message.includes('503') ||
+        error.message.includes('504')
+      ) {
         return true;
       }
 
@@ -429,7 +538,7 @@ export function useAngleUpload(
 
   /**
    * Creates user-friendly error messages based on error type
-   * 
+   *
    * @param error - Error to process
    * @param retryCount - Current retry count
    * @returns User-friendly error message
@@ -439,30 +548,32 @@ export function useAngleUpload(
       if (error.message.includes('cancelled')) {
         return 'Upload was cancelled';
       }
-      
+
       if (error.message.includes('network')) {
-        return retryCount > 0 
-          ? `Network error (attempt ${retryCount + 1}). Please check your connection.`
+        return retryCount > 0
+          ? `Network error (attempt ${
+              retryCount + 1
+            }). Please check your connection.`
           : 'Network error. Please check your connection and try again.';
       }
-      
+
       if (error.message.includes('timeout')) {
         return 'Upload timed out. Please try again with a smaller file or check your connection.';
       }
-      
+
       if (error.message.includes('size')) {
         return 'File is too large. Please select a smaller file.';
       }
-      
+
       if (error.message.includes('type')) {
         return 'File type not supported. Please select a valid image file.';
       }
-      
+
       if (error.message.includes('500')) {
         return 'Server error occurred. Please try again in a moment.';
       }
-      
-      return retryCount > 0 
+
+      return retryCount > 0
         ? `Upload failed (attempt ${retryCount + 1}). Please try again.`
         : 'Upload failed. Please try again.';
     },
@@ -471,7 +582,7 @@ export function useAngleUpload(
 
   /**
    * Validates a file against the upload configuration
-   * 
+   *
    * @param file - File to validate
    * @returns Validation result with errors and warnings
    */
@@ -482,12 +593,26 @@ export function useAngleUpload(
 
       // File size validation
       if (file.size > uploadConfig.maxFileSize) {
-        errors.push(`File size ${(file.size / 1024 / 1024).toFixed(1)}MB exceeds maximum ${(uploadConfig.maxFileSize / 1024 / 1024).toFixed(1)}MB`);
+        errors.push(
+          `File size ${(file.size / 1024 / 1024).toFixed(
+            1
+          )}MB exceeds maximum ${(
+            uploadConfig.maxFileSize /
+            1024 /
+            1024
+          ).toFixed(1)}MB`
+        );
       }
 
       // File type validation
       if (!uploadConfig.allowedTypes.includes(file.type)) {
-        errors.push(`File type ${file.type} is not supported. Allowed types: ${uploadConfig.allowedTypes.join(', ')}`);
+        errors.push(
+          `File type ${
+            file.type
+          } is not supported. Allowed types: ${uploadConfig.allowedTypes.join(
+            ', '
+          )}`
+        );
       }
 
       // File name validation
@@ -511,7 +636,7 @@ export function useAngleUpload(
 
   /**
    * Creates image metadata from a file
-   * 
+   *
    * @param file - File to extract metadata from
    * @returns Promise resolving to image metadata
    */
@@ -545,133 +670,14 @@ export function useAngleUpload(
   );
 
   /**
-   * Enhanced upload progress simulation with realistic timing, error scenarios, and performance optimization
-   * 
-   * @param file - File being uploaded
-   * @param abortController - Controller for canceling upload
-   * @param retryCount - Current retry attempt (affects speed simulation)
-   * @returns Promise that resolves when upload simulation completes
-   */
-  const simulateUploadProgress = useCallback(
-    (file: File, abortController: AbortController, retryCount: number = 0): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        const startTime = Date.now();
-        const totalSize = file.size;
-        let uploadedBytes = 0;
-        const stableSpeedWindow: number[] = [];
-        
-        const updateInterval = 100; // Update every 100ms
-        
-        // Adjust base speed based on retry count (slower on retries to simulate poor connection)
-        const baseSpeed = Math.max(1024 * 50, 1024 * 200 / (retryCount + 1)); // 50KB/s minimum
-        
-        // Simulate random network issues (5% chance of failure after 30% progress)
-        const shouldSimulateError = Math.random() < 0.05 && retryCount === 0;
-        let errorTriggered = false;
-        
-        const progressTimer = setInterval(() => {
-          if (abortController.signal.aborted) {
-            clearInterval(progressTimer);
-            progressTimerRef.current = null;
-            reject(new Error('Upload cancelled'));
-            return;
-          }
-
-          // Simulate network error scenario
-          if (shouldSimulateError && !errorTriggered && uploadedBytes / totalSize > 0.3) {
-            errorTriggered = true;
-            clearInterval(progressTimer);
-            progressTimerRef.current = null;
-            reject(new Error('network error occurred'));
-            return;
-          }
-
-          // Simulate variable upload speed with more realistic patterns
-          const baseVariation = 0.3 + Math.random() * 0.7; // 30%-100% of base speed
-          const progressFactor = Math.min(1, uploadedBytes / totalSize); // Slow start, then faster
-          const speedMultiplier = 0.5 + (progressFactor * 0.5); // Speed up as upload progresses
-          
-          const currentSpeed = baseSpeed * baseVariation * speedMultiplier;
-          const bytesToAdd = (currentSpeed * updateInterval) / 1000;
-          
-          uploadedBytes = Math.min(totalSize, uploadedBytes + bytesToAdd);
-          const progress = Math.round((uploadedBytes / totalSize) * 100);
-          
-          // Calculate stable average speed using sliding window
-          const elapsed = (Date.now() - startTime) / 1000; // seconds
-          const instantSpeed = uploadedBytes / elapsed;
-          stableSpeedWindow.push(instantSpeed);
-          
-          // Keep only last 10 measurements for stable average
-          if (stableSpeedWindow.length > 10) {
-            stableSpeedWindow.shift();
-          }
-          
-          const averageSpeed = stableSpeedWindow.reduce((a, b) => a + b, 0) / stableSpeedWindow.length;
-          
-          // Calculate time remaining with improved accuracy
-          const remainingBytes = totalSize - uploadedBytes;
-          let timeRemaining: number | null = null;
-          
-          if (remainingBytes > 0 && averageSpeed > 0) {
-            timeRemaining = Math.ceil(remainingBytes / averageSpeed);
-            // Cap maximum time estimate to prevent unrealistic values
-            timeRemaining = Math.min(timeRemaining, 300); // Max 5 minutes
-          }
-
-          // Update progress with transition (using useCallback for performance)
-          startTransition(() => {
-            dispatch({
-              type: UPLOAD_ACTIONS.SET_PROGRESS,
-              payload: {
-                progress,
-                uploadSpeed: Math.round(averageSpeed),
-                timeRemaining
-              }
-            });
-          });
-
-          // Complete when 100% reached
-          if (progress >= 100) {
-            clearInterval(progressTimer);
-            progressTimerRef.current = null;
-            resolve();
-          }
-        }, updateInterval);
-
-        // Store timer reference for cleanup
-        progressTimerRef.current = progressTimer;
-
-        // Handle abort signal
-        abortController.signal.addEventListener('abort', () => {
-          clearInterval(progressTimer);
-          progressTimerRef.current = null;
-          reject(new Error('Upload cancelled'));
-        });
-      });
-    },
-    []
-  );
-
-  /**
-   * Complete upload function with state management, progress tracking, and error recovery
-   * 
+   * Upload function that delegates to the main app upload hook
+   *
    * @param file - File to upload
    * @returns Promise resolving to upload result
-   * 
-   * @example
-   * ```typescript
-   * const result = await uploadFile(selectedFile);
-   * if (result.success) {
-   *   console.log('Upload successful:', result.data);
-   * } else {
-   *   console.error('Upload failed:', result.error);
-   * }
-   * ```
    */
   const uploadFile: UploadFunction = useCallback(
     async (file: File): Promise<UploadResult<string>> => {
-      // Validation
+      // Validation using mobile config
       const validation = validateFile(file);
       if (!validation.isValid) {
         return {
@@ -685,60 +691,53 @@ export function useAngleUpload(
         // Store file reference for retry functionality
         lastFileRef.current = file;
 
-        // Create abort controller for cancellation
-        const abortController = new AbortController();
-
         // Extract image metadata
         const metadata = await createImageMetadata(file);
 
-        // Create blob URL for preview
-        const imageUrl = URL.createObjectURL(file);
-
-        // Start upload with transition - set initial state
+        // Set initial upload state
         startTransition(() => {
           dispatch({
             type: UPLOAD_ACTIONS.SET_FILE,
-            payload: { file, imageUrl, abortController, metadata }
+            payload: {
+              file,
+              imageUrl: URL.createObjectURL(file),
+              abortController: new AbortController(),
+              metadata
+            }
           });
         });
 
-        // Simulate realistic upload process with progress tracking
-        await simulateUploadProgress(file, abortController, state.retryCount);
-
-        // Create final image URL (in real implementation, this would be the server response)
-        const finalImageUrl = URL.createObjectURL(file);
-
-        // Mark upload as successful
-        startTransition(() => {
-          dispatch({
-            type: UPLOAD_ACTIONS.SET_SUCCESS,
-            payload: { imageUrl: finalImageUrl }
-          });
-        });
+        // Use the main app upload hook
+        const uploadResult = await mainUpload.uploadFile(file);
 
         return {
           success: true,
-          data: finalImageUrl,
+          data: uploadResult.preview,
           error: null
         };
-
       } catch (error) {
-        const uploadError = error instanceof Error ? error : new Error('Unknown upload error');
+        const uploadError =
+          error instanceof Error ? error : new Error('Unknown upload error');
         const currentRetryCount = state.retryCount;
-        
+
         // Create user-friendly error message
-        const userFriendlyMessage = createUserFriendlyError(uploadError, currentRetryCount);
-        
+        const userFriendlyMessage = createUserFriendlyError(
+          uploadError,
+          currentRetryCount
+        );
+
         // Check if error is retryable and schedule automatic retry
         if (isRetryableError(uploadError, currentRetryCount)) {
           const retryDelay = calculateBackoffDelay(currentRetryCount);
-          
+
           // Update state to show error with retry information
           startTransition(() => {
             dispatch({
               type: UPLOAD_ACTIONS.SET_ERROR,
-              payload: { 
-                error: `${userFriendlyMessage} Retrying in ${Math.ceil(retryDelay / 1000)} seconds...`,
+              payload: {
+                error: `${userFriendlyMessage} Retrying in ${Math.ceil(
+                  retryDelay / 1000
+                )} seconds...`,
                 retryCount: currentRetryCount + 1
               }
             });
@@ -765,7 +764,7 @@ export function useAngleUpload(
           startTransition(() => {
             dispatch({
               type: UPLOAD_ACTIONS.SET_ERROR,
-              payload: { 
+              payload: {
                 error: userFriendlyMessage,
                 retryCount: currentRetryCount + 1
               }
@@ -780,7 +779,7 @@ export function useAngleUpload(
         }
       }
     },
-    [validateFile, createImageMetadata, simulateUploadProgress, state.retryCount]
+    [validateFile, createImageMetadata, mainUpload, state.retryCount]
   );
 
   /**
@@ -792,14 +791,14 @@ export function useAngleUpload(
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
     }
-    
+
     if (progressTimerRef.current) {
       clearInterval(progressTimerRef.current);
       progressTimerRef.current = null;
     }
 
     // Cleanup blob URLs
-    Array.from(state.blobUrls).forEach(url => {
+    Array.from(state.blobUrls).forEach((url) => {
       try {
         URL.revokeObjectURL(url);
       } catch (error) {
@@ -812,6 +811,9 @@ export function useAngleUpload(
       state.abortController.abort();
     }
 
+    // Reset main upload hook
+    mainUpload.clearFiles();
+
     // Reset state with transition for better UX
     startTransition(() => {
       dispatch({ type: UPLOAD_ACTIONS.RESET });
@@ -820,7 +822,7 @@ export function useAngleUpload(
     // Clear refs
     lastFileRef.current = null;
     progressCallbackRef.current = null;
-  }, [state.blobUrls, state.abortController]);
+  }, [state.blobUrls, state.abortController, mainUpload]);
 
   /**
    * Cancels current upload and clears any pending retries
@@ -847,9 +849,9 @@ export function useAngleUpload(
     startTransition(() => {
       dispatch({
         type: UPLOAD_ACTIONS.SET_ERROR,
-        payload: { 
+        payload: {
           error: 'Upload cancelled by user',
-          retryCount: state.retryCount 
+          retryCount: state.retryCount
         }
       });
     });
@@ -882,7 +884,7 @@ export function useAngleUpload(
     });
 
     // Wait a moment for state to update, then retry with fresh state
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     return uploadFile(lastFileRef.current);
   }, [uploadFile]);
@@ -896,14 +898,14 @@ export function useAngleUpload(
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
     }
-    
+
     if (progressTimerRef.current) {
       clearInterval(progressTimerRef.current);
       progressTimerRef.current = null;
     }
 
     // Cleanup blob URLs
-    Array.from(state.blobUrls).forEach(url => {
+    Array.from(state.blobUrls).forEach((url) => {
       try {
         URL.revokeObjectURL(url);
       } catch (error) {
@@ -922,13 +924,15 @@ export function useAngleUpload(
   }, [state.blobUrls, state.abortController]);
 
   // Computed properties
-  const isUploading = useMemo(() => 
-    state.status === UPLOAD_STATUS.UPLOADING,
+  const isUploading = useMemo(
+    () => state.status === UPLOAD_STATUS.UPLOADING,
     [state.status]
   );
 
-  const canUpload = useMemo(() =>
-    state.status === UPLOAD_STATUS.IDLE || state.status === UPLOAD_STATUS.ERROR,
+  const canUpload = useMemo(
+    () =>
+      state.status === UPLOAD_STATUS.IDLE ||
+      state.status === UPLOAD_STATUS.ERROR,
     [state.status]
   );
 

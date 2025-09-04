@@ -55,7 +55,8 @@ interface MobileUploadAnglePageProps {
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function MobileUploadAnglePage({ searchParams }: MobileUploadAnglePageProps) {
+export default async function MobileUploadAnglePage({ searchParams }: MobileUploadAnglePageProps) {
+  const resolvedSearchParams = await searchParams;
   // Structured data for SEO
   const structuredData = {
     "@context": "https://schema.org",
@@ -87,7 +88,7 @@ export default function MobileUploadAnglePage({ searchParams }: MobileUploadAngl
         }}
       />
       
-      <MobileUploadAngleClient searchParams={searchParams} />
+      <MobileUploadAngleClient searchParams={resolvedSearchParams} />
     </>
   )
 }
