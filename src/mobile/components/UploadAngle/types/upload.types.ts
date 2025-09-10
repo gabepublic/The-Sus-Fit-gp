@@ -269,6 +269,10 @@ export interface PhotoFrameProps extends BaseComponentProps {
   onTouchEnd?: (event: React.TouchEvent) => void;
   /** Accept attribute for file input */
   accept?: string;
+  /** Whether to prioritize image loading (Next.js Image priority prop) */
+  priority?: boolean;
+  /** Optional children content */
+  children?: React.ReactNode;
 }
 
 /**
@@ -297,8 +301,20 @@ export interface UploadButtonProps extends BaseComponentProps {
   variant?: 'primary' | 'secondary' | 'outline';
   /** Button size */
   size?: 'small' | 'medium' | 'large';
+  /** Whether button is in redo state (shows "Re-do" instead of "Upload Your Angle") */
+  isRedo?: boolean;
   /** Optional children content */
   children?: React.ReactNode;
+  /** Whether button is in loading state */
+  loading?: boolean;
+  /** Callback for touch start events */
+  onTouchStart?: (event: React.TouchEvent) => void;
+  /** Callback for touch end events */
+  onTouchEnd?: (event: React.TouchEvent) => void;
+  /** Callback for error handling */
+  onError?: (error: Error | string) => void;
+  /** Inline styles for the component */
+  style?: React.CSSProperties;
 }
 
 /**

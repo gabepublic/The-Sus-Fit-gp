@@ -439,7 +439,7 @@ export function useAngleUpload(
         dispatch({
           type: UPLOAD_ACTIONS.SET_PROGRESS,
           payload: {
-            progress: mainUpload.progress.percentage,
+            progress: mainUpload.progress?.percentage ?? 0,
             uploadSpeed: 0, // Main hook doesn't provide speed
             timeRemaining: null // Main hook doesn't provide time remaining
           }

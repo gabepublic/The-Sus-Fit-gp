@@ -32,8 +32,9 @@ export const createMockImageFile = (
       super()
       this.width = width
       this.height = height
-      this.naturalWidth = width
-      this.naturalHeight = height
+      // Use defineProperty for read-only properties
+      Object.defineProperty(this, 'naturalWidth', { value: width, writable: false })
+      Object.defineProperty(this, 'naturalHeight', { value: height, writable: false })
     }
   } as any
 
@@ -126,13 +127,22 @@ export const mockCanvasContext = () => {
     getImageData: jest.fn(() => ({
       data: new Uint8ClampedArray(4),
       width: 100,
-      height: 100
-    })),
+      height: 100,
+      colorSpace: 'srgb' as PredefinedColorSpace
+    } as ImageData)),
     putImageData: jest.fn(),
     createImageData: jest.fn(),
     clearRect: jest.fn(),
     canvas,
-    measureText: jest.fn(() => ({ width: 100 })),
+    measureText: jest.fn(() => ({
+      width: 100,
+      actualBoundingBoxAscent: 10,
+      actualBoundingBoxDescent: 10,
+      actualBoundingBoxLeft: 0,
+      actualBoundingBoxRight: 100,
+      fontBoundingBoxAscent: 12,
+      fontBoundingBoxDescent: 4
+    } as TextMetrics)),
     fillText: jest.fn(),
     strokeText: jest.fn(),
     beginPath: jest.fn(),
@@ -142,7 +152,7 @@ export const mockCanvasContext = () => {
     arc: jest.fn(),
     fill: jest.fn(),
     stroke: jest.fn(),
-  }
+  } as unknown as CanvasRenderingContext2D
   
   canvas.getContext = jest.fn(() => context)
   canvas.toBlob = jest.fn((callback) => {

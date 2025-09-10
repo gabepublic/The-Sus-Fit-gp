@@ -40,6 +40,15 @@ export {
   type MockErrorResponse,
 } from './api-mocks';
 
+// Upload testing utilities
+export {
+  createMockFile,
+  createMockImageFile,
+  createFileUploadEvent,
+  renderWithProviders as renderWithUploadProviders,
+  runA11yTests,
+} from './upload-test-utils';
+
 /**
  * Convenience re-exports with shorter names
  */

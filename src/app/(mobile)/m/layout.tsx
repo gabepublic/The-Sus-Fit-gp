@@ -24,9 +24,9 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
 
   // Determine header configuration based on current route
   const isUploadAnglePage = pathname === '/m/upload-angle'
-  const showBackButton = isUploadAnglePage
+  const showBackButton = false // Keep header consistent across all views
   const showProgress = isUploadAnglePage && uploadProgress > 0 && uploadProgress < 100
-  const title = isUploadAnglePage ? 'Upload Your Angle' : undefined
+  const title = undefined // Keep header consistent across all views
 
   // Listen for upload progress events
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   }, [isUploadAnglePage])
 
   return (
-    <div className="mobile-layout min-h-screen bg-gradient-to-b from-pink-50 to-yellow-50">
+    <div className={`mobile-layout min-h-screen ${isUploadAnglePage ? 'bg-transparent' : ''}`}>
       {/* Mobile Header */}
       <MobileHeader 
         isMenuOpen={isMenuOpen} 

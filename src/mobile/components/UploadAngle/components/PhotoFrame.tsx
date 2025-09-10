@@ -32,17 +32,16 @@ const StyledPhotoFrame = styled(motion.div)<{
   $disabled: boolean;
 }>`
   position: relative;
-  width: 100%;
-  border-radius: 12px;
+  width: 70vw;
+  height: 50vh;
+  margin: 0 auto;
+  border-radius: 2px;
   overflow: hidden;
   background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-  border: 2px solid #e2e8f0;
+  border: 2px solid #000000;
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   user-select: none;
-  
-  ${props => props.$aspectRatio && css`
-    aspect-ratio: ${props.$aspectRatio};
-  `}
+  box-shadow: 5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000;
   
   /* Fallback for browsers without aspect-ratio support */
   @supports not (aspect-ratio: 1) {
@@ -67,8 +66,8 @@ const StyledPhotoFrame = styled(motion.div)<{
   }
   
   &:hover:not([disabled]) {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border-color: #000000;
+    box-shadow: 4px 4px 0px 2px #00BFFF, 4px 4px 0px 4px #000000;
   }
   
   &:focus-within {
@@ -100,7 +99,9 @@ const Container = styled.div`
 const StyledImage = styled(Image)`
   object-fit: cover;
   object-position: center;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
+  width: 100% !important;
+  height: 100% !important;
 `;
 
 const LoadingOverlay = styled(motion.div)`
@@ -169,10 +170,10 @@ const PlaceholderArea = styled(motion.div)<{ $disabled: boolean }>`
 `;
 
 const PlaceholderIcon = styled.svg`
-  width: 64px;
-  height: 64px;
-  color: #94a3b8;
-  stroke-width: 1.5;
+  width: 80px;
+  height: 80px;
+  color: #22C55E;
+  stroke-width: 3;
 `;
 
 const PlaceholderText = styled.span`
@@ -507,32 +508,44 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
           )}
         </AnimatePresence>
 
-        {/* Empty State */}
+        {/* Empty State with Placeholder Image */}
         <AnimatePresence>
           {currentState === PHOTO_FRAME_STATE.EMPTY && (
-            <PlaceholderArea
-              $disabled={disabled}
-              variants={overlayVariants}
-              initial="exit"
-              animate="enter"
-              exit="exit"
-              aria-describedby="upload-instructions"
-            >
-              <PlaceholderIcon
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                aria-hidden="true"
+            <>
+              {/* Background placeholder image */}
+              <StyledImage
+                src="/images/zestyVogueColor.jpg"
+                alt="Placeholder image"
+                fill
+                style={{
+                  opacity: 0.5,
+                  filter: 'grayscale(20%) brightness(0.8)'
+                }}
+                priority={false}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+              
+              {/* Upload icon overlay */}
+              <PlaceholderArea
+                $disabled={disabled}
+                variants={overlayVariants}
+                initial="exit"
+                animate="enter"
+                exit="exit"
+                aria-describedby="upload-instructions"
+                style={{ background: 'transparent' }}
               >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21,15 16,10 5,21"/>
-              </PlaceholderIcon>
-              <PlaceholderText>No image selected</PlaceholderText>
-              <PlaceholderHint id="upload-instructions">
-                Click to upload or drag an image here
-              </PlaceholderHint>
-            </PlaceholderArea>
+                <img 
+                  src="/images/mobile/UploadIcon.svg"
+                  alt="Upload icon"
+                  style={{
+                    width: '80px',
+                    height: '80px'
+                  }}
+                  aria-hidden="true"
+                />
+              </PlaceholderArea>
+            </>
           )}
         </AnimatePresence>
 

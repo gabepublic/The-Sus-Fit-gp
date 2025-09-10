@@ -1,6 +1,7 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { UploadAngleWithErrorBoundary } from '../../../../mobile/components/UploadAngle/containers/UploadAngleWithErrorBoundary'
 import { RouteGuard } from '../../../../mobile/components/RouteGuard'
 import type { UploadConfig } from '../../../../mobile/components/UploadAngle/types/upload.types'
@@ -10,6 +11,7 @@ interface MobileUploadAngleClientProps {
 }
 
 export function MobileUploadAngleClient({ searchParams: _searchParams }: MobileUploadAngleClientProps) {
+  const router = useRouter();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [uploadInProgress, setUploadInProgress] = useState(false);
 
@@ -56,15 +58,53 @@ export function MobileUploadAngleClient({ searchParams: _searchParams }: MobileU
   }
 
   const handleNext = () => {
-    // Navigate to next step in the flow
-    console.log('Proceeding to next step')
+    // Navigate to Upload Your Fit View
+    console.log('Proceeding to Upload Your Fit View')
     setHasUnsavedChanges(false);
-    // This would typically navigate to the try-on or results page
+    router.push('/m/upload-fit');
   }
 
   const handleNavigationBlocked = () => {
     console.log('Navigation blocked due to ongoing upload');
   }
+
+  // Set and clean up background colors
+  useEffect(() => {
+    // Store original backgrounds
+    const originalBodyBackground = document.body.style.backgroundColor || '';
+    const originalBodyBackgroundImage = document.body.style.backgroundImage || '';
+    const mobileLayout = document.querySelector('.mobile-layout') as HTMLElement;
+    const mobileHeader = document.querySelector('.mobile-header') as HTMLElement;
+    const originalLayoutBackground = mobileLayout?.style.backgroundColor || '';
+    const originalHeaderBackground = mobileHeader?.style.backgroundColor || '';
+    const originalHeaderBorder = mobileHeader?.style.borderBottom || '';
+    
+    // Set yellow background for this view
+    document.body.style.backgroundColor = '#faba01';
+    document.body.style.backgroundImage = 'none'; // Override the global gradient
+    if (mobileLayout) {
+      mobileLayout.style.backgroundColor = 'transparent';
+    }
+    if (mobileHeader) {
+      mobileHeader.style.backgroundColor = 'transparent';
+      mobileHeader.style.backdropFilter = 'none';
+      mobileHeader.style.borderBottom = 'none';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.backgroundColor = originalBodyBackground;
+      document.body.style.backgroundImage = originalBodyBackgroundImage;
+      if (mobileLayout) {
+        mobileLayout.style.backgroundColor = originalLayoutBackground;
+      }
+      if (mobileHeader) {
+        mobileHeader.style.backgroundColor = originalHeaderBackground;
+        mobileHeader.style.backdropFilter = '';
+        mobileHeader.style.borderBottom = originalHeaderBorder;
+      }
+    };
+  }, []);
 
   return (
     <RouteGuard
@@ -78,14 +118,8 @@ export function MobileUploadAngleClient({ searchParams: _searchParams }: MobileU
         </div>
       }
     >
-      <div className="mobile-upload-angle-page min-h-screen bg-gradient-to-b from-pink-50 to-yellow-50">
+      <div className="mobile-upload-angle-page min-h-screen">
         <div className="px-4 py-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Angle</h1>
-            <p className="text-gray-600">
-              Take a photo or select from gallery. Position yourself for the best try-on results.
-            </p>
-          </div>
 
           <Suspense fallback={
             <div 

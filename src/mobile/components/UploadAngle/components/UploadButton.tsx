@@ -26,9 +26,15 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   disabled = false,
   variant = 'primary',
   size = 'medium',
+  isRedo = false,
   children,
   className = '',
-  testId = 'upload-button'
+  testId = 'upload-button',
+  loading = false,
+  onTouchStart,
+  onTouchEnd,
+  onError,
+  style
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -36,13 +42,17 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
 
   // Handle file input change
   const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      onFileSelect(file);
+    try {
+      const file = event.target.files?.[0];
+      if (file) {
+        onFileSelect(file);
+      }
+      // Reset input value to allow selecting the same file again
+      event.target.value = '';
+    } catch (error) {
+      onError?.(error instanceof Error ? error : String(error));
     }
-    // Reset input value to allow selecting the same file again
-    event.target.value = '';
-  }, [onFileSelect]);
+  }, [onFileSelect, onError]);
 
   // Handle button click
   const handleClick = useCallback(() => {
@@ -52,12 +62,23 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
 
   // Handle keyboard activation
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (disabled) return;
+    if (disabled || loading) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       fileInputRef.current?.click();
     }
-  }, [disabled]);
+  }, [disabled, loading]);
+
+  // Handle touch events
+  const handleTouchStart = useCallback((event: React.TouchEvent) => {
+    if (disabled || loading) return;
+    onTouchStart?.(event);
+  }, [disabled, loading, onTouchStart]);
+
+  const handleTouchEnd = useCallback((event: React.TouchEvent) => {
+    if (disabled || loading) return;
+    onTouchEnd?.(event);
+  }, [disabled, loading, onTouchEnd]);
 
   // Drag and drop handlers
   const handleDragEnter = useCallback((event: React.DragEvent) => {
@@ -155,31 +176,15 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
     styles[size],
     isDragActive ? styles.dragActive : '',
     disabled ? styles.disabled : '',
+    loading ? styles.loading : '',
     className
   ].filter(Boolean).join(' ');
 
   const defaultContent = (
     <div className={styles.content}>
-      <svg
-        className={styles.icon}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        aria-hidden="true"
-      >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="17,8 12,3 7,8"/>
-        <line x1="12" y1="3" x2="12" y2="15"/>
-      </svg>
       <span className={styles.text}>
-        {isDragActive ? 'Drop Here' : 'Upload Image'}
+        {loading ? 'Uploading...' : (isDragActive ? 'Drop Here' : (isRedo ? 'Re-do' : 'Upload Your Angle'))}
       </span>
-      {!isDragActive && (
-        <span className={styles.hint}>
-          or drag and drop
-        </span>
-      )}
     </div>
   );
 
@@ -205,9 +210,12 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        disabled={disabled}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        disabled={disabled || loading}
         data-testid={testId}
         aria-label={isDragActive ? 'Drop image to upload' : 'Upload image file'}
+        style={style}
       >
         {children || defaultContent}
       </button>

@@ -173,7 +173,7 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
               size='medium'
               className='upload-angle__upload-button'
             >
-              {uploadState.imageUrl ? 'Change Image' : 'Upload Image'}
+              {uploadState.imageUrl ? 'Change Image' : 'Upload Your Angle'}
             </UploadButton>
           )}
 
@@ -270,9 +270,8 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          background: white;
+          background: transparent;
           border-radius: 16px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           padding: 24px;
           transition: opacity 0.2s ease-in-out;
         }

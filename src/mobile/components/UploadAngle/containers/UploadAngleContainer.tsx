@@ -468,6 +468,7 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
 
   const isContainerDisabled = disabled || containerState.isInitializing;
   const showUploadButton = containerState.currentStep === 'select' || containerState.status === STATUS.ERROR;
+  const showRedoButton = containerState.currentStep === 'preview' && containerState.status === STATUS.SUCCESS;
   const showNextButton = containerState.currentStep === 'preview' && containerState.canProceed;
   const showProgressIndicator = isUploading || isProcessing || isTransitioning;
 
@@ -539,10 +540,10 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
+          gap: '16px',
           maxWidth: '600px',
           margin: '0 auto',
-          padding: '24px',
+          padding: '12px 24px',
           position: 'relative'
         }}
       >
@@ -627,6 +628,12 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
                 animate="enter"
                 exit="exit"
                 transition={{ duration: 0.2 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '75px',
+                  left: 'calc(15vw - 60px)',
+                  zIndex: 10
+                }}
               >
                 <UploadButton
                   onFileSelect={handleFileSelect}
@@ -640,7 +647,36 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
             )}
           </AnimatePresence>
 
-          {/* Next Button */}
+          {/* Re-do Button - positioned over photo frame like Upload button */}
+          <AnimatePresence>
+            {showRedoButton && (
+              <motion.div
+                variants={contentVariants}
+                initial="exit"
+                animate="enter"
+                exit="exit"
+                transition={{ duration: 0.2 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '75px',
+                  left: 'calc(15vw - 60px)',
+                  zIndex: 10
+                }}
+              >
+                <UploadButton
+                  onFileSelect={handleFileSelect}
+                  accept="image/*"
+                  disabled={isContainerDisabled || isUploading}
+                  variant="primary"
+                  size="large"
+                  isRedo={true}
+                  testId={`${testId}-redo-button`}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Next Button - positioned overlapping right side of photo frame */}
           <AnimatePresence>
             {showNextButton && (
               <motion.div
@@ -649,6 +685,12 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
                 animate="enter"
                 exit="exit"
                 transition={{ duration: 0.2 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '75px',
+                  right: 'calc(15vw - 60px)',
+                  zIndex: 10
+                }}
               >
                 <NextButton
                   onClick={handleNext}
@@ -662,46 +704,8 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
             )}
           </AnimatePresence>
 
-          {/* Reset Button (for development/testing) */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              onClick={handleReset}
-              style={{
-                padding: '8px 16px',
-                background: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-              disabled={isContainerDisabled}
-            >
-              Reset
-            </button>
-          )}
         </motion.div>
 
-        {/* Debug Info (development only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <details style={{ marginTop: '24px', fontSize: '12px', color: '#666' }}>
-            <summary>Debug Info</summary>
-            <pre style={{ marginTop: '8px', padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
-              {JSON.stringify({
-                step: containerState.currentStep,
-                status: containerState.status,
-                canProceed: containerState.canProceed,
-                isUploading,
-                isProcessing,
-                interactions: containerState.interactions,
-                metadata: containerState.metadata ? {
-                  filename: containerState.metadata.filename,
-                  size: containerState.metadata.size,
-                  dimensions: `${containerState.metadata.width}x${containerState.metadata.height}`
-                } : null
-              }, null, 2)}
-            </pre>
-          </details>
-        )}
 
         {/* Screen reader announcements */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
