@@ -243,3 +243,23 @@ cp .env.example .env.local
 npx task-master parse-prd .taskmaster/docs/feature-prd-tryon-phase01.txt
 npx task-master expand --all
 ```
+
+## Rate Limiter
+
+- Setup
+```
+pnpm install rate-limiter-flexible drizzle-orm
+```
+
+## Sharp Image Processing
+
+- Sharp Resources:
+  - Visit [sharp.pixelplumbing.com](https://sharp.pixelplumbing.com/) for complete
+  - [installation instructions](https://sharp.pixelplumbing.com/install),
+  - [API documentation](https://sharp.pixelplumbing.com/api-constructor)
+
+- Setup
+```
+pnpm install sharp image-size
+pnpm approve-builds
+```

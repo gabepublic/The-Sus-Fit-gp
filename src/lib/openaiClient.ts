@@ -12,7 +12,7 @@ import { TryOnParamsSchema, TryOnResultSchema, type TryOnParams, normalizeBase64
 import * as fs from 'fs';
 
 // Retrieve and validate environment variables with fail-fast approach
-const { key, model } = getEnv();
+const { openai: { key, model } } = getEnv();
 
 // Instantiate singleton OpenAI client
 const openai = new OpenAI({ apiKey: key });
@@ -71,25 +71,35 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
     // Validate input parameters
     TryOnParamsSchema.parse({ modelImage, apparelImages });
 
+    if (model == 'mock') {
+      console.log('Using mock model');
+      // Validate output using schema
+      const validatedResult = TryOnResultSchema.parse({ imgGenerated: fs.readFileSync('public/images/demo/will-sweatshirt-portrait.png', { encoding: 'base64' }) });
+      return validatedResult.imgGenerated;
+    }
+
     // Convert base64 strings to File objects for OpenAI API
     const modelFile = base64ToFile(modelImage, 'model.png');
     const apparelFile = base64ToFile(apparelImages[0], 'apparel.png');
 
-    if (model == 'mock') {
-      console.log('Using mock model');
-      // Validate output using schema
-      const validatedResult = TryOnResultSchema.parse({ imgGenerated: fs.readFileSync('public/images/demo/WillShalom.jpg', { encoding: 'base64' }) });
-      return validatedResult.imgGenerated;
-    }
+    // Call OpenAI Images Edit API
+    const PROMPT_04 = 'Use the **base image (first image)** as the person and scene reference. ' +
+    'Replace the entire outfit in the base image with the **outfit from the second image**, ' +
+    'fully adopting its **design, shape, silhouette, style, and texture**. ' +
+    'Fit the outfit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective.' +
+    'Do **not extrapolate or extend** beyond what is shown in the base image and outfit image. ' +
+    'Match the outfit’s visible length to the base image’s crop, or vice versa. ' + 
+    'Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. ' +
+    'Do not alter or obscure anything outside the outfit area. ';
 
     // Call OpenAI Images Edit API
     const response = await openai.images.edit({
-      model,
+      model: model,
       image: [modelFile, apparelFile],
-      prompt: 'Change the garment of the model in the first image with the garment from the second image.',
-      n: 1,
-      size: '1024x1024',
-      quality: 'low'
+      prompt: PROMPT_04,
+      input_fidelity: "high",
+      size: '1024x1536',
+      quality: 'high'
     });
 
     // Extract and validate the generated image
@@ -109,7 +119,9 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
 
     // Validate output using schema
     const validatedResult = TryOnResultSchema.parse({ imgGenerated: b64Json });
-
+    const buffer = Buffer.from(validatedResult.imgGenerated, "base64");
+    fs.writeFileSync("openai-gen-image.png", buffer);
+    console.log("Image saved as openai-gen-image.png");
     return validatedResult.imgGenerated;
   } catch (error) {
     // Re-throw with custom context while preserving original error

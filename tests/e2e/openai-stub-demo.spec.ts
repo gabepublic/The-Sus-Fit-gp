@@ -1,10 +1,13 @@
 import { test, expect } from '@playwright/test'
 import { setupOpenAIStub } from './helpers/openai-stub'
+import { mockImageResizeAPI } from './helpers/image-resize-mock'
 
 test.describe('OpenAI Stubbing Demo', () => {
   test.beforeEach(async ({ page }) => {
     // Setup OpenAI stubbing before any navigation
     await setupOpenAIStub(page)
+    // Mock the image resizing API to prevent server errors
+    await mockImageResizeAPI(page)
   })
 
   test('should stub OpenAI requests correctly', async ({ page }) => {

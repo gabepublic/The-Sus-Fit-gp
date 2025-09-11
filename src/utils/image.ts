@@ -266,5 +266,44 @@ export async function compressBase64(b64: string, maxSizeKB = 1024): Promise<str
   });
 }
 
+/**
+ * Converts a base64-encoded string to a data URL format for use in web applications.
+ * 
+ * @param base64String - The base64-encoded string to convert. Can be a raw base64 string or an existing data URL.
+ * @param mimeType - The MIME type for the data URL. Defaults to 'image/png'. Common values include 'image/jpeg', 'image/gif', 'image/webp'.
+ * @returns A Promise that resolves to a data URL string in the format `data:[mimeType];base64,[base64String]`
+ * 
+ * @example
+ * ```typescript
+ * // Convert base64 string to PNG data URL
+ * const dataUrl = await base64ToDataUrl('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+ * // Returns: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+ * 
+ * // Convert to JPEG data URL
+ * const jpegUrl = await base64ToDataUrl(base64String, 'image/jpeg');
+ * 
+ * // If input is already a data URL, it's returned unchanged
+ * const existingUrl = 'data:image/png;base64,abc123';
+ * const result = await base64ToDataUrl(existingUrl);
+ * console.log(result === existingUrl); // true
+ * ```
+ * 
+ * @remarks
+ * - This function is idempotent: if the input is already a data URL, it returns the string unchanged
+ * - Data URLs can be used directly in `src` attributes of `<img>` tags, `background-image` CSS properties, and canvas operations
+ * - The function returns a resolved Promise for consistency with other async functions in the module
+ * 
+ * @since 1.0.0
+ */
+export async function base64ToDataUrl (base64String: string, mimeType: string = 'image/png'): Promise<string> {
+  // If it's already a data URL, return as is
+  if (base64String.startsWith('data:')) {
+      return base64String
+  }
+  
+  // Convert base64 string to data URL format
+  return Promise.resolve(`data:${mimeType};base64,${base64String}`)
+}
+
 // Note: All functions and types are already exported above
 // This module provides a complete API for image processing utilities 

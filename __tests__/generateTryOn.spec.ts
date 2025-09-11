@@ -10,8 +10,16 @@ import { ZodError } from 'zod';
 // Mock getEnv first
 jest.mock('../src/lib/getEnv', () => ({
   getEnv: jest.fn(() => ({
-    key: 'test-api-key',
-    model: 'gpt-image-1'
+    provider: 'OPENAI',
+    openai: {
+      key: 'test-api-key',
+      model: 'gpt-image-1'
+    },
+    google: {
+      key: 'test-google-key',
+      model: 'gemini-1.5-pro'
+    },
+    dailyLimit: 100
   }))
 }));
 
@@ -67,22 +75,19 @@ describe('generateTryOn', () => {
       // Assert
       expect(result).toBe('ZmFrZUJhc2U2NA==');
       expect(mockImagesEdit).toHaveBeenCalledTimes(1);
-      expect(mockImagesEdit).toHaveBeenCalledWith({
-        model: 'gpt-image-1',
-        image: expect.arrayContaining([
-          expect.any(File),
-          expect.any(File)
-        ]),
-        prompt: 'Change the garment of the model in the first image with the garment from the second image.',
-        n: 1,
-        size: '1024x1024',
-        quality: 'low'
-      });
       
-      // Verify File objects have correct names
+      // Check the call arguments
       const callArgs = mockImagesEdit.mock.calls[0][0];
+      expect(callArgs.model).toBe('gpt-image-1');
+      expect(callArgs.image).toHaveLength(2);
       expect(callArgs.image[0].name).toBe('model.png');
       expect(callArgs.image[1].name).toBe('apparel.png');
+      expect(callArgs.prompt).toContain('Use the **base image (first image)** as the person and scene reference');
+      expect(callArgs.prompt).toContain('Replace the entire outfit in the base image with the **outfit from the second image**');
+      expect(callArgs.prompt).toContain('Do **not extrapolate or extend** beyond what is shown');
+      expect(callArgs.input_fidelity).toBe('high');
+      expect(callArgs.size).toBe('1024x1536');
+      expect(callArgs.quality).toBe('high');
     });
 
     it('should use the first apparel image when multiple are provided', async () => {

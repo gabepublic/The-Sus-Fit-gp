@@ -5,68 +5,66 @@ import {SaucyTicker} from  "@/components/ui/saucy-ticker"
 import {HeroImageWithButton} from "@/components/ui/hero-image-with-button"
 import { BrutalismCard } from "@/components/ui/brutalism-card"
 import { PolaroidPhotoGenerator } from "@/components/ui/polaroid-photo-generator"
-import { fileToBase64, compressBase64, CompressionFailedError } from "@/utils/image"
+import { base64ToDataUrl } from "@/utils/image"
 import { useToast } from "@/hooks"
 import { errorToMessage } from "@/lib/errorToMessage"
+import { useImageResize } from "@/hooks/useImageResize"
+import { normalizeBase64 } from '@/lib/tryOnSchema';
+import { ResizeOptions, ImagesMetadata, ImageMetadata } from '@/lib/imageResizingService';
 
-// Utility function to resize image to 1024x1536
-const resizeImageTo1024x1536 = (imageUrl: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const img = new Image()
-        img.crossOrigin = "anonymous"
-        img.onload = () => {
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-            
-            if (!ctx) {
-                reject(new Error('Could not get canvas context'))
-                return
-            }
-            
-            // Set canvas dimensions to target size
-            canvas.width = 1024
-            canvas.height = 1536
-            
-            // Draw the image resized to fit the canvas
-            ctx.drawImage(img, 0, 0, 1024, 1536)
-            
-            // Convert to data URL
-            const resizedImageUrl = canvas.toDataURL('image/jpeg', 0.9)
-            resolve(resizedImageUrl)
-        }
-        
-        img.onerror = () => {
-            reject(new Error('Failed to load image for resizing'))
-        }
-        
-        img.src = imageUrl
-    })
-}
 
 // Utility function moved outside the component
-const logImageDimensions = (imageUrl: string, cardName: string) => {
-    const img = new Image()
-    img.src = imageUrl
-    img.onload = () => {
-        console.log(`${cardName} image dimensions:`, { width: img.width, height: img.height })
-    }
-}
+// const logImageDimensions = (imageDataUrl: string, cardName: string) => {
+//     const img = new Image()
+//     img.src = imageDataUrl
+//     img.onload = () => {
+//         console.log(`${cardName} image dimensions:`, { width: img.width, height: img.height })
+//     }
+// }
 
 // Compression limit constant for base64 conversion
-const B64_LIMIT_KB = 2048 // 2MB limit for compression
+//const B64_LIMIT_KB = 2048 // 2MB limit for compression
 
 // Timeout duration constant (60 seconds)
-const TIMEOUT_DURATION_MS = 60000
+const TIMEOUT_DURATION_MS = 120000
+
+const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
+    width: 832,
+    height: 1248,
+    fit: 'contain',
+    quality: 80,
+    format: 'png',
+    compressionLevel: 9,
+    withoutEnlargement: true
+}
+
+const INITIAL_IMAGE_METADATA: ImageMetadata = {
+    size: 0,
+    type: '',
+    width: 0,
+    height: 0,
+    format: ''
+}
+
+const INITIAL_IMAGES_METADATA: ImagesMetadata = {
+    original: INITIAL_IMAGE_METADATA,
+    resized: INITIAL_IMAGE_METADATA
+}
 
 export default function SusFitPage() {
     const [isCapturing, setIsCapturing] = useState(false)
-    const [leftCardImage, setLeftCardImage] = useState<string | null>(null)
-    const [rightCardImage, setRightCardImage] = useState<string | null>(null)
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [leftCardImage, setLeftCardImage] = useState<string | null>(null)   // USED; Original uploaded image before resizing
+    const [rightCardImage, setRightCardImage] = useState<string | null>(null)   // USED; Original uploaded image before resizing
+    const [leftCardImageB64, setLeftCardImageB64] = useState<string | null>(null)       // USED; resized image in base64 format
+    const [rightCardImageB64, setRightCardImageB64] = useState<string | null>(null)     // USED; resized image in base64 format
+    const [userImagesMetadata, setUserImagesMetadata] = useState<ImagesMetadata | null>(null)   // USED
+    const [apparelImagesMetadata, setApparelImagesMetadata] = useState<ImagesMetadata | null>(null)   // USED
+
     const [showPolaroid, setShowPolaroid] = useState(false)
-    const [userImageFile, setUserImageFile] = useState<File | null>(null)
-    const [apparelImageFile, setApparelImageFile] = useState<File | null>(null)
-    const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+    const [generatedImage, setGeneratedImage] = useState<string | null>(null)  // USED; AI generated image
     const [hasError, setHasError] = useState(false)
+    const { resizeImage } = useImageResize();
     
     // Refs for upload panels to enable focus management
     const leftCardRef = useRef<HTMLDivElement>(null)
@@ -75,26 +73,55 @@ export default function SusFitPage() {
     // Toast hook for error notifications
     const { showToast } = useToast()
 
-    // Debug effect to log when File objects change
-    React.useEffect(() => {
-        console.log('File objects updated:', {
-            userImageFile: userImageFile ? `File: ${userImageFile.name} (${userImageFile.size} bytes)` : 'null',
-            apparelImageFile: apparelImageFile ? `File: ${apparelImageFile.name} (${apparelImageFile.size} bytes)` : 'null'
-        })
-    }, [userImageFile, apparelImageFile])
-
     // Memoized callback functions to prevent re-rendering issues
     const handleUserFileUpload = useCallback((file: File) => {
-        setUserImageFile(file)
+        console.log('Left-card User file uploaded:', file)
+        const imagesMetadata = {
+            original: {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                width: 0,
+                height: 0,
+                format: file.type.split('/')[1]
+            },
+            resized: {
+                size: 0,
+                type: 'image/png',
+                width: 0,
+                height: 0,
+                format: 'png'
+            }
+        }
+        console.log('UserImagesMetadata:', imagesMetadata)
+        setUserImagesMetadata(imagesMetadata);
     }, [])
 
     const handleApparelFileUpload = useCallback((file: File) => {
-        setApparelImageFile(file)
+        console.log('Right-card Apparel file uploaded:', file)
+        const imagesMetadata = {
+            original: {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                width: 0,
+                height: 0,
+                format: file.type.split('/')[1]
+            },
+            resized: {
+                size: 0,
+                type: 'image/png',
+                width: 0,
+                height: 0,
+                format: 'png'
+            }
+        }
+        console.log('ApparelImagesMetadata:', imagesMetadata)
+        setApparelImagesMetadata(imagesMetadata)
     }, [])
 
-
     const handleGenerationStart = () => {
-        console.log('Generation started')
+        console.log('Generation started...')
     }
 
     const handleGenerationComplete = (imageUrl: string) => {
@@ -106,6 +133,8 @@ export default function SusFitPage() {
     const handleClosePolaroid = () => {
         console.log('Closing Polaroid')
         setShowPolaroid(false)
+        setGeneratedImage(null) // Reset generated image state when closing
+        setHasError(false) // Reset error state when closing
     }
 
     const handleRetryGeneration = () => {
@@ -118,65 +147,116 @@ export default function SusFitPage() {
         }, 100)
     }
 
-    const handleLeftCardImageUpload = async (imageUrl: string) => {
+    const handleLeftCardImageUpload = async (imageDataUrl: string): Promise<string> => {
+        // imageDataUrl is Data URL format: data:[<mediatype>][;base64],<data>
         try {
-            console.log('Left card image uploaded: (original):', imageUrl)
-            logImageDimensions(imageUrl, 'Left card (original)')
+            console.log('Left-card User image DataURL: (original):', imageDataUrl.substring(0, 50) + '...')
+            setLeftCardImage(imageDataUrl)   // save the original image to state for future resizing!!
+            //logImageDimensions(imageDataUrl, 'Left-card (original)')
+
+            let resizedImageDataUrl = imageDataUrl
+            // Extract base64 from dataURL
+            const imageB64 = normalizeBase64(imageDataUrl)
+            setLeftCardImageB64(imageB64)
             
-            // Resize the image to 1024x1536
-            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
+            // ******** Resize image using the resizeImage hook ********
+            const resizeOptions = DEFAULT_RESIZE_OPTIONS
+            const result = await resizeImage(imageB64, resizeOptions);
+            console.log('handleLeftCardImageUpload: result', result);
             
-            setLeftCardImage(resizedImageUrl)
-            console.log('Left card image resized to 1024x1536:', resizedImageUrl)
-            logImageDimensions(resizedImageUrl, 'Left card (resized)')
-            
-            // Create a File object from the base64 data URL as backup
-            // This ensures we have a File object even if onFileUpload doesn't work
-            try {
-                const response = await fetch(imageUrl)
-                const blob = await response.blob()
-                const file = new File([blob], 'user-image.jpg', { type: 'image/jpeg' })
-                console.log('Created backup File object for left card:', file.name, file.size)
-                setUserImageFile(file)
-            } catch (fileError) {
-                console.error('Failed to create backup File object:', fileError)
+            let imgsMetadata = userImagesMetadata
+            let originalImageMetadata = INITIAL_IMAGE_METADATA
+            if (!imgsMetadata) {
+                imgsMetadata = INITIAL_IMAGES_METADATA
+            } else {
+                // preserve the original image metadata because it has the original filename
+                originalImageMetadata = imgsMetadata.original
             }
+            if (result.success && result.resizedB64) {
+                setLeftCardImageB64(result.resizedB64)
+                const originalMetadata = result.metadata?.original
+                const resizedMetadata = result.metadata?.resized
+                if (originalMetadata) {
+                    if (originalImageMetadata) {
+                        originalImageMetadata.width = originalMetadata.width
+                        originalImageMetadata.height = originalMetadata.height
+                        originalImageMetadata.hasAlpha = originalMetadata.hasAlpha
+                        originalImageMetadata.channels = originalMetadata.channels
+                        originalImageMetadata.space = originalMetadata.space
+                    } else {
+                        imgsMetadata.original = originalMetadata
+                    }
+                }
+                let imgFormat = 'png'
+                if (resizedMetadata) {
+                    imgsMetadata.resized = resizedMetadata
+                    imgFormat = resizedMetadata.format
+                }
+                setUserImagesMetadata(imgsMetadata)
+                if (imgFormat) {
+                    resizedImageDataUrl = await base64ToDataUrl(result.resizedB64, "image/" + imgFormat)
+                }
+            }
+            return resizedImageDataUrl
         } catch (error) {
-            console.error('Error resizing image:', error)
-            // Fallback to original image if resizing fails
-            setLeftCardImage(imageUrl)
-            console.log('Using original image due to resize error')
+            console.error('Error resizing left-card User image:', error)
+            return imageDataUrl
         }
     }
 
-    const handleRightCardImageUpload = async (imageUrl: string) => {
+    const handleRightCardImageUpload = async (imageDataUrl: string): Promise<string> => {
         try {
-            console.log('Right card image uploaded (original):', imageUrl)
-            logImageDimensions(imageUrl, 'Right card (original)')
+            console.log('Right-card Apparel image DataURL (original):', imageDataUrl.substring(0, 50) + '...')
+            setRightCardImage(imageDataUrl)   // save the original image to state for future resizing!!
+            //logImageDimensions(imageDataUrl, 'Right-card (original)')
+
+            let resizedImageDataUrl = imageDataUrl
+            // Extract base64 from dataURL
+            const imageB64 = normalizeBase64(imageDataUrl)
+            setRightCardImageB64(imageB64)
             
-            // Resize the image to 1024x1536
-            const resizedImageUrl = await resizeImageTo1024x1536(imageUrl)
+            // ******** Resize image using the resizeImage hook ********
+            const resizeOptions = DEFAULT_RESIZE_OPTIONS
+            const result = await resizeImage(imageB64, resizeOptions);
             
-            setRightCardImage(resizedImageUrl)
-            console.log('Right card image resized to 1024x1536:', resizedImageUrl)
-            logImageDimensions(resizedImageUrl, 'Right card (resized)')
-            
-            // Create a File object from the base64 data URL as backup
-            // This ensures we have a File object even if onFileUpload doesn't work
-            try {
-                const response = await fetch(imageUrl)
-                const blob = await response.blob()
-                const file = new File([blob], 'apparel-image.jpg', { type: 'image/jpeg' })
-                console.log('Created backup File object for right card:', file.name, file.size)
-                setApparelImageFile(file)
-            } catch (fileError) {
-                console.error('Failed to create backup File object:', fileError)
+            let imgsMetadata = apparelImagesMetadata
+            let originalImageMetadata = INITIAL_IMAGE_METADATA
+            if (!imgsMetadata) {
+                imgsMetadata = INITIAL_IMAGES_METADATA
+            } else {
+                // preserve the original image metadata because it has the original filename
+                originalImageMetadata = imgsMetadata.original
             }
+            if (result.success && result.resizedB64) {
+                setRightCardImageB64(result.resizedB64)
+                const originalMetadata = result.metadata?.original
+                const resizedMetadata = result.metadata?.resized
+                if (originalMetadata) {
+                    if (originalImageMetadata) {
+                        originalImageMetadata.width = originalMetadata.width
+                        originalImageMetadata.height = originalMetadata.height
+                        originalImageMetadata.hasAlpha = originalMetadata.hasAlpha
+                        originalImageMetadata.channels = originalMetadata.channels
+                        originalImageMetadata.space = originalMetadata.space
+                    } else {
+                        imgsMetadata.original = originalMetadata
+                    }
+                }
+                let imgFormat = 'png'
+                if (resizedMetadata) {
+                    imgsMetadata.resized = resizedMetadata
+                    imgFormat = resizedMetadata.format
+                }
+                setApparelImagesMetadata(imgsMetadata)
+                if (imgFormat) {
+                    resizedImageDataUrl = await base64ToDataUrl(result.resizedB64, "image/" + imgFormat)
+                    //logImageDimensions(resizedImageDataUrl, 'Right card (resized)')
+                }
+            }
+            return resizedImageDataUrl
         } catch (error) {
-            console.error('Error resizing image:', error)
-            // Fallback to original image if resizing fails
-            setRightCardImage(imageUrl)
-            console.log('Using original image due to resize error')
+            console.error('Error resizing right-card Apparel image:', error)
+            return imageDataUrl
         }
     }
 
@@ -184,13 +264,13 @@ export default function SusFitPage() {
         console.log('Camera button clicked!')
         
         // Validate that both images are uploaded first
-        if (!userImageFile || !apparelImageFile) {
+        if (!leftCardImageB64 || !rightCardImageB64) {
             let message = ''
-            if (!userImageFile && !apparelImageFile) {
+            if (!leftCardImageB64 && !rightCardImageB64) {
                 message = 'Please upload model photo and apparel photo before generating your fit.'
-            } else if (!userImageFile) {
+            } else if (!leftCardImageB64) {
                 message = 'Please upload model photo'
-            } else if (!apparelImageFile) {
+            } else if (!rightCardImageB64) {
                 message = 'Please upload apparel photo'
             }
             
@@ -200,6 +280,7 @@ export default function SusFitPage() {
         
         // Set loading state and show polaroid
         setIsCapturing(true)
+        setIsGenerating(false)
         setShowPolaroid(true)
         setHasError(false)
         
@@ -208,17 +289,17 @@ export default function SusFitPage() {
         const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION_MS)
         
         try {
-            // Convert and compress both images concurrently with higher limit
-            const [modelB64, apparelB64] = await Promise.all([
-                fileToBase64(userImageFile).then(b64 => compressBase64(b64, B64_LIMIT_KB)),
-                fileToBase64(apparelImageFile).then(b64 => compressBase64(b64, B64_LIMIT_KB))
-            ])
+            const modelB64 = leftCardImageB64 || ''
+            const apparelB64 = rightCardImageB64 || ''
             
-            console.log('Successfully converted images to base64:', {
+            console.log('Images base64:', {
                 modelB64: modelB64.substring(0, 50) + '...',
-                apparelB64: apparelB64.substring(0, 50) + '...'
+                apparelB64: apparelB64?.substring(0, 50) + '...'
             })
             
+            setIsCapturing(false)
+            setIsGenerating(true)
+    
             // Dispatch /api/tryon request with 30s timeout
             const response = await fetch('/api/tryon', {
                 method: 'POST',
@@ -249,7 +330,8 @@ export default function SusFitPage() {
             
             // Set isCapturing to false immediately when we have the image
             // This will hide the loading spinner and show the generated image
-            setIsCapturing(false)
+            //setIsCapturing(false)
+            setIsGenerating(false)
             console.log('Set isCapturing to false - image should now display')
             
         } catch (error) {
@@ -262,12 +344,12 @@ export default function SusFitPage() {
             setHasError(true)
             
             // Handle compression failures specifically
-            if (error instanceof CompressionFailedError) {
-                console.error('Image compression failed - file too large even after compression')
-                showToast('Your image is still too large after compression. Please upload a smaller file.', 'error')
-                setIsCapturing(false)
-                return
-            }
+            // if (error instanceof CompressionFailedError) {
+            //     console.error('Image compression failed - file too large even after compression')
+            //     showToast('Your image is still too large after compression. Please upload a smaller file.', 'error')
+            //     setIsCapturing(false)
+            //     return
+            // }
             
             // Handle AbortError (timeout)
             if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
@@ -329,7 +411,7 @@ export default function SusFitPage() {
                                 },
                                 size: 'md',
                                 className: 'hover:shadow-red-500/50',
-                                disabled: isCapturing || !userImageFile || !apparelImageFile
+                                disabled: isCapturing || !leftCardImageB64 || !rightCardImageB64
                             }}
                         />
                     </div>
@@ -340,7 +422,7 @@ export default function SusFitPage() {
                         {showPolaroid && (
                             <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50">
                                 <PolaroidPhotoGenerator
-                                    isGenerating={isCapturing}
+                                    isGenerating={isGenerating}
                                     onGenerationStart={handleGenerationStart}
                                     onGenerationComplete={handleGenerationComplete}
                                     onClose={handleClosePolaroid}
@@ -358,23 +440,23 @@ export default function SusFitPage() {
                             {/* Left Photo Frame */}
                             <div className="relative -rotate-2 lg:-rotate-16" ref={leftCardRef} tabIndex={-1}>
                                  <BrutalismCard
-                                     className="w-80 h-120 p-4 relative"
-                                     title="Upload Your Angle"
-                                     onImageUpload={handleLeftCardImageUpload}
-                                                                           onFileUpload={handleUserFileUpload}
+                                    className="w-80 h-120 p-4 relative"
+                                    title="Upload Your Angle"
+                                    onImageUpload={handleLeftCardImageUpload}
+                                    onFileUpload={handleUserFileUpload}
                                  />
                             </div>
 
                             {/* Right Upload Frame */}
                              <div className="relative rotate-2 lg:rotate-16" ref={rightCardRef} tabIndex={-1}>
                                  <BrutalismCard
-                                     className="w-80 h-120 p-4 relative"
-                                     buttonPosition="right"
-                                     backgroundImage="/images/ScoredGarment.jpg"
-                                     title="Select your Fit"
-                                     shadowRotation="rotate-0"
-                                     onImageUpload={handleRightCardImageUpload}
-                                                                           onFileUpload={handleApparelFileUpload}
+                                    className="w-80 h-120 p-4 relative"
+                                    buttonPosition="right"
+                                    backgroundImage="/images/ScoredGarment.jpg"
+                                    title="Select your Fit"
+                                    shadowRotation="rotate-0"
+                                    onImageUpload={handleRightCardImageUpload}
+                                    onFileUpload={handleApparelFileUpload}
                                  />
                              </div>
                         </div>
@@ -420,9 +502,7 @@ export default function SusFitPage() {
                        <div>Capturing: {isCapturing ? '✅' : '❌'}</div>
                        <div>Generated Image: {generatedImage ? '✅' : '❌'}</div>
                    </div>
-              )}
-
-            
+              )} 
         </div>
     )
 }

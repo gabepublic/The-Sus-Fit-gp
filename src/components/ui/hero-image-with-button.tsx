@@ -51,7 +51,6 @@ export function HeroImageWithButton({
             const image = imageRef.current
             const renderedImageHeight = image.clientHeight
 
-
             if (renderedImageHeight > 0) {
                 let positionAdjustment = 0
                 let scale = 1
@@ -105,6 +104,13 @@ export function HeroImageWithButton({
             const newLeftPercent = baseLeftPercent + positionAdjustment
             setAdjustedLeftPercent(`${newLeftPercent}%`)
             setButtonScale(scale)
+            // Set button ready even in fallback case
+            setIsButtonReady(true)
+        } else {
+            // Ultimate fallback: set button ready with default values
+            setAdjustedLeftPercent(overlayButton.position.leftPercent)
+            setButtonScale(1)
+            setIsButtonReady(true)
         }
     }, [overlayButton])
 
@@ -120,8 +126,20 @@ export function HeroImageWithButton({
     useEffect(() => {
         calculateButtonPositionAndSize()
         const timeoutId = setTimeout(calculateButtonPositionAndSize, 100)
-        return () => clearTimeout(timeoutId)
-    }, [overlayButton, calculateButtonPositionAndSize])
+        
+        // Fallback: ensure button becomes ready after a maximum delay
+        const fallbackTimeoutId = setTimeout(() => {
+            if (!isButtonReady) {
+                console.log('Button readiness fallback triggered')
+                setIsButtonReady(true)
+            }
+        }, 1000) // 1 second fallback - reduced for faster test execution
+        
+        return () => {
+            clearTimeout(timeoutId)
+            clearTimeout(fallbackTimeoutId)
+        }
+    }, [overlayButton, calculateButtonPositionAndSize, isButtonReady])
 
     // Recalculate on window resize
     useEffect(() => {
@@ -134,7 +152,7 @@ export function HeroImageWithButton({
     }, [overlayButton, calculateButtonPositionAndSize])
 
     // Always render button when overlayButton is provided, but apply disabled state
-    const shouldShowButton = overlayButton && isButtonReady
+    const shouldShowButton = overlayButton
 
     return (
         <div className={cn(
@@ -165,12 +183,12 @@ export function HeroImageWithButton({
                     >
                         <button
                             onClick={overlayButton.onClick}
-                            disabled={overlayButton.disabled}
+                            disabled={overlayButton.disabled || !isButtonReady}
                             data-test="generate-button"
-                                                                                            className={cn(
-                                    "absolute z-[200] rounded-full pointer-events-auto",
-                                    "transition-all duration-150 ease-in-out",
-                                overlayButton.disabled 
+                            className={cn(
+                                "absolute z-[200] rounded-full pointer-events-auto",
+                                "transition-all duration-150 ease-in-out",
+                                (overlayButton.disabled || !isButtonReady)
                                     ? "cursor-not-allowed opacity-50" 
                                     : "hover:scale-110 active:scale-95 cursor-pointer",
                                 buttonSizes[overlayButton.size || 'md'],

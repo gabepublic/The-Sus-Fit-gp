@@ -13,8 +13,16 @@ import { ZodError } from 'zod';
 // Mock getEnv first
 jest.mock('../../src/lib/getEnv', () => ({
   getEnv: jest.fn(() => ({
-    key: 'test-api-key',
-    model: 'dall-e-2'
+    provider: 'OPENAI',
+    openai: {
+      key: 'test-api-key',
+      model: 'dall-e-2'
+    },
+    google: {
+      key: 'test-google-key',
+      model: 'gemini-1.5-pro'
+    },
+    dailyLimit: 100
   }))
 }));
 
@@ -94,10 +102,10 @@ describe('openaiClient', () => {
               expect.any(File),
               expect.any(File)
             ]),
-            prompt: 'Change the garment of the model in the first image with the garment from the second image.',
-            n: 1,
-            size: '1024x1024',
-            quality: 'low'
+            prompt: expect.stringContaining('Use the **base image (first image)** as the person and scene reference'),
+            input_fidelity: 'high',
+            size: '1024x1536',
+            quality: 'high'
           })
         );
       });
@@ -181,17 +189,19 @@ describe('openaiClient', () => {
         await generateTryOn(params);
 
         // Assert
-        expect(mockImagesEdit).toHaveBeenCalledWith({
-          model: 'dall-e-2',
-          image: expect.arrayContaining([
-            expect.any(File),
-            expect.any(File)
-          ]),
-          prompt: 'Change the garment of the model in the first image with the garment from the second image.',
-          n: 1,
-          size: '1024x1024',
-          quality: 'low'
-        });
+        expect(mockImagesEdit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            model: 'dall-e-2',
+            image: expect.arrayContaining([
+              expect.any(File),
+              expect.any(File)
+            ]),
+            prompt: expect.stringContaining('Use the **base image (first image)** as the person and scene reference'),
+            input_fidelity: 'high',
+            size: '1024x1536',
+            quality: 'high'
+          })
+        );
       });
     });
 

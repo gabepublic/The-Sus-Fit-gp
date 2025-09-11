@@ -104,9 +104,9 @@ export function PolaroidPhotoGenerator({
         return (
         <div className={cn("relative flex flex-col items-center", className)} data-testid="polaroid-generator">
             {/* Polaroid Container */}
-            <div className="relative bg-white p-6 w-[475px] h-[550px] flex flex-col shadow-lg rounded-sm">
+            <div className="relative bg-white p-6 w-[480px] h-[640px] flex flex-col shadow-lg rounded-sm">
                 {/* Photo Area */}
-                <div className="relative w-full h-[400px] overflow-hidden rounded-sm bg-gray-100">
+                <div className="relative w-full h-[512px] overflow-hidden rounded-sm bg-gray-100">
                     {/* Loading State with Image, Spinner, and Progress Bar (for isGenerating prop) */}
                     {isGenerating && !generatedImage && (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -220,7 +220,7 @@ export function PolaroidPhotoGenerator({
             </div>
 
             {/* Buttons */}
-            {showButtons && (
+            {(showButtons || hasError) && (
                 <div className="mt-4 flex gap-2 justify-center">
                     <Button
                         onClick={handleRetry}

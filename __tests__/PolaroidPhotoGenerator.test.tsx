@@ -609,7 +609,7 @@ describe('PolaroidPhotoGenerator', () => {
             const { container } = render(<PolaroidPhotoGenerator {...defaultProps} />)
             
             // Use a more specific selector that doesn't rely on Tailwind's arbitrary value syntax
-            const polaroid = container.querySelector('div[class*="w-[475px]"]')
+            const polaroid = container.querySelector('div[class*="w-[480px]"]')
             expect(polaroid).toBeInTheDocument()
         })
 
@@ -617,7 +617,7 @@ describe('PolaroidPhotoGenerator', () => {
             const { container } = render(<PolaroidPhotoGenerator {...defaultProps} />)
             
             // Use a more specific selector that doesn't rely on Tailwind's arbitrary value syntax
-            const photoArea = container.querySelector('div[class*="h-[400px]"]')
+            const photoArea = container.querySelector('div[class*="h-[512px]"]')
             expect(photoArea).toBeInTheDocument()
         })
 

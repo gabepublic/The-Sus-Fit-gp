@@ -10,7 +10,7 @@ interface BrutalismCardProps {
   buttonPosition?: "left" | "right"
   backgroundImage?: string
   shadowRotation?: string
-  onImageUpload?: (imageUrl: string) => void
+  onImageUpload?: (imageUrl: string) => Promise<string>
   onFileUpload?: (file: File) => void
 }
 
@@ -47,11 +47,19 @@ export function BrutalismCard({
       }
       
       const reader = new FileReader()
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string
-        setUploadedImage(imageUrl)
+      reader.onload = async (e) => {
+        const imageDataUrl = e.target?.result as string
+        
         if (onImageUpload) {
-          onImageUpload(imageUrl)
+          try {
+            const processedImageUrl = await onImageUpload(imageDataUrl)
+            setUploadedImage(processedImageUrl)
+          } catch (error) {
+            console.error('Error processing image:', error)
+            setUploadedImage(imageDataUrl) // Fallback to original
+          }
+        } else {
+          setUploadedImage(imageDataUrl)
         }
       }
       reader.readAsDataURL(file)
@@ -85,11 +93,19 @@ export function BrutalismCard({
       }
       
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const imageUrl = e.target?.result as string
-        setUploadedImage(imageUrl)
+        
         if (onImageUpload) {
-          onImageUpload(imageUrl)
+          try {
+            const processedImageUrl = await onImageUpload(imageUrl)
+            setUploadedImage(processedImageUrl)
+          } catch (error) {
+            console.error('Error processing image:', error)
+            setUploadedImage(imageUrl) // Fallback to original
+          }
+        } else {
+          setUploadedImage(imageUrl)
         }
       }
       reader.readAsDataURL(file)

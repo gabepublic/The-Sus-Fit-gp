@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { mockImageResizeAPI } from './helpers/image-resize-mock'
 
 test('homepage loads correctly', async ({ page }) => {
+  // Mock the image resizing API to prevent server errors
+  await mockImageResizeAPI(page)
   await page.goto('/')
 
   // Expect a title containing "The Sus Fit"

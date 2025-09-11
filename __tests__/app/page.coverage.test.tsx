@@ -200,30 +200,19 @@ describe('SusFitPage - Coverage Tests', () => {
   })
 
   describe('Targeted Coverage Tests', () => {
-    it('covers logImageDimensions function with onload callback execution', () => {
+    it('covers image upload console logging', () => {
       // Mock console.log
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
       
-      // Create a mock image that will actually trigger onload
-      const originalImage = global.Image
-      let onloadCallback: (() => void) | null = null
+      // Mock FileReader to return a base64 data URL
+      const mockFileReader = {
+        readAsDataURL: jest.fn(),
+        result: 'data:image/jpeg;base64,mock-base64-data',
+        onload: null as any,
+      }
       
-      global.Image = jest.fn(() => ({
-        src: '',
-        get onload() { return onloadCallback },
-        set onload(callback: (() => void) | null) { 
-          onloadCallback = callback 
-          // Immediately trigger the callback to simulate image load
-          if (callback) {
-            callback() // Call synchronously instead of using setTimeout
-          }
-        },
-        onerror: null,
-        width: 800,
-        height: 600,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      })) as any
+      // Mock FileReader constructor
+      global.FileReader = jest.fn(() => mockFileReader) as any
       
       // Render the component
       render(<SusFitPage />)
@@ -233,61 +222,47 @@ describe('SusFitPage - Coverage Tests', () => {
       const userFileInput = fileInputs[0]
       const userMockFile = new File(['mock'], 'user.jpg', { type: 'image/jpeg' })
       
-      // Upload a file to trigger the logImageDimensions function
+      // Upload a file to trigger image upload logging
       act(() => {
         fireEvent.change(userFileInput, { target: { files: [userMockFile] } })
       })
       
-      // Should log the image dimensions since onload was triggered synchronously
-      expect(consoleSpy).toHaveBeenCalledWith('Left card (original) image dimensions:', { width: 800, height: 600 })
+      // Should log the file upload (current behavior)
+      expect(consoleSpy).toHaveBeenCalledWith('Left-card User file uploaded:', expect.any(File))
       
       consoleSpy.mockRestore()
-      global.Image = originalImage
     })
 
-    it('covers resizeImageTo1024x1536 function with onload callback execution', async () => {
-      // Mock canvas and context
-      const mockContext = {
-        drawImage: jest.fn(),
-        getImageData: jest.fn(),
-        putImageData: jest.fn(),
-      }
-      const mockCanvas = {
-        getContext: jest.fn(() => mockContext),
-        toDataURL: jest.fn(() => 'data:image/jpeg;base64,mock-resized'),
-        width: 1024,
-        height: 1536,
-      }
-      
-      // Mock document.createElement
-      const originalCreateElement = document.createElement
-      document.createElement = jest.fn((tagName: string) => {
-        if (tagName === 'canvas') {
-          return mockCanvas as any
-        }
-        return originalCreateElement.call(document, tagName)
-      })
-      
-      // Create a mock image that will actually trigger onload
-      const originalImage = global.Image
-      let onloadCallback: (() => void) | null = null
-      
-      global.Image = jest.fn(() => ({
-        src: '',
-        get onload() { return onloadCallback },
-        set onload(callback: (() => void) | null) { 
-          onloadCallback = callback 
-          // Immediately trigger the callback to simulate image load
-          if (callback) {
-            callback() // Call synchronously instead of using setTimeout
+    it('covers resizeImage function through ResizeService API call', async () => {
+      // Mock the ResizeService API call
+      const mockResizeResponse = {
+        success: true,
+        resizedB64: 'data:image/png;base64,mock-resized',
+        metadata: {
+          original: {
+            size: 1000,
+            type: 'image/jpeg',
+            width: 800,
+            height: 600,
+            format: 'jpeg'
+          },
+          resized: {
+            size: 500,
+            type: 'image/png',
+            width: 832,
+            height: 1248,
+            format: 'png'
           }
-        },
-        onerror: null,
-        width: 800,
-        height: 600,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      })) as any
+        }
+      }
+      
+      // Mock fetch for the resize API
+      const originalFetch = global.fetch
+      global.fetch = jest.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: jest.fn().mockResolvedValue(mockResizeResponse)
+        })
       
       // Render the component
       render(<SusFitPage />)
@@ -297,19 +272,24 @@ describe('SusFitPage - Coverage Tests', () => {
       const userFileInput = fileInputs[0]
       const userMockFile = new File(['mock'], 'user.jpg', { type: 'image/jpeg' })
       
-      // Upload a file to trigger the resizeImageTo1024x1536 function
+      // Upload a file to trigger the resizeImage function
       await act(async () => {
         fireEvent.change(userFileInput, { target: { files: [userMockFile] } })
       })
       
-      // The resizeImageTo1024x1536 function should be called and complete successfully
-      expect(mockCanvas.getContext).toHaveBeenCalledWith('2d')
-      expect(mockContext.drawImage).toHaveBeenCalled()
-      expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.9)
+      // Wait for the resize API call to complete
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith('/api/resize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: expect.stringContaining('"imageB64"')
+        })
+      })
       
-      // Restore mocks
-      document.createElement = originalCreateElement
-      global.Image = originalImage
+      // Restore fetch
+      global.fetch = originalFetch
     })
 
     it('covers generic error handling in handleCameraButtonClick', async () => {
@@ -353,127 +333,40 @@ describe('SusFitPage - Coverage Tests', () => {
       consoleErrorSpy.mockRestore()
     })
 
-    it('covers logImageDimensions function without onload callback', () => {
-      // Mock console.log
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
-      
-      // Create a mock image that won't trigger onload
-      const originalImage = global.Image
-      global.Image = jest.fn(() => ({
-        src: '',
-        onload: null,
-        onerror: null,
-        width: 0,
-        height: 0,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      })) as any
-      
-      // Test the logImageDimensions function directly
-      const testLogImageDimensions = (imageUrl: string, cardName: string) => {
-        const img = new Image()
-        img.src = imageUrl
-        // Don't set onload - this should not trigger the console.log
-        // This tests the branch where onload is null/undefined
-      }
-      
-      // Test the function without onload
-      testLogImageDimensions('mock-image-url', 'Test Card')
-      
-      // Should not log anything since onload is not set
-      expect(consoleSpy).not.toHaveBeenCalledWith('Test Card image dimensions:', expect.any(Object))
-      
-      consoleSpy.mockRestore()
-      global.Image = originalImage
-    })
 
-    it('covers logImageDimensions function with onload set but not triggered', () => {
-      // Mock console.log
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
-      
-      // Create a mock image that sets onload but doesn't trigger it
-      const originalImage = global.Image
-      let onloadCallback: (() => void) | null = null
-      
-      global.Image = jest.fn(() => ({
-        src: '',
-        get onload() { return onloadCallback },
-        set onload(callback: (() => void) | null) { 
-          onloadCallback = callback 
-          // Don't call the callback - this tests the branch where onload is set but not executed
-        },
-        onerror: null,
-        width: 0,
-        height: 0,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      })) as any
-      
-      // Test the logImageDimensions function directly
-      const testLogImageDimensions = (imageUrl: string, cardName: string) => {
-        const img = new Image()
-        img.src = imageUrl
-        // onload is set by the function but we don't trigger it
-      }
-      
-      // Test the function - onload should be set but not called
-      testLogImageDimensions('mock-image-url', 'Test Card')
-      
-      // Should not log anything since onload callback is not executed
-      expect(consoleSpy).not.toHaveBeenCalledWith('Test Card image dimensions:', expect.any(Object))
-      
-      // Verify onload was set but not called
-      expect(onloadCallback).toBeDefined()
-      
-      consoleSpy.mockRestore()
-      global.Image = originalImage
-    })
   })
 
   describe('Utility Functions - Integration Testing', () => {
-    it('tests resizeImageTo1024x1536 through component behavior', async () => {
-      // Mock canvas and context
-      const mockContext = {
-        drawImage: jest.fn(),
-        getImageData: jest.fn(),
-        putImageData: jest.fn(),
-      }
-      const mockCanvas = {
-        getContext: jest.fn(() => mockContext),
-        toDataURL: jest.fn(() => 'data:image/jpeg;base64,mock-resized'),
-        width: 1024,
-        height: 1536,
-      }
-      
-      // Mock document.createElement
-      const originalCreateElement = document.createElement
-      document.createElement = jest.fn((tagName: string) => {
-        if (tagName === 'canvas') {
-          return mockCanvas as any
-        }
-        return originalCreateElement.call(document, tagName)
-      })
-      
-      // Create a mock image that will actually trigger onload
-      const originalImage = global.Image
-      let onloadCallback: (() => void) | null = null
-      
-      global.Image = jest.fn(() => ({
-        src: '',
-        get onload() { return onloadCallback },
-        set onload(callback: (() => void) | null) { 
-          onloadCallback = callback 
-          // Immediately trigger the callback to simulate image load
-          if (callback) {
-            callback() // Call synchronously instead of using setTimeout
+    it('tests resizeImage through component behavior', async () => {
+      // Mock the ResizeService API call
+      const mockResizeResponse = {
+        success: true,
+        resizedB64: 'data:image/png;base64,mock-resized',
+        metadata: {
+          original: {
+            size: 1000,
+            type: 'image/jpeg',
+            width: 800,
+            height: 600,
+            format: 'jpeg'
+          },
+          resized: {
+            size: 500,
+            type: 'image/png',
+            width: 832,
+            height: 1248,
+            format: 'png'
           }
-        },
-        onerror: null,
-        width: 800,
-        height: 600,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-      })) as any
+        }
+      }
+      
+      // Mock fetch for the resize API
+      const originalFetch = global.fetch
+      global.fetch = jest.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: jest.fn().mockResolvedValue(mockResizeResponse)
+        })
       
       // Render the component
       render(<SusFitPage />)
@@ -483,19 +376,24 @@ describe('SusFitPage - Coverage Tests', () => {
       const userFileInput = fileInputs[0]
       const userMockFile = new File(['mock'], 'user.jpg', { type: 'image/jpeg' })
       
-      // Upload a file to trigger the resizeImageTo1024x1536 function
+      // Upload a file to trigger the resizeImage function
       await act(async () => {
         fireEvent.change(userFileInput, { target: { files: [userMockFile] } })
       })
       
-      // The resizeImageTo1024x1536 function should be called and complete successfully
-      expect(mockCanvas.getContext).toHaveBeenCalledWith('2d')
-      expect(mockContext.drawImage).toHaveBeenCalled()
-      expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.9)
+      // Wait for the resize API call to complete
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith('/api/resize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: expect.stringContaining('"imageB64"')
+        })
+      })
       
-      // Restore mocks
-      document.createElement = originalCreateElement
-      global.Image = originalImage
+      // Restore fetch
+      global.fetch = originalFetch
     })
   })
 
@@ -533,34 +431,5 @@ describe('SusFitPage - Coverage Tests', () => {
       })
     })
 
-    it('handles CompressionFailedError specifically', async () => {
-      render(<SusFitPage />)
-      
-      const { fileToBase64, compressBase64, CompressionFailedError } = require('@/utils/image')
-      ;(fileToBase64 as jest.Mock).mockResolvedValue('data:image/jpeg;base64,mock')
-      ;(compressBase64 as jest.Mock).mockRejectedValue(new CompressionFailedError('Compression failed'))
-      
-      // Simulate both image uploads
-      const fileInputs = document.querySelectorAll('input[type="file"]')
-      const userFileInput = fileInputs[0]
-      const apparelFileInput = fileInputs[1]
-      
-      const userMockFile = new File(['mock'], 'user.jpg', { type: 'image/jpeg' })
-      const apparelMockFile = new File(['mock'], 'apparel.jpg', { type: 'image/jpeg' })
-      
-      await act(async () => {
-        fireEvent.change(userFileInput, { target: { files: [userMockFile] } })
-        fireEvent.change(apparelFileInput, { target: { files: [apparelMockFile] } })
-      })
-      
-      // Click camera button
-      const cameraButton = screen.getByRole('button', { name: /camera capture button/i })
-      await user.click(cameraButton)
-      
-      // Should show compression error
-      await waitFor(() => {
-        expect(screen.getByText(/Your image is still too large after compression/)).toBeInTheDocument()
-      })
-    })
   })
 })
