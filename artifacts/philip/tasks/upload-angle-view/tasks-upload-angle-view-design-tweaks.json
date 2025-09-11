@@ -1,0 +1,118 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Analyze Reference Design and Current Implementation",
+        "description": "Conduct detailed visual analysis of the reference design and current mobile upload angle view to identify specific styling gaps and create implementation plan",
+        "details": "Use image analysis tools and browser dev tools to extract exact colors, typography, spacing, and visual effects from docs/assets/mobile/reference-images/UploadYourAngleViewBefore.png. Document current component structure in the codebase and create a comprehensive visual gap analysis report. Identify specific CSS properties, color values, font weights, and spacing that need modification. Use tools like ColorZilla or similar to extract exact hex values from reference image.",
+        "testStrategy": "Create side-by-side visual comparison screenshots between reference and current implementation. Document all identified visual differences with specific measurements and color codes. Validate analysis accuracy by reviewing with design stakeholders.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Update Color Palette and Brand Styling",
+        "description": "Implement vibrant color scheme and brand aesthetic from reference design throughout the mobile upload angle view components",
+        "details": "Extract and implement exact color values from reference design using CSS custom properties or Tailwind color extensions. Update primary, secondary, and accent colors to match the energetic brand aesthetic. Implement gradient backgrounds, button colors, and accent elements as shown in reference. Use CSS-in-JS with styled-components or Emotion, or update Tailwind config with custom color palette. Ensure color accessibility compliance with WCAG 2.1 standards while maintaining brand vibrancy.",
+        "testStrategy": "Visual regression testing using tools like Percy or Chromatic. Cross-device color accuracy testing on various mobile devices. Color contrast ratio validation using accessibility tools like aXe-core or WAVE. A/B comparison with reference design images.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Typography Hierarchy and Font Styling",
+        "description": "Update typography to match reference design hierarchy, font weights, and text styling while maintaining readability on mobile devices",
+        "details": "Analyze reference design typography and implement matching font sizes, weights, and line heights. Use system fonts or web fonts that match the reference aesthetic. Implement proper heading hierarchy (h1-h6) and body text styling. Update font-family declarations in CSS/Tailwind config. Ensure typography scales appropriately across mobile screen sizes using responsive typography with clamp() or media queries. Maintain minimum 16px font size for body text on mobile for accessibility.",
+        "testStrategy": "Typography audit using browser dev tools to verify font rendering. Cross-device testing for font legibility and scaling. Automated accessibility testing for text contrast ratios. Visual comparison testing against reference design typography.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Adjust Layout and Spacing to Match Reference",
+        "description": "Update component positioning, margins, padding, and overall layout structure to precisely match reference design spacing and alignment",
+        "details": "Implement exact spacing values from reference design using CSS Grid or Flexbox layouts. Update margin and padding values to match reference positioning. Ensure responsive spacing that scales appropriately across mobile screen sizes. Use CSS custom properties or Tailwind spacing scale for consistent spacing values. Implement proper visual hierarchy through spacing relationships. Maintain minimum 44px touch target sizes as per Apple/Google mobile guidelines while matching visual spacing from reference.",
+        "testStrategy": "Layout regression testing with screenshot comparisons. Touch target size validation using mobile device testing. Spacing measurement verification using browser dev tools rulers. Cross-device layout consistency testing across different mobile screen sizes.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Add Visual Effects and Brand Elements",
+        "description": "Implement shadows, borders, gradients, and other visual effects shown in reference design to achieve brand-appropriate aesthetic",
+        "details": "Extract and implement visual effects from reference design including box-shadows, border-radius, gradients, and any hover/active states. Use CSS transforms and transitions for smooth interactions. Implement backdrop filters or glass morphism effects if present in reference. Add brand-specific visual elements like icons, illustrations, or decorative elements shown in reference. Optimize visual effects for mobile performance using CSS will-change property and transform3d for hardware acceleration.",
+        "testStrategy": "Visual effects performance testing on mobile devices. Animation frame rate monitoring using browser dev tools. Cross-browser visual effects compatibility testing. Visual comparison with reference design for effect accuracy.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Optimize Mobile Responsive Behavior",
+        "description": "Ensure all visual updates maintain responsive behavior across different mobile screen sizes and orientations while matching reference design",
+        "details": "Test and optimize responsive breakpoints for mobile devices (320px-768px width). Implement proper viewport meta tag configuration. Use CSS media queries or responsive design tokens to ensure visual consistency across screen sizes. Test landscape and portrait orientations. Implement touch-friendly interactions with proper touch target sizing (minimum 44px). Use CSS container queries if supported for component-based responsiveness. Ensure visual hierarchy remains clear on smaller screens.",
+        "testStrategy": "Responsive design testing using browser dev tools device simulation. Physical device testing on various mobile devices (iOS/Android). Orientation change testing. Touch interaction testing with different finger sizes. Performance monitoring during responsive transitions.",
+        "priority": "high",
+        "dependencies": [
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Performance Optimization and Code Quality",
+        "description": "Optimize visual changes for mobile performance and ensure code follows existing conventions and best practices",
+        "details": "Optimize CSS for mobile performance by minimizing paint and layout thrashing. Use CSS containment property for layout optimization. Implement efficient CSS selectors and avoid expensive operations like box-shadow on frequently animated elements. Bundle size optimization for any new assets or fonts. Code splitting for non-critical visual enhancements. Follow existing React/Next.js patterns and component structure. Implement proper TypeScript typing for any new props or styling APIs. Use memoization (React.memo, useMemo) for performance-critical components.",
+        "testStrategy": "Performance audit using Lighthouse mobile testing. Bundle size analysis using webpack-bundle-analyzer. Code quality checks using ESLint and Prettier. Performance regression testing comparing before/after metrics. Memory usage monitoring during user interactions.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Cross-Platform Testing and Visual Validation",
+        "description": "Conduct comprehensive testing across mobile devices, browsers, and accessibility standards to ensure visual fidelity matches reference design",
+        "details": "Perform visual regression testing using automated tools like Percy, Chromatic, or BackstopJS. Test on real iOS and Android devices with different screen densities and sizes. Cross-browser testing on mobile Safari, Chrome, and Firefox mobile. Accessibility testing using screen readers and accessibility audit tools. Color vision deficiency testing using simulators. Performance testing under various network conditions. Document visual comparison results and ensure 95%+ fidelity to reference design as specified in success criteria.",
+        "testStrategy": "Automated visual regression test suite setup. Manual testing checklist for mobile devices. Accessibility audit using aXe-core or similar tools. Performance benchmarking against baseline metrics. User acceptance testing with side-by-side reference design comparison. Final sign-off process with stakeholder review.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-05T18:31:40.389Z",
+      "updated": "2025-09-05T18:31:40.389Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
