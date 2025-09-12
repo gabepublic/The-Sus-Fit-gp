@@ -4,6 +4,14 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ["localhost:3000"],
     },
+    // Enable CSS optimization features
+    optimizeCss: true,
+    // Enable container queries support
+    cssChunking: 'strict',
+  },
+  // CSS Modules configuration
+  sassOptions: {
+    includePaths: ['./src/styles'],
   },
   typescript: {
     ignoreBuildErrors: false,

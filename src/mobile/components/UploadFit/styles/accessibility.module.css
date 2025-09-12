@@ -1,0 +1,583 @@
+/**
+ * @fileoverview UploadFit Accessibility Styles - WCAG 2.2 Compliant Mobile Design
+ * @version 1.0.0
+ * 
+ * Comprehensive accessibility styles implementing:
+ * - WCAG 2.2 AA compliance
+ * - Modern CSS features (:has(), CSS containment, container queries)
+ * - Focus management and keyboard navigation
+ * - Screen reader optimizations
+ * - High contrast and dark mode support
+ * - Reduced motion preferences
+ * - Touch accessibility for mobile devices
+ */
+
+/* Import shared design tokens */
+@import '../../styles/design-tokens.css';
+
+/* =============================================================================
+ * FOCUS MANAGEMENT (WCAG 2.2)
+ * ============================================================================= */
+
+/* Enhanced focus styles with proper contrast ratios */
+.focusRing {
+  /* Base focus styles matching design system */
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+  
+  /* Ensure focus is always visible */
+  position: relative;
+  z-index: var(--z-tooltip);
+}
+
+/* Focus-within for compound components */
+.focusWithin:focus-within {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* Enhanced focus for interactive elements */
+.interactiveFocus:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+  
+  /* Additional visual feedback for brutalist design */
+  box-shadow: 
+    var(--shadow-brutalist),
+    0 0 0 var(--focus-outline-offset) var(--color-background),
+    0 0 0 calc(var(--focus-outline-offset) + var(--focus-outline-width)) var(--focus-outline-color);
+}
+
+/* Focus trap for modal content */
+.focusTrap {
+  /* Modern CSS :has() selector for context-aware focus */
+  position: relative;
+}
+
+.focusTrap:has(:focus) {
+  /* Enhanced container styling when child has focus */
+  border-color: var(--focus-outline-color);
+  box-shadow: 0 0 0 2px var(--focus-outline-color);
+}
+
+/* =============================================================================
+ * KEYBOARD NAVIGATION
+ * ============================================================================= */
+
+/* Skip links for keyboard users */
+.skipLink {
+  position: absolute;
+  top: -48px;
+  left: 8px;
+  background: var(--color-primary);
+  color: var(--color-text);
+  padding: 12px 16px;
+  text-decoration: none;
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-brutalist);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  z-index: var(--z-tooltip);
+  transform: translateX(-100%);
+  transition: transform var(--transition-fast);
+}
+
+.skipLink:focus {
+  top: 8px;
+  transform: translateX(0);
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* Keyboard-only indicators */
+.keyboardOnly {
+  /* Only visible when using keyboard navigation */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+:focus-visible + .keyboardOnly {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =============================================================================
+ * SCREEN READER OPTIMIZATIONS
+ * ============================================================================= */
+
+/* Screen reader only content */
+.srOnly {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Screen reader focused content (becomes visible when focused) */
+.srOnlyFocusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  border: var(--border-width) solid var(--color-border) !important;
+  background: var(--color-background) !important;
+}
+
+/* Live regions for dynamic content */
+.liveRegion {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.liveRegionPolite {
+  /* For non-urgent updates */
+  speak: normal;
+}
+
+.liveRegionAssertive {
+  /* For urgent updates */
+  speak: assertive;
+}
+
+/* =============================================================================
+ * TOUCH ACCESSIBILITY (Mobile-Optimized)
+ * ============================================================================= */
+
+/* Touch target size compliance (minimum 44x44px) */
+.touchTarget {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  
+  /* Ensure touch targets don't overlap */
+  position: relative;
+}
+
+.touchTargetComfortable {
+  min-width: var(--touch-target-comfortable);
+  min-height: var(--touch-target-comfortable);
+}
+
+.touchTargetLarge {
+  min-width: var(--touch-target-large);
+  min-height: var(--touch-target-large);
+}
+
+/* Touch feedback (visual and haptic) */
+.touchFeedback {
+  /* Remove default touch highlight */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Custom touch feedback */
+  transition: background-color var(--transition-fast);
+  touch-action: manipulation;
+}
+
+.touchFeedback:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Modern CSS :has() for contextual touch targets */
+.touchContainer:has(.touchTarget:focus) {
+  /* Expand container when child touch target is focused */
+  padding: var(--spacing-sm);
+  border: 2px solid var(--focus-outline-color);
+}
+
+/* =============================================================================
+ * COLOR CONTRAST AND VISIBILITY
+ * ============================================================================= */
+
+/* High contrast text combinations */
+.highContrast {
+  color: var(--color-text);
+  background-color: var(--color-background);
+  
+  /* Ensure minimum 4.5:1 contrast ratio */
+  text-shadow: none;
+}
+
+.highContrastInverse {
+  color: var(--color-background);
+  background-color: var(--color-text);
+}
+
+/* Error states with proper contrast */
+.errorHighContrast {
+  color: #ffffff;
+  background-color: var(--color-error);
+  border: var(--border-width) solid #ffffff;
+}
+
+.successHighContrast {
+  color: #000000;
+  background-color: var(--color-success);
+  border: var(--border-width) solid #000000;
+}
+
+/* =============================================================================
+ * MODERN CSS FEATURES
+ * ============================================================================= */
+
+/* CSS :has() selector for context-aware styling */
+.contextualStyling:has(.uploadActive) {
+  /* Style container when upload is active */
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.contextualStyling:has(.uploadError) {
+  /* Style container when upload has error */
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px var(--color-error);
+}
+
+.contextualStyling:has(.uploadSuccess) {
+  /* Style container when upload is successful */
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 2px var(--color-success);
+}
+
+/* CSS Containment for performance */
+.containedLayout {
+  contain: layout;
+}
+
+.containedStyle {
+  contain: style;
+}
+
+.containedPaint {
+  contain: paint;
+}
+
+.containedStrict {
+  contain: strict;
+}
+
+/* CSS Nesting (modern CSS feature) */
+.nestedComponent {
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  
+  /* Nested selectors */
+  & .title {
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+  }
+  
+  & .subtitle {
+    color: var(--color-text-light);
+    font-weight: var(--font-weight-regular);
+  }
+  
+  /* Nested pseudo-selectors */
+  &:hover {
+    border-color: var(--color-primary);
+  }
+  
+  &:focus-within {
+    outline: var(--focus-outline);
+  }
+}
+
+/* =============================================================================
+ * RESPONSIVE ACCESSIBILITY (Container Queries)
+ * ============================================================================= */
+
+/* Container query for accessibility adjustments */
+@container (max-width: 320px) {
+  .responsiveA11y {
+    /* Increase touch targets on small screens */
+    min-height: var(--touch-target-comfortable);
+    
+    /* Larger text for readability */
+    font-size: var(--font-size-lg);
+  }
+}
+
+@container (min-width: 400px) {
+  .responsiveA11y {
+    /* Standard touch targets on larger screens */
+    min-height: var(--touch-target-min);
+    font-size: var(--font-size-base);
+  }
+}
+
+/* =============================================================================
+ * MOTION AND ANIMATION ACCESSIBILITY
+ * ============================================================================= */
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .motionSafe {
+    /* Disable all animations */
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .motionSafe * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* Keep essential state changes without animation */
+  .motionSafe.stateChange {
+    transition: background-color 0s, color 0s;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motionSafe {
+    /* Enable smooth animations for users who prefer motion */
+    transition: all var(--transition-normal);
+  }
+}
+
+/* =============================================================================
+ * HIGH CONTRAST AND DARK MODE ACCESSIBILITY
+ * ============================================================================= */
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  .accessibleHighContrast {
+    /* Increase border width for better visibility */
+    border-width: var(--border-width-thick);
+    
+    /* Enhanced shadows for depth perception */
+    box-shadow: 
+      var(--shadow-brutalist),
+      0 0 0 1px var(--color-border);
+  }
+  
+  .accessibleHighContrast .focusRing:focus-visible {
+    /* Extra prominent focus indicator */
+    outline-width: 4px;
+    outline-offset: 3px;
+  }
+}
+
+/* Dark mode accessibility */
+@media (prefers-color-scheme: dark) {
+  .accessibleDarkMode {
+    /* Ensure proper contrast in dark mode */
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+  }
+  
+  .accessibleDarkMode .focusRing:focus-visible {
+    /* Bright focus indicator for dark mode */
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 2px #000000, 0 0 0 4px #ffffff;
+  }
+}
+
+/* =============================================================================
+ * FORM ACCESSIBILITY
+ * ============================================================================= */
+
+/* Accessible form controls */
+.accessibleInput {
+  /* Proper labeling and error states */
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  min-height: var(--touch-target-min);
+  padding: var(--spacing-md);
+  
+  /* Enhanced focus state */
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+    border-color: var(--focus-outline-color);
+  }
+  
+  /* Error state */
+  &[aria-invalid="true"] {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 1px var(--color-error);
+  }
+  
+  /* Success state */
+  &[aria-invalid="false"] {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 1px var(--color-success);
+  }
+}
+
+/* Field descriptions and error messages */
+.fieldDescription {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  margin-top: var(--spacing-sm);
+}
+
+.fieldError {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-sm);
+  
+  /* Icon space for error indicators */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* =============================================================================
+ * DRAG AND DROP ACCESSIBILITY
+ * ============================================================================= */
+
+/* Accessible drag and drop */
+.accessibleDropZone {
+  /* Clear visual indication of drop zone */
+  border: 2px dashed var(--color-border);
+  background: var(--color-background);
+  
+  /* Focus styles for keyboard users */
+  &:focus-visible {
+    outline: var(--focus-outline);
+    border-style: solid;
+    border-color: var(--focus-outline-color);
+  }
+  
+  /* Active drop state */
+  &[aria-dropeffect="copy"] {
+    border-color: var(--color-success);
+    background-color: rgba(0, 255, 0, 0.1);
+  }
+  
+  /* Rejection state */
+  &[aria-dropeffect="none"] {
+    border-color: var(--color-error);
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+}
+
+/* =============================================================================
+ * PROGRESS AND STATUS ACCESSIBILITY
+ * ============================================================================= */
+
+/* Accessible progress indicators */
+.accessibleProgress {
+  /* Proper ARIA labeling handled by component */
+  width: 100%;
+  height: 8px;
+  background: var(--color-text-light);
+  border: var(--border-width) solid var(--color-border);
+  overflow: hidden;
+  
+  /* High contrast progress bar */
+  &::after {
+    content: '';
+    display: block;
+    height: 100%;
+    background: var(--color-primary);
+    transition: width var(--transition-normal);
+  }
+}
+
+/* Status announcements */
+.statusAnnouncement {
+  /* Screen reader only status updates */
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* =============================================================================
+ * UTILITY CLASSES FOR ACCESSIBILITY
+ * ============================================================================= */
+
+/* Hide decorative content from screen readers */
+.decorative {
+  aria-hidden: true;
+}
+
+/* Mark important content for screen readers */
+.important {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Ensure minimum touch target spacing */
+.touchSpacing {
+  margin: var(--spacing-sm);
+}
+
+/* Accessible tables (if needed) */
+.accessibleTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.accessibleTable th,
+.accessibleTable td {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-md);
+  text-align: left;
+}
+
+.accessibleTable th {
+  background: var(--color-text-light);
+  font-weight: var(--font-weight-bold);
+}
+
+/* =============================================================================
+ * BROWSER COMPATIBILITY FALLBACKS
+ * ============================================================================= */
+
+/* Fallbacks for older browsers */
+@supports not (selector(:has(*))) {
+  /* Fallback styling when :has() is not supported */
+  .contextualStyling {
+    border: var(--border-width) solid var(--color-border);
+  }
+}
+
+@supports not (contain: layout) {
+  /* Fallback when CSS containment is not supported */
+  .containedLayout {
+    overflow: hidden;
+  }
+}
+
+/* =============================================================================
+ * DEBUG MODE FOR ACCESSIBILITY TESTING
+ * ============================================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  .a11yDebug * {
+    /* Highlight all focusable elements */
+    outline: 2px dashed orange !important;
+  }
+  
+  .a11yDebug [aria-hidden="true"] {
+    /* Show hidden elements with different outline */
+    outline: 2px solid red !important;
+  }
+  
+  .a11yDebug .srOnly {
+    /* Make screen reader content visible */
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    background: yellow !important;
+    color: black !important;
+  }
+}

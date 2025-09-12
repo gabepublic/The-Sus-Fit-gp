@@ -1,0 +1,501 @@
+/**
+ * @fileoverview UploadFit Animations - GPU-Accelerated 60fps Mobile Animations
+ * @version 1.0.0
+ * 
+ * Performance-optimized animations using only transform and opacity properties
+ * for consistent 60fps performance on mobile devices. All animations respect
+ * prefers-reduced-motion and are designed for brutalist aesthetics.
+ * 
+ * GPU Acceleration Strategy:
+ * - Only use transform and opacity properties
+ * - Proper will-change management
+ * - Hardware acceleration triggers
+ * - Minimal animation complexity
+ */
+
+/* Import shared design tokens */
+@import '../../styles/design-tokens.css';
+
+/* =============================================================================
+ * CORE ANIMATION KEYFRAMES (GPU-Accelerated)
+ * ============================================================================= */
+
+/* Upload bounce animation for successful file drop */
+@keyframes uploadBounce {
+  0% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(1.05) translateZ(0);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(0.98) translateZ(0);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.02) translateZ(0);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.99) translateZ(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Shake animation for drag rejection */
+@keyframes uploadShake {
+  0%, 100% {
+    transform: translateX(0) translateZ(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-6px) translateZ(0);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(6px) translateZ(0);
+  }
+}
+
+/* Pulse animation for loading states */
+@keyframes uploadPulse {
+  0% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03) translateZ(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Spinner rotation for loading */
+@keyframes uploadSpinRotate {
+  0% {
+    transform: rotate(0deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+/* Fade in animation for content appearing */
+@keyframes uploadFadeIn {
+  0% {
+    transform: translateY(10px) translateZ(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Slide up animation for mobile actions */
+@keyframes uploadSlideUp {
+  0% {
+    transform: translateY(20px) translateZ(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Photo frame entrance animation */
+@keyframes uploadFrameEntrance {
+  0% {
+    transform: scale(0.9) translateZ(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Button press animation (brutalist) */
+@keyframes uploadButtonPress {
+  0% {
+    transform: translate(0, 0) translateZ(0);
+  }
+  50% {
+    transform: translate(3px, 5px) translateZ(0);
+  }
+  100% {
+    transform: translate(6px, 10px) translateZ(0);
+  }
+}
+
+/* Progress bar fill animation */
+@keyframes uploadProgressFill {
+  0% {
+    transform: scaleX(0) translateZ(0);
+    transform-origin: left center;
+  }
+  100% {
+    transform: scaleX(1) translateZ(0);
+    transform-origin: left center;
+  }
+}
+
+/* =============================================================================
+ * ANIMATION UTILITY CLASSES
+ * ============================================================================= */
+
+/* Base animation class with performance optimizations */
+.animated {
+  /* GPU acceleration triggers */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0); /* Force hardware acceleration */
+  
+  /* Smooth animation timing */
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Remove will-change after animation completes */
+.animated.animationComplete {
+  will-change: auto;
+}
+
+/* =============================================================================
+ * ENTRANCE ANIMATIONS
+ * ============================================================================= */
+
+.fadeIn {
+  animation: uploadFadeIn var(--transition-normal) ease-out;
+}
+
+.slideUp {
+  animation: uploadSlideUp var(--transition-normal) ease-out;
+}
+
+.frameEntrance {
+  animation: uploadFrameEntrance var(--transition-slow) ease-out;
+}
+
+/* Staggered entrance animations for multiple elements */
+.fadeInDelay1 {
+  animation: uploadFadeIn var(--transition-normal) ease-out 0.1s;
+}
+
+.fadeInDelay2 {
+  animation: uploadFadeIn var(--transition-normal) ease-out 0.2s;
+}
+
+.fadeInDelay3 {
+  animation: uploadFadeIn var(--transition-normal) ease-out 0.3s;
+}
+
+/* =============================================================================
+ * INTERACTION ANIMATIONS
+ * ============================================================================= */
+
+.bounce {
+  animation: uploadBounce 0.6s ease-in-out;
+}
+
+.shake {
+  animation: uploadShake 0.5s ease-in-out;
+}
+
+.pulse {
+  animation: uploadPulse 2s ease-in-out infinite;
+}
+
+.buttonPress {
+  animation: uploadButtonPress var(--transition-fast) ease-out;
+}
+
+/* =============================================================================
+ * LOADING ANIMATIONS
+ * ============================================================================= */
+
+.spinner {
+  animation: uploadSpinRotate 1s linear infinite;
+}
+
+.progressFill {
+  animation: uploadProgressFill 0.8s ease-out;
+}
+
+/* Pulsing loading indicator */
+.loadingPulse {
+  animation: uploadPulse 1.5s ease-in-out infinite;
+}
+
+/* =============================================================================
+ * HOVER AND FOCUS ANIMATIONS (Touch-Optimized)
+ * ============================================================================= */
+
+.hoverLift {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hoverLift:hover {
+  transform: var(--transform-hover) translateZ(0);
+}
+
+.hoverLift:active {
+  transform: var(--transform-active) translateZ(0);
+}
+
+.focusRing {
+  transition: outline var(--transition-fast);
+}
+
+.focusRing:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* =============================================================================
+ * DRAG AND DROP ANIMATIONS
+ * ============================================================================= */
+
+.dragTarget {
+  transition: 
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.dragHover {
+  transform: var(--transform-scale-hover) translateZ(0);
+  background-color: var(--color-success);
+  animation: uploadPulse 1s ease-in-out infinite;
+}
+
+.dragReject {
+  background-color: var(--color-error);
+  animation: uploadShake 0.5s ease-in-out;
+}
+
+.dragAccept {
+  animation: uploadBounce 0.6s ease-in-out;
+}
+
+/* =============================================================================
+ * STATE TRANSITION ANIMATIONS
+ * ============================================================================= */
+
+.stateTransition {
+  transition: 
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+.stateEnter {
+  transform: translateY(0) translateZ(0);
+  opacity: 1;
+}
+
+.stateExit {
+  transform: translateY(-10px) translateZ(0);
+  opacity: 0;
+}
+
+.stateLoading {
+  transform: scale(0.98) translateZ(0);
+  opacity: 0.8;
+}
+
+.stateSuccess {
+  animation: uploadBounce 0.6s ease-in-out;
+}
+
+.stateError {
+  animation: uploadShake 0.5s ease-in-out;
+}
+
+/* =============================================================================
+ * MICRO-INTERACTIONS (60fps Optimized)
+ * ============================================================================= */
+
+.microBounce {
+  animation: uploadBounce 0.3s ease-out;
+}
+
+.microShake {
+  animation: uploadShake 0.3s ease-out;
+}
+
+.microPulse {
+  animation: uploadPulse 0.4s ease-out;
+}
+
+/* Button feedback animations */
+.buttonFeedback {
+  transition: transform var(--transition-fast);
+}
+
+.buttonFeedback:active {
+  transform: translate(2px, 2px) translateZ(0);
+}
+
+/* =============================================================================
+ * PERFORMANCE OPTIMIZATIONS
+ * ============================================================================= */
+
+/* Optimize animations for mobile performance */
+@media (max-device-width: 480px) {
+  .animated {
+    /* Simplified animations for mobile */
+    animation-duration: 0.2s;
+  }
+  
+  .spinner {
+    /* Reduce spinner complexity on mobile */
+    animation-duration: 1.5s;
+  }
+}
+
+/* Battery optimization */
+@media (prefers-reduced-motion: no-preference) and (update: fast) {
+  .highPerformanceAnimation {
+    /* Only run complex animations on capable devices */
+    animation: uploadFrameEntrance var(--transition-slow) ease-out;
+  }
+}
+
+/* =============================================================================
+ * ACCESSIBILITY AND REDUCED MOTION
+ * ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* Remove transform animations but keep essential feedback */
+  .hoverLift:hover,
+  .hoverLift:active,
+  .buttonFeedback:active {
+    transform: none;
+  }
+  
+  /* Keep essential state changes without animation */
+  .dragHover {
+    background-color: var(--color-success);
+    animation: none;
+  }
+  
+  .dragReject {
+    background-color: var(--color-error);
+    animation: none;
+  }
+  
+  .spinner {
+    animation: none;
+    /* Show static loading indicator */
+    border-top-color: var(--color-primary);
+  }
+}
+
+/* =============================================================================
+ * DEBUG MODE (Development Only)
+ * ============================================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  .debugAnimation {
+    /* Add visible borders to debug animation boundaries */
+    border: 2px dashed red !important;
+    background-color: rgba(255, 0, 0, 0.1) !important;
+  }
+  
+  .debugAnimation::after {
+    content: 'ANIM';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px;
+  }
+}
+
+/* =============================================================================
+ * ANIMATION EVENT HANDLERS (CSS Classes for JS Integration)
+ * ============================================================================= */
+
+.animationStart {
+  /* Applied when animation starts */
+  will-change: transform, opacity;
+}
+
+.animationEnd {
+  /* Applied when animation ends */
+  will-change: auto;
+}
+
+.animationPause {
+  /* Pause all animations */
+  animation-play-state: paused;
+}
+
+.animationResume {
+  /* Resume all animations */
+  animation-play-state: running;
+}
+
+/* =============================================================================
+ * CONTAINER QUERY ANIMATIONS (Component-based)
+ * ============================================================================= */
+
+@container (min-width: 375px) {
+  .responsiveAnimation {
+    /* More elaborate animations on larger mobile screens */
+    animation-duration: calc(var(--transition-normal) * 1.2);
+  }
+}
+
+@container (max-width: 320px) {
+  .responsiveAnimation {
+    /* Simplified animations on smaller screens */
+    animation-duration: calc(var(--transition-normal) * 0.8);
+  }
+}
+
+/* =============================================================================
+ * BRUTALIST ANIMATION OVERRIDES
+ * ============================================================================= */
+
+/* Brutalist animations should be sharp and decisive */
+.brutalistAnimation {
+  animation-timing-function: steps(3, end); /* Stepped animation for brutalist feel */
+}
+
+.brutalistHover {
+  transition: none; /* No smooth transitions, instant feedback */
+}
+
+.brutalistHover:hover {
+  transform: var(--transform-hover) translateZ(0);
+}
+
+.brutalistHover:active {
+  transform: var(--transform-active) translateZ(0);
+}
