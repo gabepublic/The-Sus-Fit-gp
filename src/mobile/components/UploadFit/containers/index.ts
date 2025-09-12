@@ -4,9 +4,4 @@
  * @version 1.0.0
  */
 
-// Containers will be exported here as they are implemented
-// export { UploadFitContainer } from './UploadFitContainer';
-// export { UploadFitWithErrorBoundary } from './UploadFitWithErrorBoundary';
-
-// Placeholder export for now
-export {};
+export { UploadFitContainer } from './UploadFitContainer';

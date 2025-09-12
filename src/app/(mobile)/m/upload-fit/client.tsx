@@ -2,8 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-// Note: UploadFit component will be implemented in future tasks
-// import { UploadFitWithErrorBoundary } from '../../../../mobile/components/UploadFit/containers/UploadFitWithErrorBoundary'
+import { UploadFitWithErrorBoundary } from '../../../../mobile/components/UploadFit/components/UploadFitWithErrorBoundary'
 import { RouteGuard } from '../../../../mobile/components/RouteGuard'
 
 interface MobileUploadFitClientProps {
@@ -131,46 +130,7 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
               Loading upload interface...
             </div>
           }>
-            {/* Placeholder content until UploadFit component is implemented */}
-            <div className="upload-fit-placeholder">
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-black mb-4">Upload Your Fit</h1>
-                <p className="text-lg text-black">Select the garment you want to try on</p>
-              </div>
-              
-              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_#0066cc] mb-8">
-                <div className="text-center">
-                  <p className="text-xl font-bold mb-4">🧥 Choose Your Clothing Item</p>
-                  <p className="mb-4">Upload a photo of the garment or select from our catalog</p>
-                  <div className="space-y-4">
-                    <button 
-                      className="w-full bg-pink-400 border-2 border-black px-6 py-3 font-bold hover:bg-pink-300 transition-colors"
-                      onClick={() => console.log('Upload garment clicked')}
-                    >
-                      📷 UPLOAD GARMENT PHOTO
-                    </button>
-                    <button 
-                      className="w-full bg-blue-400 border-2 border-black px-6 py-3 font-bold hover:bg-blue-300 transition-colors"
-                      onClick={() => console.log('Browse catalog clicked')}
-                    >
-                      👕 BROWSE CATALOG
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-center">
-                <button
-                  onClick={handleNext}
-                  className="bg-green-400 border-2 border-black px-8 py-3 font-bold text-lg hover:bg-green-300 transition-colors shadow-[4px_4px_0px_0px_#000000]"
-                >
-                  ➡️ CONTINUE TO TRY-ON
-                </button>
-              </div>
-            </div>
-
-            {/* This will be replaced with the actual UploadFit component when implemented */}
-            {/* <UploadFitWithErrorBoundary
+            <UploadFitWithErrorBoundary
               config={uploadConfig}
               onUploadSuccess={handleUploadSuccess}
               onUploadError={handleUploadError}
@@ -178,7 +138,7 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
               onNext={handleNext}
               className="upload-fit-mobile"
               testId="mobile-upload-fit"
-            /> */}
+            />
           </Suspense>
         </div>
       </div>

@@ -4,13 +4,26 @@
  * @version 1.0.0
  */
 
-// Implemented components
+// Core components
+export { UploadFit } from './UploadFit';
+export { ErrorBoundary } from './ErrorBoundary';
+export { ProgressIndicator } from './ProgressIndicator';
+export { ErrorDisplay } from './ErrorDisplay';
+export { UploadFitWithErrorBoundary } from './UploadFitWithErrorBoundary';
+
+// Support components
 export { PhotoFrame } from './PhotoFrame';
 export { MobileUploadButton } from './MobileUploadButton';
 export { NextButton } from './NextButton';
 
-// Components will be exported here as they are implemented
-// export { UploadFit } from './UploadFit';
-// export { ProgressIndicator } from './ProgressIndicator';
-// export { ErrorDisplay } from './ErrorDisplay';
-// export { ErrorBoundary } from './ErrorBoundary';
+// Re-export types
+export type {
+  ProgressIndicatorProps,
+  ErrorDisplayProps,
+  ProgressVariant,
+  ColorVariant,
+  ErrorType,
+  UploadState,
+  ValidationError,
+  UploadProgress
+} from '../types';

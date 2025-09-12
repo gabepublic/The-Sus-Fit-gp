@@ -18,11 +18,5 @@ export {
   type MobileAnalyticsHook
 } from './useMobileAnalytics'
 
-// Fit upload hooks
-export {
-  useFitUpload
-} from './useFitUpload'
-
-export type {
-  EnhancedUseFitUploadReturn
-} from './useFitUpload'
+// Note: Upload Fit uses the main application hooks from @/hooks/useImageUpload
+// No custom hooks needed for UploadFit as per requirements
