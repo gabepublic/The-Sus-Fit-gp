@@ -132,7 +132,7 @@ export function createMockUploadState(
 /**
  * Creates a mock file for testing
  */
-export function createMockFile(
+export function createSimulationMockFile(
   name: string = 'test-image.jpg',
   type: string = 'image/jpeg',
   size: number = 1024 * 1024 // 1MB

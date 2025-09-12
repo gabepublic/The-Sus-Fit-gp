@@ -7,7 +7,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PhotoFrame } from '@/mobile/components/UploadAngle/components/PhotoFrame'
 import { PHOTO_FRAME_STATE } from '@/mobile/components/UploadAngle/types/upload.types'
-import { runA11yTests } from '../../../test-utils/upload-test-utils'
+import { runA11yTests } from '@test/upload-test-utils'
 
 // Mock framer-motion to avoid animation complexities in tests
 jest.mock('framer-motion', () => ({
@@ -40,7 +40,9 @@ describe('PhotoFrame Component', () => {
     onImageLoad: jest.fn(),
     onImageError: jest.fn(),
     onUpload: jest.fn(),
-    onRetry: jest.fn()
+    onRetry: jest.fn(),
+    onTouchStart: jest.fn(),
+    onTouchEnd: jest.fn()
   }
 
   beforeEach(() => {

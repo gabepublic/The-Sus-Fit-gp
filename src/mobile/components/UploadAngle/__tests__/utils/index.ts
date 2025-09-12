@@ -6,4 +6,4 @@
 export * from './uploadSimulation';
 
 // Re-export existing test utilities
-export * from '../../../../../__tests__/test-utils/upload-test-utils';
+export * from '@test/upload-test-utils';

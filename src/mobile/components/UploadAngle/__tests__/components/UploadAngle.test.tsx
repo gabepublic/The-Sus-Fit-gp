@@ -7,7 +7,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { UploadAngle } from '../../components/UploadAngle'
-import { renderWithProviders, createMockFile, runA11yTests } from '../../../../__tests__/test-utils/upload-test-utils'
+import { renderWithProviders, createMockFile, runA11yTests } from '@test/upload-test-utils'
 import { DEFAULT_UPLOAD_CONFIG } from '../../types/upload.types'
 
 // Mock the hooks to control their behavior

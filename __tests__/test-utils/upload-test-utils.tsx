@@ -154,7 +154,12 @@ export const mockCanvasContext = () => {
     stroke: jest.fn(),
   } as unknown as CanvasRenderingContext2D
   
-  canvas.getContext = jest.fn(() => context)
+  canvas.getContext = jest.fn().mockImplementation((contextType: string) => {
+    if (contextType === '2d') {
+      return context
+    }
+    return null
+  })
   canvas.toBlob = jest.fn((callback) => {
     const blob = new Blob(['test'], { type: 'image/jpeg' })
     callback(blob)

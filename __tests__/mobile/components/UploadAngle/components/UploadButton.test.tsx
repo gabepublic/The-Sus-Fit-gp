@@ -6,7 +6,7 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UploadButton } from '@/mobile/components/UploadAngle/components/UploadButton'
-import { createMockFile, runA11yTests } from '../../../test-utils/upload-test-utils'
+import { createMockFile, runA11yTests } from '@test/upload-test-utils'
 
 describe('UploadButton Component', () => {
   const defaultProps = {

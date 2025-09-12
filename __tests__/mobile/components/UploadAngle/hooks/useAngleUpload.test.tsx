@@ -5,7 +5,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useAngleUpload } from '@/mobile/components/UploadAngle/hooks/useAngleUpload'
 import { UPLOAD_STATUS } from '@/mobile/components/UploadAngle/types/upload.types'
-import { createMockFile, createMockImageFile } from '../../../test-utils/upload-test-utils'
+import { createMockFile, createMockImageFile } from '@test/upload-test-utils'
 
 // Mock timers for testing
 jest.useFakeTimers()

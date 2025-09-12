@@ -83,7 +83,7 @@ export const isUploadAction = (value: unknown): value is UploadAction => {
   // Validate payload based on action type
   switch (actionType) {
     case UPLOAD_ACTIONS.SET_FILE:
-      return (
+      return Boolean(
         action.payload &&
         typeof action.payload === 'object' &&
         isFile((action.payload as any).file) &&
@@ -91,7 +91,7 @@ export const isUploadAction = (value: unknown): value is UploadAction => {
       );
       
     case UPLOAD_ACTIONS.SET_PROGRESS:
-      return (
+      return Boolean(
         action.payload &&
         typeof action.payload === 'object' &&
         typeof (action.payload as any).progress === 'number' &&
@@ -100,14 +100,14 @@ export const isUploadAction = (value: unknown): value is UploadAction => {
       );
       
     case UPLOAD_ACTIONS.SET_SUCCESS:
-      return (
+      return Boolean(
         action.payload &&
         typeof action.payload === 'object' &&
         typeof (action.payload as any).imageUrl === 'string'
       );
       
     case UPLOAD_ACTIONS.SET_ERROR:
-      return (
+      return Boolean(
         action.payload &&
         typeof action.payload === 'object' &&
         typeof (action.payload as any).error === 'string'
