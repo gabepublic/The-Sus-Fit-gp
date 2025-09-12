@@ -17,3 +17,12 @@ export {
   useMobileAnalytics,
   type MobileAnalyticsHook
 } from './useMobileAnalytics'
+
+// Fit upload hooks
+export {
+  useFitUpload
+} from './useFitUpload'
+
+export type {
+  EnhancedUseFitUploadReturn
+} from './useFitUpload'
