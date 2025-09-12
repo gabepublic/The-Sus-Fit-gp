@@ -24,8 +24,9 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
 
   // Determine header configuration based on current route
   const isUploadAnglePage = pathname === '/m/upload-angle'
+  const isUploadFitPage = pathname === '/m/upload-fit'
   const showBackButton = false // Keep header consistent across all views
-  const showProgress = isUploadAnglePage && uploadProgress > 0 && uploadProgress < 100
+  const showProgress = (isUploadAnglePage || isUploadFitPage) && uploadProgress > 0 && uploadProgress < 100
   const title = undefined // Keep header consistent across all views
 
   // Listen for upload progress events
@@ -44,13 +45,13 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
 
   // Reset upload progress when leaving upload page
   useEffect(() => {
-    if (!isUploadAnglePage) {
+    if (!isUploadAnglePage && !isUploadFitPage) {
       setUploadProgress(0)
     }
-  }, [isUploadAnglePage])
+  }, [isUploadAnglePage, isUploadFitPage])
 
   return (
-    <div className={`mobile-layout min-h-screen ${isUploadAnglePage ? 'bg-transparent' : ''}`}>
+    <div className={`mobile-layout min-h-screen ${(isUploadAnglePage || isUploadFitPage) ? 'bg-transparent' : ''}`}>
       {/* Mobile Header */}
       <MobileHeader 
         isMenuOpen={isMenuOpen} 
