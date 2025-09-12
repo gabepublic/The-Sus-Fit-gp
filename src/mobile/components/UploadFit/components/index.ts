@@ -7,10 +7,10 @@
 // Implemented components
 export { PhotoFrame } from './PhotoFrame';
 export { MobileUploadButton } from './MobileUploadButton';
+export { NextButton } from './NextButton';
 
 // Components will be exported here as they are implemented
 // export { UploadFit } from './UploadFit';
-// export { NextButton } from './NextButton';
 // export { ProgressIndicator } from './ProgressIndicator';
 // export { ErrorDisplay } from './ErrorDisplay';
 // export { ErrorBoundary } from './ErrorBoundary';

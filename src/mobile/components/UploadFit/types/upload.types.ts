@@ -422,6 +422,8 @@ export interface ErrorDisplayProps extends BaseComponentProps {
 export interface NextButtonProps extends BaseComponentProps {
   /** Callback when button is clicked */
   onClick: () => void;
+  /** Current upload status for state management */
+  uploadStatus: UploadStatus;
   /** Whether button is disabled */
   disabled?: boolean;
   /** Button variant style */
@@ -432,6 +434,8 @@ export interface NextButtonProps extends BaseComponentProps {
   loading?: boolean;
   /** Optional children content */
   children?: React.ReactNode;
+  /** Configuration for NextButton state management */
+  config?: import('../hooks/useNextButtonState').NextButtonConfig;
 }
 
 /**
