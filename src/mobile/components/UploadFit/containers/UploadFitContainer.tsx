@@ -125,12 +125,6 @@ export const UploadFitContainer = React.memo<UploadFitContainerProps>(function U
       role="region"
       aria-label="Image upload interface"
     >
-      {/* Loading State */}
-      {upload.uploadState === 'idle' && !upload.file && !initialImageUrl && (
-        <div role="status" aria-live="polite">
-          Loading...
-        </div>
-      )}
 
       {/* Main Upload Component */}
       <div data-testid="upload-fit-container-photo-frame">

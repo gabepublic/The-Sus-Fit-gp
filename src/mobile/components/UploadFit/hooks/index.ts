@@ -38,7 +38,9 @@ export {
   createRetryNavigation
 } from './useNavigateToTryOn';
 
+// Implemented hooks
+export { useFitUpload, type EnhancedUseUploadReturn } from './useFitUpload';
+
 // Hooks will be exported here as they are implemented
-// export { useFitUpload } from './useFitUpload';
 // export { useImageProcessing } from './useImageProcessing';
 // export { useFileValidation } from './useFileValidation';

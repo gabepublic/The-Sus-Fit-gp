@@ -2,9 +2,8 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PhotoFrameProps, PHOTO_FRAME_STATE } from '../types';
 
 /**
  * Animation keyframes for styled-components
@@ -14,18 +13,41 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-`;
-
-const shimmer = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`;
+/**
+ * Photo Frame Props Interface
+ */
+interface PhotoFrameProps {
+  imageUrl?: string | null;
+  alt?: string;
+  loading?: boolean;
+  disabled?: boolean;
+  onImageLoad?: () => void;
+  onImageError?: (error: Event) => void;
+  onUpload?: (event: React.TouchEvent | React.MouseEvent | React.KeyboardEvent) => void;
+  onRetry?: () => void;
+  onTouchStart?: (event: React.TouchEvent) => void;
+  onTouchEnd?: (event: React.TouchEvent) => void;
+  accept?: string;
+  aspectRatio?: string;
+  className?: string;
+  testId?: string;
+}
 
 /**
- * Styled components with 3:4 aspect ratio and brutalist design for fit uploads
+ * Photo Frame State Enum
+ */
+const PHOTO_FRAME_STATE = {
+  EMPTY: 'empty',
+  UPLOADING: 'uploading',
+  LOADED: 'loaded',
+  ERROR: 'error'
+} as const;
+
+type PhotoFrameState = typeof PHOTO_FRAME_STATE[keyof typeof PHOTO_FRAME_STATE];
+
+/**
+ * Styled components with CSS-in-JS for complete isolation
+ * EXACTLY matching Upload Angle PhotoFrame structure
  */
 const StyledPhotoFrame = styled(motion.div)<{
   $aspectRatio: string;
@@ -33,28 +55,30 @@ const StyledPhotoFrame = styled(motion.div)<{
 }>`
   position: relative;
   width: 70vw;
-  max-width: 320px;
+  height: 50vh;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 2px;
   overflow: hidden;
   background: linear-gradient(145deg, #f8fafc, #f1f5f9);
   border: 2px solid #000000;
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   user-select: none;
-  box-shadow: 4px 4px 0px #0066cc;
-  will-change: transform;
-  
-  /* 3:4 Portrait aspect ratio implementation */
-  aspect-ratio: 3 / 4;
-  
+  box-shadow: 5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000;
+
   /* Fallback for browsers without aspect-ratio support */
   @supports not (aspect-ratio: 1) {
     &::before {
       content: '';
       display: block;
-      padding-bottom: 133.33%; /* 4/3 * 100% for 3:4 ratio */
+      padding-bottom: ${props => {
+        if (props.$aspectRatio === '4:3' || props.$aspectRatio === '4 / 3') return '75%';
+        if (props.$aspectRatio === '16:9' || props.$aspectRatio === '16 / 9') return '56.25%';
+        if (props.$aspectRatio === '1:1' || props.$aspectRatio === '1 / 1') return '100%';
+        if (props.$aspectRatio === '3:4' || props.$aspectRatio === '3 / 4') return '133.33%';
+        return '133.33%'; // Default to 3:4 for fit images
+      }};
     }
-    
+
     > * {
       position: absolute;
       top: 0;
@@ -63,42 +87,26 @@ const StyledPhotoFrame = styled(motion.div)<{
       height: 100%;
     }
   }
-  
-  /* Touch interactions with scale animation */
-  &:active:not([disabled]) {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
-  }
-  
+
   &:hover:not([disabled]) {
     border-color: #000000;
-    box-shadow: 3px 3px 0px #0066cc, 3px 3px 0px 2px #000000;
+    box-shadow: 4px 4px 0px 2px #00BFFF, 4px 4px 0px 4px #000000;
   }
-  
+
   &:focus-within {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
   }
-  
+
   opacity: ${props => props.$disabled ? 0.6 : 1};
-  
-  /* Minimum touch target size for accessibility */
-  min-height: 44px;
-  
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    will-change: auto;
-    
+
     * {
       animation: none !important;
       transition: none !important;
     }
-  }
-  
-  /* Container queries for responsive behavior */
-  @container (max-width: 300px) {
-    width: 85vw;
-    border-radius: 12px;
   }
 `;
 
@@ -114,7 +122,6 @@ const Container = styled.div`
 const StyledImage = styled(Image)`
   object-fit: cover;
   object-position: center;
-  transition: opacity 0.2s ease-in-out;
   width: 100% !important;
   height: 100% !important;
 `;
@@ -135,7 +142,7 @@ const Spinner = styled.div`
   width: 40px;
   height: 40px;
   border: 3px solid #e2e8f0;
-  border-top: 3px solid #0066cc;
+  border-top: 3px solid #3b82f6;
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
 `;
@@ -147,7 +154,7 @@ const ProgressBar = styled.div<{ $progress: number }>`
   border-radius: 2px;
   overflow: hidden;
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -155,7 +162,7 @@ const ProgressBar = styled.div<{ $progress: number }>`
     left: 0;
     height: 100%;
     width: ${props => props.$progress}%;
-    background: #0066cc;
+    background: #3b82f6;
     transition: width 0.3s ease;
   }
 `;
@@ -172,46 +179,17 @@ const PlaceholderArea = styled(motion.div)<{ $disabled: boolean }>`
   gap: 16px;
   padding: 24px;
   transition: background-color 0.2s ease;
-  
+  transform: translateY(-40px);
+
   &:hover:not([disabled]) {
-    background: rgba(0, 102, 204, 0.05);
+    background: rgba(59, 130, 246, 0.05);
   }
-  
+
   &:focus {
-    background: rgba(0, 102, 204, 0.1);
+    background: rgba(59, 130, 246, 0.1);
   }
-  
+
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
-`;
-
-const FitUploadIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  background: #0066cc;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
-  
-  &::before {
-    content: '👔';
-    font-size: 32px;
-    filter: grayscale(1) brightness(0) invert(1);
-  }
-`;
-
-const PlaceholderText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-  color: #000000;
-`;
-
-const PlaceholderHint = styled.span`
-  font-size: 14px;
-  color: #64748b;
-  opacity: 0.8;
 `;
 
 const ErrorOverlay = styled(motion.div)`
@@ -244,31 +222,22 @@ const ErrorText = styled.span`
 const RetryButton = styled(motion.button)`
   background: #dc2626;
   color: white;
-  border: 2px solid #000000;
+  border: none;
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 2px 2px 0px #000000;
-  min-height: 44px;
-  
+
   &:hover:not(:disabled) {
     background: #b91c1c;
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0px #000000;
   }
-  
-  &:active:not(:disabled) {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0px #000000;
-  }
-  
+
   &:focus {
     outline: 2px solid #dc2626;
     outline-offset: 2px;
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -293,31 +262,69 @@ const HiddenInput = styled.input`
   border: 0;
 `;
 
+const SelectFitButton = styled(motion.button)`
+  position: absolute;
+  bottom: 16px;
+  left: -8px;
+  background: #fc96e8;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 2px;
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: 900;
+  font-family: "Montserrat Alternates", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  box-shadow: 5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000;
+  min-height: 44px;
+  z-index: 20;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #e885d8;
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0px 0px #00BFFF, 3px 3px 0px 2px #000;
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(5px, 5px);
+    box-shadow: 0px 0px 0px 0px #00BFFF, 0px 0px 0px 2px #000;
+  }
+
+  &:focus {
+    outline: 3px solid #ffff00;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
 /**
- * PhotoFrame Component for Fit Uploads - Portrait 3:4 aspect ratio with brutalist design
- * 
+ * PhotoFrame Component - Advanced photo display with upload states, animations, and accessibility
+ * EXACTLY matching Upload Angle structure to prevent rendering flashing
+ *
  * Features:
- * - Fixed 3:4 portrait aspect ratio optimized for fit photos
- * - Brutalist design with thick borders, sharp corners, and bold shadows
  * - Four distinct states: empty, uploading, loaded, error
- * - Touch-friendly interactions with scale animations
- * - GPU-accelerated animations for smooth mobile performance
+ * - CSS-in-JS styling with styled-components for complete isolation
+ * - Fixed 3:4 aspect ratio with responsive design for fit photos
+ * - Touch-friendly interactions with proper preventDefault
+ * - Framer Motion animations for smooth state transitions
  * - Full accessibility support with ARIA labels and keyboard navigation
- * - Fit-specific upload icon and messaging
- * - Container queries for responsive behavior
  * - Error handling with retry functionality
- * - Progress indicator with percentage display
- * 
+ * - Upload progress indicator
+ * - Screen reader announcements
+ * - Unified rendering to prevent image/frame flashing
+ *
  * @param props PhotoFrameProps
  * @returns JSX.Element
  */
 export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
   imageUrl,
   alt,
-  state,
-  progress = 0,
-  error,
-  aspectRatio = '3:4',
   loading = false,
   disabled = false,
   onImageLoad,
@@ -327,8 +334,9 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
   onTouchStart,
   onTouchEnd,
   accept = 'image/*',
+  aspectRatio = '3:4',
   className = '',
-  testId = 'fit-photo-frame'
+  testId = 'photo-frame'
 }) {
   const [internalImageState, setInternalImageState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -338,23 +346,26 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
 
   // Determine current state based on props and internal state
   const currentState = React.useMemo(() => {
-    if (state) return state;
     if (loading || (imageUrl && !hasLoaded && internalImageState === 'loading')) {
       return PHOTO_FRAME_STATE.UPLOADING;
     }
-    if (error || internalImageState === 'error') {
+    if (internalImageState === 'error') {
       return PHOTO_FRAME_STATE.ERROR;
     }
     if (imageUrl && hasLoaded) {
       return PHOTO_FRAME_STATE.LOADED;
     }
     return PHOTO_FRAME_STATE.EMPTY;
-  }, [state, loading, imageUrl, hasLoaded, internalImageState, error]);
+  }, [loading, imageUrl, hasLoaded, internalImageState]);
 
-  // Parse aspect ratio for CSS (ensure 3:4 for fits)
+  // Parse aspect ratio for CSS
   const parsedAspectRatio = React.useMemo(() => {
-    // Force 3:4 aspect ratio for fit uploads
-    return '3 / 4';
+    if (aspectRatio === 'auto' || aspectRatio === 'inherit') return aspectRatio;
+    if (typeof aspectRatio === 'string' && aspectRatio.includes(':')) {
+      const [width, height] = aspectRatio.split(':').map(Number);
+      return `${width} / ${height}`;
+    }
+    return aspectRatio;
   }, [aspectRatio]);
 
   // Image load handlers
@@ -369,7 +380,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
     onImageError?.(event.nativeEvent);
   }, [onImageError]);
 
-  // Touch interaction handlers with proper feedback
+  // Touch interaction handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
     if (disabled) return;
     event.preventDefault();
@@ -382,18 +393,18 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
     event.preventDefault();
     setIsPressed(false);
     onTouchEnd?.(event);
-    
+
     if (currentState === PHOTO_FRAME_STATE.EMPTY || currentState === PHOTO_FRAME_STATE.ERROR) {
       onUpload?.(event);
       fileInputRef.current?.click();
     }
   }, [disabled, currentState, onTouchEnd, onUpload]);
 
-  // Click handler for mouse/desktop interactions
+  // Click handler for mouse interactions
   const handleClick = useCallback((event: React.MouseEvent) => {
     if (disabled) return;
     event.preventDefault();
-    
+
     if (currentState === PHOTO_FRAME_STATE.EMPTY || currentState === PHOTO_FRAME_STATE.ERROR) {
       onUpload?.(event);
       fileInputRef.current?.click();
@@ -403,7 +414,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
   // Keyboard handler for accessibility
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (disabled) return;
-    
+
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (currentState === PHOTO_FRAME_STATE.EMPTY || currentState === PHOTO_FRAME_STATE.ERROR) {
@@ -440,7 +451,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
     }
   }, [imageUrl]);
 
-  // Animation variants for GPU acceleration
+  // Animation variants
   const frameVariants = {
     pressed: { scale: 0.98 },
     unpressed: { scale: 1 }
@@ -451,21 +462,21 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
     exit: { opacity: 0 }
   };
 
-  // ARIA attributes for fit-specific context
+  // ARIA attributes
   const ariaLabel = React.useMemo(() => {
     switch (currentState) {
       case PHOTO_FRAME_STATE.EMPTY:
-        return 'Upload your fit photo - click or press to select a portrait image';
+        return 'Upload area - click or press to select an image';
       case PHOTO_FRAME_STATE.UPLOADING:
-        return `Uploading fit photo - ${progress}% complete`;
+        return `Uploading image`;
       case PHOTO_FRAME_STATE.LOADED:
-        return alt || 'Uploaded fit photo';
+        return alt || 'Uploaded image';
       case PHOTO_FRAME_STATE.ERROR:
-        return `Error loading fit photo: ${error || 'Unknown error'}. Click to retry.`;
+        return `Error loading image. Click to retry.`;
       default:
         return alt;
     }
-  }, [currentState, progress, alt, error]);
+  }, [currentState, alt]);
 
   return (
     <StyledPhotoFrame
@@ -510,7 +521,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
             onLoad={handleImageLoad}
             onError={handleImageError}
             priority={false}
-            sizes="(max-width: 768px) 70vw, 320px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         )}
 
@@ -524,51 +535,53 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
               exit="exit"
               role="status"
               aria-live="polite"
-              aria-label={`Uploading fit photo - ${progress}% complete`}
+              aria-label={`Uploading image`}
             >
               <Spinner />
-              {progress > 0 && (
-                <>
-                  <ProgressBar $progress={progress} />
-                  <ProgressText>{Math.round(progress)}%</ProgressText>
-                </>
-              )}
               <span className="sr-only">
-                {progress > 0 ? `Uploading fit... ${Math.round(progress)}%` : 'Processing fit image...'}
+                Loading image...
               </span>
             </LoadingOverlay>
           )}
         </AnimatePresence>
 
-        {/* Empty State with Fit-Specific Icon */}
+        {/* Empty State with Placeholder Image */}
         <AnimatePresence>
           {currentState === PHOTO_FRAME_STATE.EMPTY && (
             <>
-              {/* Background placeholder image - fit-specific */}
+              {/* Background placeholder image */}
               <StyledImage
-                src="/images/zestyVogueColor.jpg"
-                alt="Placeholder background for fit upload"
+                src="/images/ScoredGarment.jpg"
+                alt="Placeholder image"
                 fill
                 style={{
-                  opacity: 0.3,
-                  filter: 'grayscale(40%) brightness(0.7)'
+                  opacity: 0.5,
+                  filter: 'grayscale(20%) brightness(0.8)'
                 }}
                 priority={false}
-                sizes="(max-width: 768px) 70vw, 320px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onLoad={() => {}} // Prevent triggering the main image load handler
               />
-              
-              {/* Fit upload icon overlay */}
+
+              {/* Upload icon overlay */}
               <PlaceholderArea
                 $disabled={disabled}
                 variants={overlayVariants}
                 initial="exit"
                 animate="enter"
                 exit="exit"
-                aria-describedby="fit-upload-instructions"
+                aria-describedby="upload-instructions"
+                style={{ background: 'transparent' }}
               >
-                <FitUploadIcon />
-                <PlaceholderText>Upload Your Fit</PlaceholderText>
-                <PlaceholderHint>Portrait photo recommended</PlaceholderHint>
+                <img
+                  src="/images/mobile/UploadIcon.svg"
+                  alt="Upload icon"
+                  style={{
+                    width: '80px',
+                    height: '80px'
+                  }}
+                  aria-hidden="true"
+                />
               </PlaceholderArea>
             </>
           )}
@@ -596,7 +609,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
                 <line x1="9" y1="9" x2="15" y2="15"/>
               </ErrorIcon>
               <ErrorText>
-                {error || 'Failed to load fit photo'}
+                Failed to load image
               </ErrorText>
               {onRetry && (
                 <RetryButton
@@ -613,9 +626,10 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
         </AnimatePresence>
       </Container>
 
+
       {/* Screen reader only text */}
       <span className="sr-only">
-        Fit PhotoFrame component in {currentState} state
+        PhotoFrame component in {currentState} state
       </span>
 
       <style jsx>{`
@@ -635,4 +649,4 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
   );
 });
 
-PhotoFrame.displayName = 'FitPhotoFrame';
+PhotoFrame.displayName = 'PhotoFrame';

@@ -9,6 +9,10 @@ const nextConfig = {
     // Enable container queries support
     cssChunking: 'strict',
   },
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   // CSS Modules configuration
   sassOptions: {
     includePaths: ['./src/styles'],

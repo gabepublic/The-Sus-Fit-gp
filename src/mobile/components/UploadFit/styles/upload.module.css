@@ -7,7 +7,7 @@
  * 
  * Features:
  * - Phone-only responsive design (320px - 480px)
- * - Container queries for component-based responsiveness
+ * - Media queries for responsive design (container queries not supported in PostCSS)
  * - CSS Grid and Flexbox optimized for mobile
  * - Brutalist design system integration
  * - Performance optimized for mobile devices
@@ -17,15 +17,10 @@
 @import '../../styles/design-tokens.css';
 
 /* =============================================================================
- * MOBILE CONTAINER QUERIES (Component-based responsiveness)
+ * MOBILE RESPONSIVE DESIGN (Using media queries for wider support)
  * ============================================================================= */
 
-@container (min-width: 320px) {
-  .uploadContainer {
-    container-type: inline-size;
-    container-name: upload-fit;
-  }
-}
+/* Container queries not yet fully supported in PostCSS preset */
 
 /* =============================================================================
  * BASE CONTAINER SYSTEM (Mobile-Only)
@@ -50,8 +45,7 @@
   gap: var(--spacing-lg);
   padding: var(--spacing-lg);
   
-  /* Container queries support */
-  container-type: inline-size;
+/* Container queries removed for PostCSS compatibility */
 }
 
 /* Mobile viewport optimizations */
@@ -105,7 +99,7 @@
 }
 
 /* Responsive grid area adjustments for different phone sizes */
-@container upload-fit (min-width: 375px) {
+@media (min-width: 375px) {
   .contentArea {
     min-height: 320px;
     padding: var(--spacing-xl);
@@ -212,15 +206,15 @@
   outline-offset: var(--focus-outline-offset);
 }
 
-/* Mobile size adjustments using container queries */
-@container upload-fit (max-width: 340px) {
+/* Mobile size adjustments using media queries */
+@media (max-width: 340px) {
   .photoFrame {
     max-width: 90%;
     min-height: 240px;
   }
 }
 
-@container upload-fit (min-width: 400px) {
+@media (min-width: 400px) {
   .photoFrame {
     max-width: 380px;
     min-height: 320px;
@@ -284,7 +278,7 @@
 }
 
 /* Mobile typography scaling */
-@container upload-fit (min-width: 400px) {
+@media (min-width: 400px) {
   .title {
     font-size: var(--font-size-2xl);
   }
@@ -362,7 +356,7 @@
 }
 
 /* Mobile button size variants */
-@container upload-fit (max-width: 375px) {
+@media (max-width: 375px) {
   .uploadButton {
     min-width: 100px;
     padding: 10px 20px;

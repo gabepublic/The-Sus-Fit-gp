@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { UploadFitWithErrorBoundary } from '../../../../mobile/components/UploadFit/components/UploadFitWithErrorBoundary'
+import { UploadFit } from '../../../../mobile/components/UploadFit/components/UploadFit'
 import { RouteGuard } from '../../../../mobile/components/RouteGuard'
 
 interface MobileUploadFitClientProps {
@@ -80,7 +80,7 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
     const originalHeaderBorder = mobileHeader?.style.borderBottom || '';
     
     // Set different background for Upload Fit view (could be another brand color)
-    document.body.style.backgroundColor = '#ff69b4'; // Pink background for fit upload
+    document.body.style.backgroundColor = '#faba01'; // Orange background for fit upload
     document.body.style.backgroundImage = 'none'; // Override the global gradient
     if (mobileLayout) {
       mobileLayout.style.backgroundColor = 'transparent';
@@ -120,9 +120,8 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
     >
       <div className="mobile-upload-fit-page min-h-screen">
         <div className="px-4 py-6">
-
           <Suspense fallback={
-            <div 
+            <div
               className="flex items-center justify-center min-h-[400px] text-gray-500"
               role="status"
               aria-label="Loading upload interface"
@@ -130,7 +129,7 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
               Loading upload interface...
             </div>
           }>
-            <UploadFitWithErrorBoundary
+            <UploadFit
               config={uploadConfig}
               onUploadSuccess={handleUploadSuccess}
               onUploadError={handleUploadError}
