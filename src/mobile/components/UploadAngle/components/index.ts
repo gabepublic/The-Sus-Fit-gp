@@ -32,22 +32,9 @@
 export { UploadAngle } from './UploadAngle';
 
 /**
- * PhotoFrame component for image display
- * Handles image loading states, aspect ratios, and error states
+ * Note: PhotoFrame, UploadButton, NextButton components have been moved to shared components
+ * Import from @/mobile/components/shared instead
  */
-export { PhotoFrame } from './PhotoFrame';
-
-/**
- * UploadButton component for file selection
- * Provides drag-and-drop functionality and multiple style variants
- */
-export { UploadButton } from './UploadButton';
-
-/**
- * NextButton component for workflow progression
- * Provides state-aware navigation with brutalist design
- */
-export { NextButton } from './NextButton';
 
 /**
  * ProgressIndicator component for upload progress
@@ -62,10 +49,9 @@ export { ProgressIndicator } from './ProgressIndicator';
 export { ErrorDisplay } from './ErrorDisplay';
 
 /**
- * ErrorBoundary component for React error boundaries
- * Provides graceful error handling and recovery for component trees
+ * Note: ErrorBoundary component has been moved to shared components
+ * Import from @/mobile/components/shared instead
  */
-export { ErrorBoundary, withErrorBoundary, useErrorHandler, useErrorRecovery } from './ErrorBoundary';
 
 // =============================================================================
 // COMPONENT TYPES RE-EXPORTS

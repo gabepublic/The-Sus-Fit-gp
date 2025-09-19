@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { UploadFitContainer } from '../containers/UploadFitContainer';
-import { ErrorBoundary } from './ErrorBoundary';
+import { ErrorBoundary } from '../../shared';
 import type { UploadConfig } from '../../../../hooks/useImageUpload';
 
 /**

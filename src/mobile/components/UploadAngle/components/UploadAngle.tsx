@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   UploadAngleProps,
   UploadState,
-  ImageValidationResult,
   ImageMetadata,
   DEFAULT_UPLOAD_CONFIG
 } from '../types';
-import { useAngleUpload } from '../hooks/useAngleUpload';
-import { PhotoFrame } from './PhotoFrame';
-import { UploadButton } from './UploadButton';
-import { NextButton } from './NextButton';
-import { ProgressIndicator } from './ProgressIndicator';
-import { ErrorDisplay } from './ErrorDisplay';
+import {
+  PhotoFrame,
+  UploadButton,
+  NextButton,
+  ProgressIndicator,
+  ErrorDisplay,
+  useViewUpload
+} from '../../shared';
 
 /**
  * UploadAngle Component - Main container for the Upload Your Angle functionality
@@ -50,28 +51,35 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
     [userConfig]
   );
 
-  // Use the real upload hook
-  const uploadHook = useAngleUpload(config);
+  // Use the shared view upload hook for angle uploads
+  const uploadHook = useViewUpload('angle', config);
 
   // Create simplified upload state for component
   const uploadState: UploadState = useMemo(
     () => ({
-      status: uploadHook.state.status,
-      file: uploadHook.state.file,
-      imageUrl: uploadHook.state.imageUrl || initialImageUrl || null,
-      error: uploadHook.state.error,
-      progress: uploadHook.state.progress
+      status: uploadHook.isIdle ? 'idle' : uploadHook.isUploading ? 'uploading' : uploadHook.isSuccess ? 'success' : 'error',
+      file: uploadHook.file,
+      imageUrl: uploadHook.imageUrl || initialImageUrl || null,
+      error: uploadHook.error,
+      progress: uploadHook.progress
     }),
-    [uploadHook.state, initialImageUrl]
+    [uploadHook, initialImageUrl]
   );
 
-  // Handle file selection
+  // Debug logging for NextButton visibility
+  console.log('Upload Angle Debug:', {
+    'uploadHook.isSuccess': uploadHook.isSuccess,
+    'uploadState.status': uploadState.status,
+    'uploadState.imageUrl': uploadState.imageUrl,
+    'onNext provided': !!onNext
+  });
+
+  // Handle file selection for shared UploadButton
   const handleFileSelect = useCallback(
     async (file: File) => {
       if (disabled) return;
 
       try {
-        // Use the real upload hook
         const result = await uploadHook.uploadFile(file);
 
         if (result.success && result.data) {
@@ -103,7 +111,7 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
     if (uploadState.file) {
       await handleFileSelect(uploadState.file);
     } else {
-      uploadHook.reset();
+      uploadHook.clearUpload();
     }
   }, [uploadState.file, handleFileSelect, uploadHook]);
 
@@ -120,15 +128,15 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
 
   // Handle progress updates
   React.useEffect(() => {
-    if (uploadHook.state.progress > 0) {
-      onProgressChange?.(uploadHook.state.progress);
+    if (uploadHook.progress > 0) {
+      onProgressChange?.(uploadHook.progress);
     }
-  }, [uploadHook.state.progress, onProgressChange]);
+  }, [uploadHook.progress, onProgressChange]);
 
   // Clean up on unmount
   React.useEffect(() => {
     return () => {
-      uploadHook.cleanup();
+      uploadHook.clearUpload();
     };
   }, [uploadHook]);
 
@@ -154,11 +162,15 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
           <PhotoFrame
             imageUrl={uploadState.imageUrl}
             alt='Your uploaded angle photo'
+            state={uploadState.status === 'uploading' ? 'uploading' : uploadState.status === 'success' ? 'loaded' : uploadState.status === 'error' ? 'error' : 'empty'}
+            progress={uploadState.progress}
             loading={uploadState.status === 'uploading'}
             onImageLoad={handleImageLoad}
             onImageError={handleImageError}
-            aspectRatio='1:1'
+            aspectRatio='4:3'
+            viewType='angle'
             className='upload-angle__photo-frame'
+            testId={`${testId}-photo-frame`}
           />
         </div>
 
@@ -167,14 +179,17 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
           {uploadState.status !== 'uploading' && (
             <UploadButton
               onFileSelect={handleFileSelect}
-              accept={acceptedTypes}
+              onError={(error) => onUploadError?.(typeof error === 'string' ? error : error.message)}
+              loading={false}
               disabled={disabled}
               variant={uploadState.status === 'error' ? 'secondary' : 'primary'}
               size='medium'
+              viewType='angle'
+              isRedo={!!uploadState.imageUrl}
+              accept={acceptedTypes}
               className='upload-angle__upload-button'
-            >
-              {uploadState.imageUrl ? 'Change Image' : 'Upload Your Angle'}
-            </UploadButton>
+              testId={`${testId}-upload-button`}
+            />
           )}
 
           {/* Progress Indicator */}
@@ -186,6 +201,7 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
                 variant='linear'
                 color='primary'
                 className='upload-angle__progress'
+                testId={`${testId}-progress`}
               />
               <p className='upload-angle__progress-text'>
                 Uploading your image...
@@ -199,8 +215,10 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
               error={uploadState.error}
               onRetry={handleRetry}
               showRetry={true}
-              severity='error'
+              severity='high'
+              variant='inline'
               className='upload-angle__error'
+              testId={`${testId}-error`}
             />
           )}
 
@@ -230,18 +248,23 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
             </div>
           )}
 
-          {/* Next Button - only show when upload is successful */}
-          {uploadState.status === 'success' &&
-            uploadState.imageUrl &&
-            onNext && (
-              <NextButton
-                onClick={onNext}
-                disabled={disabled}
-                variant='primary'
-                size='medium'
-                className='upload-angle__next-button'
-              />
-            )}
+          {/* Next Button - shown for all states, visibility controlled by NextButton component */}
+          {onNext && (
+            <NextButton
+              uploadStatus={uploadState.status === 'success' ? 'complete' : uploadState.status === 'error' ? 'error' : uploadState.status === 'uploading' ? 'uploading' : 'idle'}
+              onClick={onNext}
+              disabled={disabled}
+              variant='primary'
+              size='medium'
+              viewType='angle'
+              config={{
+                targetRoute: '/m/angle-review',
+                enablePrefetch: true
+              }}
+              className='upload-angle__next-button'
+              testId={`${testId}-next-button`}
+            />
+          )}
         </div>
 
         {/* Upload Instructions */}

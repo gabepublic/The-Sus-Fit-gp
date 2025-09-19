@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
-import { PhotoFrame } from './PhotoFrame';
-import { useFitUpload } from '../hooks/useFitUpload';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { PhotoFrame, UploadButton, NextButton, useViewUpload } from '../../shared';
 import type { UploadConfig } from '../types/upload.types';
 
 /**
@@ -20,7 +19,7 @@ const FIT_UPLOAD_CONFIG: Partial<UploadConfig> = {
  */
 interface UploadFitProps {
   config?: Partial<UploadConfig>;
-  onUploadSuccess?: (imageUrl: string, metadata?: any) => void;
+  onUploadSuccess?: (imageUrl: string, metadata?: Record<string, unknown>) => void;
   onUploadError?: (error: string) => void;
   onProgressChange?: (progress: number) => void;
   onNext?: () => void;
@@ -62,31 +61,31 @@ export const UploadFit = React.memo<UploadFitProps>(function UploadFit({
     [userConfig]
   );
 
-  // Use custom fit upload hook to prevent infinite loops
-  const uploadHook = useFitUpload(config);
+  // Use shared view upload hook for fit uploads
+  const uploadHook = useViewUpload('fit', config);
 
   // Handle upload success
   React.useEffect(() => {
-    if (uploadHook.state.status === 'success' && uploadHook.state.imageUrl) {
-      onUploadSuccess?.(uploadHook.state.imageUrl, uploadHook.state.metadata);
+    if (uploadHook.isSuccess && uploadHook.imageUrl) {
+      onUploadSuccess?.(uploadHook.imageUrl, uploadHook.state.metadata);
     }
-  }, [uploadHook.state.status, uploadHook.state.imageUrl, uploadHook.state.metadata, onUploadSuccess]);
+  }, [uploadHook.isSuccess, uploadHook.imageUrl, uploadHook.state.metadata, onUploadSuccess]);
 
   // Handle upload error
   React.useEffect(() => {
-    if (uploadHook.state.status === 'error' && uploadHook.state.error) {
-      onUploadError?.(uploadHook.state.error);
+    if (uploadHook.isError && uploadHook.error) {
+      onUploadError?.(uploadHook.error);
     }
-  }, [uploadHook.state.status, uploadHook.state.error, onUploadError]);
+  }, [uploadHook.isError, uploadHook.error, onUploadError]);
 
   // Handle progress updates
   React.useEffect(() => {
-    if (uploadHook.state.progress > 0) {
-      onProgressChange?.(uploadHook.state.progress);
+    if (uploadHook.progress > 0) {
+      onProgressChange?.(uploadHook.progress);
     }
-  }, [uploadHook.state.progress, onProgressChange]);
+  }, [uploadHook.progress, onProgressChange]);
 
-  // Handle file selection
+  // Handle file selection for shared UploadButton
   const handleFileSelect = useCallback(
     async (file: File) => {
       if (disabled) return;
@@ -98,24 +97,23 @@ export const UploadFit = React.memo<UploadFitProps>(function UploadFit({
         onUploadError?.(errorMessage);
       }
     },
-    [disabled, uploadHook.uploadFile, onUploadError]
+    [disabled, uploadHook, onUploadError]
   );
 
-  // Handle button click to open file picker
-  const handleButtonClick = useCallback(() => {
-    if (disabled) return;
+  // Handle upload error for shared UploadButton
+  const handleUploadError = useCallback((error: string) => {
+    onUploadError?.(error);
+  }, [onUploadError]);
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (file) {
-        handleFileSelect(file);
-      }
-    };
-    input.click();
-  }, [disabled, handleFileSelect]);
+  // Create ref for hidden file input in PhotoFrame
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle PhotoFrame click to trigger upload
+  const handlePhotoFrameUpload = useCallback((event: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
+    if (disabled) return;
+    // Note: PhotoFrame component will handle triggering its internal file input
+    // This callback just provides the event handling
+  }, [disabled]);
 
 
   // Handle image load success
@@ -135,7 +133,8 @@ export const UploadFit = React.memo<UploadFitProps>(function UploadFit({
     };
   }, []);
 
-  const currentImageUrl = uploadHook.state.imageUrl || initialImageUrl;
+  const currentImageUrl = uploadHook.imageUrl || initialImageUrl;
+  const uploadStatus = uploadHook.isIdle ? 'idle' : uploadHook.isUploading ? 'uploading' : uploadHook.isSuccess ? 'complete' : 'error';
 
   return (
     <div style={{
@@ -149,91 +148,56 @@ export const UploadFit = React.memo<UploadFitProps>(function UploadFit({
         <PhotoFrame
           imageUrl={currentImageUrl}
           alt="Your uploaded fit photo"
-          loading={uploadHook.state.status === 'uploading'}
+          state={uploadHook.isUploading ? 'uploading' : uploadHook.isSuccess ? 'loaded' : uploadHook.isError ? 'error' : 'empty'}
+          progress={uploadHook.progress}
+          loading={uploadHook.isUploading}
           onImageLoad={handleImageLoad}
           onImageError={handleImageError}
+          onUpload={handlePhotoFrameUpload}
           aspectRatio="3:4"
+          viewType="fit"
           className={className}
-          data-testid={testId}
+          testId={testId}
         />
 
-        {/* Upload/Re-do button - show when not uploading */}
-        {uploadHook.state.status !== 'uploading' && (
-          <button
-            onClick={handleButtonClick}
+        {/* Shared UploadButton - positioned as original */}
+        <div style={{
+          position: 'absolute',
+          bottom: '70px',
+          left: '-25px',
+          zIndex: 20
+        }}>
+          <UploadButton
+            onFileSelect={handleFileSelect}
+            onError={(error) => handleUploadError(typeof error === 'string' ? error : error.message)}
+            loading={uploadHook.isUploading}
             disabled={disabled}
-            style={{
-              position: 'absolute',
-              bottom: '70px',
-              left: '-20px',
-              background: '#fc96e8',
-              color: '#000',
-              border: '2px solid #000',
-              borderRadius: '2px',
-              padding: '14px 36px',
-              fontSize: '18px',
-              fontWeight: 900,
-              fontFamily: '"Montserrat Alternates", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              cursor: 'pointer',
-              boxShadow: '5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000',
-              minHeight: '44px',
-              zIndex: 20,
-              transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-              whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e885d8';
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '3px 3px 0px 0px #00BFFF, 3px 3px 0px 2px #000';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#fc96e8';
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000';
-            }}
-          >
-            {currentImageUrl ? 'Re-do' : 'Select your fit'}
-          </button>
-        )}
+            viewType="fit"
+            isRedo={!!currentImageUrl}
+            accept="image/*"
+            testId={`${testId}-upload-button`}
+          />
+        </div>
 
-        {/* "Next >" button - show when upload is successful and image exists */}
-        {uploadHook.state.status === 'success' && currentImageUrl && onNext && (
-          <button
+        {/* Shared NextButton - positioned up and right outside PhotoFrame */}
+        <div style={{
+          position: 'absolute',
+          bottom: '70px',
+          right: '-45px',
+          zIndex: 20
+        }}>
+          <NextButton
+            uploadStatus={uploadStatus}
             onClick={onNext}
             disabled={disabled}
-            style={{
-              position: 'absolute',
-              bottom: '16px',
-              right: '-20px',
-              background: '#fc96e8',
-              color: '#000',
-              border: '2px solid #000',
-              borderRadius: '2px',
-              padding: '14px 36px',
-              fontSize: '18px',
-              fontWeight: 900,
-              fontFamily: '"Montserrat Alternates", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              cursor: 'pointer',
-              boxShadow: '5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000',
-              minHeight: '44px',
-              zIndex: 20,
-              transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-              whiteSpace: 'nowrap'
+            viewType="fit"
+            config={{
+              targetRoute: '/m/tryon',
+              enablePrefetch: true
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e885d8';
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '3px 3px 0px 0px #00BFFF, 3px 3px 0px 2px #000';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#fc96e8';
-              e.currentTarget.style.transform = 'translate(0px, 0px)';
-              e.currentTarget.style.boxShadow = '5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000';
-            }}
-          >
-            Next &gt;
-          </button>
-        )}
+            testId={`${testId}-next-button`}
+          />
+        </div>
       </div>
     </div>
   );

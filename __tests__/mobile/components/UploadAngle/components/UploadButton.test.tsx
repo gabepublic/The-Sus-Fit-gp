@@ -5,7 +5,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { UploadButton } from '@/mobile/components/UploadAngle/components/UploadButton'
+import { UploadButton } from '@/mobile/components/shared'
 import { createMockFile, runA11yTests } from '@test/upload-test-utils'
 
 describe('UploadButton Component', () => {

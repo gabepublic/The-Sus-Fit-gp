@@ -10,7 +10,7 @@ module.exports = {
         'custom-media-queries': true,
         'media-query-ranges': true,
         'logical-properties-and-values': true,
-        'container-queries': true, // Enable container queries
+        // 'container-queries': true, // Not yet supported in postcss-preset-env
         'has-pseudo-class': true, // Enable :has() selector
         'focus-visible-pseudo-class': true,
         'color-functional-notation': true

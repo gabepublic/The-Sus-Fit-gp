@@ -9,7 +9,7 @@
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { UploadAngleContainer } from './UploadAngleContainer';
-import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ErrorBoundary } from '@/mobile/components/shared';
 import { ProgressIndicator } from '../components/ProgressIndicator';
 import type { UploadAngleProps } from '../types/upload.types';
 

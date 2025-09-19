@@ -1,0 +1,445 @@
+/**
+ * SharedPhotoFrame CSS Module - Unified Brutalist Design System
+ * Consolidates styles from UploadAngle and UploadFit PhotoFrame components
+ *
+ * Design specifications:
+ * - Colors: Pink (#ff69b4) background, black (3px) borders, blue (#00BFFF) shadows
+ * - Typography: System fonts with bold weights
+ * - High contrast for accessibility compliance
+ * - Minimum 44px touch targets for mobile
+ * - Configurable aspect ratios and view-specific overrides
+ * - Complete animation and state management support
+ */
+
+/* =============================================================================
+ * MAIN PHOTO FRAME CONTAINER
+ * ============================================================================= */
+
+.photoFrame {
+  position: relative;
+  width: var(--photoframe-width, 70vw);
+  height: var(--photoframe-height, 50vh);
+  margin: 0 auto;
+  border-radius: 2px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+  border: 2px solid #000000;
+  user-select: none;
+  box-shadow: 5px 5px 0px 0px #00BFFF, 5px 5px 0px 2px #000;
+
+  /* Fallback for browsers without aspect-ratio support */
+  @supports not (aspect-ratio: 1) {
+    &::before {
+      content: '';
+      display: block;
+      padding-bottom: var(--photoframe-aspect-padding, 75%);
+    }
+
+    > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+/* State-based styling */
+.photoFrame[data-state="disabled"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.photoFrame[data-state="uploading"] {
+  cursor: wait;
+}
+
+.photoFrame[data-state="error"] {
+  border-color: #dc2626;
+  box-shadow: 5px 5px 0px 0px #fca5a5, 5px 5px 0px 2px #dc2626;
+}
+
+
+/* Focus states for accessibility */
+.photoFrame:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+ * INNER CONTAINER
+ * ============================================================================= */
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =============================================================================
+ * IMAGE STYLING
+ * ============================================================================= */
+
+.image {
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.2s ease-in-out;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* =============================================================================
+ * OVERLAY STATES
+ * ============================================================================= */
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.95);
+  z-index: 2;
+  gap: 12px;
+}
+
+.errorOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  background: rgba(254, 242, 242, 0.95);
+  z-index: 2;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.placeholderArea {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #64748b;
+  gap: 16px;
+  padding: 24px;
+  transition: background-color 0.2s ease;
+  transform: var(--photoframe-placeholder-transform, translateY(0));
+}
+
+
+.placeholderArea:focus {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.placeholderArea[data-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+ * LOADING COMPONENTS
+ * ============================================================================= */
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.progressBar {
+  width: 80px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressBar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--progress-width, 0%);
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* =============================================================================
+ * ERROR COMPONENTS
+ * ============================================================================= */
+
+.errorIcon {
+  width: 48px;
+  height: 48px;
+  color: #dc2626;
+}
+
+.errorText {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.retryButton {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.retryButton:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: scale(1.05);
+}
+
+.retryButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.retryButton:focus {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.retryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+ * PLACEHOLDER COMPONENTS
+ * ============================================================================= */
+
+.placeholderIcon {
+  width: 80px;
+  height: 80px;
+  color: #22C55E;
+  stroke-width: 3;
+}
+
+.placeholderText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.placeholderHint {
+  font-size: 14px;
+  color: #64748b;
+  opacity: 0.8;
+}
+
+/* =============================================================================
+ * HIDDEN INPUT
+ * ============================================================================= */
+
+.hiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =============================================================================
+ * ANIMATIONS
+ * ============================================================================= */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* =============================================================================
+ * VIEW-SPECIFIC VARIANTS
+ * ============================================================================= */
+
+/* Upload Angle specific styling */
+.photoFrame[data-view="angle"] {
+  /* Inherits default styles - 4:3 aspect ratio */
+}
+
+/* Upload Fit specific styling */
+.photoFrame[data-view="fit"] {
+  /* 3:4 aspect ratio with fit-specific placeholder positioning */
+}
+
+.photoFrame[data-view="fit"] .placeholderArea {
+  transform: translateY(-40px);
+}
+
+/* Try It On specific styling */
+.photoFrame[data-view="tryon"] {
+  /* Future try-on specific styles */
+}
+
+/* =============================================================================
+ * RESPONSIVE DESIGN
+ * ============================================================================= */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .photoFrame {
+    min-height: 300px;
+    box-shadow: 6px 6px 0px 0px #00BFFF, 6px 6px 0px 2px #000;
+  }
+
+
+  .retryButton {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  .placeholderIcon {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .photoFrame {
+    min-height: 320px;
+  }
+
+}
+
+/* =============================================================================
+ * ACCESSIBILITY ENHANCEMENTS
+ * ============================================================================= */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .photoFrame {
+    border-width: 3px;
+    box-shadow: 6px 6px 0px 2px #00BFFF, 6px 6px 0px 4px #000;
+  }
+
+  .errorOverlay {
+    background: rgba(254, 242, 242, 1);
+    border: 2px solid #dc2626;
+  }
+
+  .loadingOverlay {
+    background: rgba(248, 250, 252, 1);
+    border: 2px solid #3b82f6;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .photoFrame {
+    background: linear-gradient(145deg, #374151, #4b5563);
+    color: #f9fafb;
+  }
+
+  .loadingOverlay {
+    background: rgba(31, 41, 55, 0.95);
+    color: #f9fafb;
+  }
+
+  .errorOverlay {
+    background: rgba(127, 29, 29, 0.95);
+    color: #fecaca;
+  }
+
+  .placeholderArea {
+    color: #d1d5db;
+  }
+
+  .placeholderText {
+    color: #e5e7eb;
+  }
+
+  .placeholderHint {
+    color: #9ca3af;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .photoFrame {
+    transition: none;
+  }
+
+
+  .retryButton {
+    transition: none;
+  }
+
+  .retryButton:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .retryButton:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+
+  .image {
+    transition: none;
+  }
+}
+
+/* =============================================================================
+ * SCREEN READER SUPPORT
+ * ============================================================================= */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -7,8 +7,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { UploadAngle } from '@/mobile/components/UploadAngle/components/UploadAngle'
-import { PhotoFrame } from '@/mobile/components/UploadAngle/components/PhotoFrame'
-import { UploadButton } from '@/mobile/components/UploadAngle/components/UploadButton'
+import { PhotoFrame, UploadButton } from '@/mobile/components/shared'
 import { renderWithProviders, createMockFile } from '../test-utils/upload-test-utils'
 
 // Add jest-axe matchers

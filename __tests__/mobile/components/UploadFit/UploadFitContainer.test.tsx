@@ -8,7 +8,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { UploadFitContainer } from '@/mobile/components/UploadFit/containers/UploadFitContainer';
-import { ErrorBoundary } from '@/mobile/components/UploadFit/components/ErrorBoundary';
+import { ErrorBoundary } from '@/mobile/components/shared';
 
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({

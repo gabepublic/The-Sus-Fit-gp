@@ -89,8 +89,8 @@ export const UploadFitContainer = React.memo<UploadFitContainerProps>(function U
   }, [onUploadSuccess]);
 
   // Handle upload error
-  const handleUploadError = useCallback((error: UploadError) => {
-    onUploadError?.(error.message);
+  const handleUploadError = useCallback((error: string) => {
+    onUploadError?.(error);
   }, [onUploadError]);
 
   // Use existing upload hook

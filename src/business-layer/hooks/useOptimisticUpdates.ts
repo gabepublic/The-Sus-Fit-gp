@@ -1,7 +1,7 @@
 // Optimistic Updates Hooks
 // React hooks for managing optimistic UI updates and progress indicators
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import type {
   OptimisticUpdateConfig,
@@ -59,7 +59,7 @@ export interface UseOptimisticUpdatesConfig {
 export function useOptimisticUpdates(
   config: UseOptimisticUpdatesConfig = {}
 ): UseOptimisticUpdatesReturn {
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const optimisticManager = config.optimisticManager || getOptimisticUpdatesManager();
   const activeUpdatesRef = useRef<Set<string>>(new Set());
 
@@ -166,14 +166,14 @@ export function useMultipleTryonProgress(optimisticIds: string[]): {
   anyInProgress: boolean;
   allCompleted: boolean;
 } {
-  const queries = optimisticIds.map(id => 
-    useQuery({
+  const queries = useQueries({
+    queries: optimisticIds.map(id => ({
       queryKey: ['tryon-progress', id],
       enabled: Boolean(id),
       refetchInterval: 500,
       staleTime: 0
-    })
-  );
+    }))
+  });
 
   const progressMap = useMemo(() => {
     const map: Record<string, TryonProgress> = {};

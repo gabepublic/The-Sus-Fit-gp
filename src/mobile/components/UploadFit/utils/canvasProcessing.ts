@@ -515,7 +515,7 @@ export async function processImageWithCanvas(
     }
     
     // Handle cropping
-    let drawX = 0, drawY = 0, drawWidth = finalDimensions.width, drawHeight = finalDimensions.height;
+    const drawX = 0, drawY = 0, drawWidth = finalDimensions.width, drawHeight = finalDimensions.height;
     let sourceX = 0, sourceY = 0, sourceWidth = originalDimensions.width, sourceHeight = originalDimensions.height;
     
     if (config.crop) {

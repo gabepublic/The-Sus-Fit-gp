@@ -396,7 +396,8 @@ export function useAngleUpload(
   const mainUpload = useSingleImageUpload(
     mainAppConfig,
     (uploadedFile: MainUploadedFile) => {
-      // Handle successful upload
+      // Handle successful upload - ensure state updates
+      console.log('useAngleUpload: Main upload success callback triggered', uploadedFile);
       startTransition(() => {
         dispatch({
           type: UPLOAD_ACTIONS.SET_SUCCESS,
@@ -406,6 +407,7 @@ export function useAngleUpload(
     },
     (error: MainUploadError) => {
       // Handle upload error
+      console.log('useAngleUpload: Main upload error callback triggered', error);
       startTransition(() => {
         dispatch({
           type: UPLOAD_ACTIONS.SET_ERROR,
@@ -708,7 +710,9 @@ export function useAngleUpload(
         });
 
         // Use the main app upload hook
+        console.log('useAngleUpload: Starting main upload...', { fileName: file.name, fileSize: file.size });
         const uploadResult = await mainUpload.uploadFile(file);
+        console.log('useAngleUpload: Main upload completed', uploadResult);
 
         return {
           success: true,

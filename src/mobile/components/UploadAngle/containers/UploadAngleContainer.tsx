@@ -8,9 +8,7 @@
 
 import React, { useReducer, useCallback, useMemo, Suspense, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PhotoFrame } from '../components/PhotoFrame';
-import { UploadButton } from '../components/UploadButton';
-import { NextButton } from '../components/NextButton';
+import { PhotoFrame, UploadButton, NextButton } from '@/mobile/components/shared';
 import { ProgressIndicator } from '../components/ProgressIndicator';
 import { useAngleUpload } from '../hooks/useAngleUpload';
 import { useImageProcessing } from '../hooks/useImageProcessing';
@@ -419,8 +417,15 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
    */
   const handleUploadTrigger = useCallback((event: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
     dispatch({ type: CONTAINER_ACTIONS.TRACK_INTERACTION, payload: { interaction: 'hasClickedUpload' } });
-    // PhotoFrame will trigger file input - no additional action needed
-  }, []);
+
+    // Check if this event contains a file (from PhotoFrame file input)
+    const fileEvent = event as any;
+    if (fileEvent.file) {
+      // File was selected via PhotoFrame, process it
+      handleFileSelect(fileEvent.file);
+    }
+    // Otherwise, PhotoFrame will trigger its internal file input dialog
+  }, [handleFileSelect]);
 
   /**
    * Handles retry action
@@ -471,6 +476,16 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
   const showRedoButton = containerState.currentStep === 'preview' && containerState.status === STATUS.SUCCESS;
   const showNextButton = containerState.currentStep === 'preview' && containerState.canProceed;
   const showProgressIndicator = isUploading || isProcessing || isTransitioning;
+
+  // Debug logging for NextButton visibility
+  console.log('UploadAngleContainer Debug:', {
+    'containerState.status': containerState.status,
+    'containerState.currentStep': containerState.currentStep,
+    'containerState.canProceed': containerState.canProceed,
+    'showNextButton': showNextButton,
+    'STATUS.SUCCESS': STATUS.SUCCESS,
+    'onNext provided': !!onNext
+  });
 
   // Animation variants
   const containerVariants = {
@@ -582,7 +597,7 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
                    containerState.status === STATUS.UPLOADING ? 'uploading' :
                    containerState.status === STATUS.SUCCESS ? 'loaded' : 'error'}
             progress={containerState.progress}
-            error={containerState.error}
+            error={containerState.error || undefined}
             aspectRatio="4:3"
             loading={isUploading}
             disabled={isContainerDisabled}
@@ -623,11 +638,10 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
           <AnimatePresence>
             {showUploadButton && (
               <motion.div
-                variants={contentVariants}
-                initial="exit"
-                animate="enter"
-                exit="exit"
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, x: 0, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 style={{
                   position: 'absolute',
                   bottom: '75px',
@@ -641,6 +655,7 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
                   disabled={isContainerDisabled || isUploading}
                   variant="primary"
                   size="large"
+                  viewType="angle"
                   testId={`${testId}-upload-button`}
                 />
               </motion.div>
@@ -669,6 +684,7 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
                   disabled={isContainerDisabled || isUploading}
                   variant="primary"
                   size="large"
+                  viewType="angle"
                   isRedo={true}
                   testId={`${testId}-redo-button`}
                 />
@@ -680,24 +696,28 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
           <AnimatePresence>
             {showNextButton && (
               <motion.div
-                variants={contentVariants}
-                initial="exit"
-                animate="enter"
-                exit="exit"
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, x: 0, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 style={{
                   position: 'absolute',
                   bottom: '75px',
-                  right: 'calc(15vw - 60px)',
+                  right: 'calc(15vw - 70px)',
                   zIndex: 10
                 }}
               >
                 <NextButton
+                  uploadStatus={containerState.status === STATUS.SUCCESS ? 'complete' : containerState.status === STATUS.ERROR ? 'error' : containerState.status === STATUS.UPLOADING ? 'uploading' : 'idle'}
                   onClick={handleNext}
                   disabled={!containerState.canProceed || isContainerDisabled}
                   variant="primary"
                   size="large"
                   loading={isTransitioning}
+                  config={{
+                    targetRoute: '/m/upload-fit',
+                    enablePrefetch: true
+                  }}
                   testId={`${testId}-next-button`}
                 />
               </motion.div>

@@ -6,15 +6,12 @@
 
 // Core components
 export { UploadFit } from './UploadFit';
-export { ErrorBoundary } from './ErrorBoundary';
 export { ProgressIndicator } from './ProgressIndicator';
 export { ErrorDisplay } from './ErrorDisplay';
 export { UploadFitWithErrorBoundary } from './UploadFitWithErrorBoundary';
 
-// Support components
-export { PhotoFrame } from './PhotoFrame';
-export { MobileUploadButton } from './MobileUploadButton';
-export { NextButton } from './NextButton';
+// Note: PhotoFrame, MobileUploadButton, NextButton, ErrorBoundary components have been moved to shared components
+// Import from @/mobile/components/shared instead
 
 // Re-export types
 export type {
