@@ -207,6 +207,194 @@ describe('SharedPhotoFrame', () => {
     });
   });
 
+  describe('Try-On View Specific Tests', () => {
+    describe('Mannequin Placeholder', () => {
+      it('displays mannequin placeholder for tryon view', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" />);
+
+        const placeholder = screen.getByAltText('Placeholder image');
+        expect(placeholder).toHaveAttribute('src', '/images/mobile/mannequin.png');
+      });
+
+      it('uses 3:4 aspect ratio for tryon view', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" />);
+
+        const frame = screen.getByTestId('test-photo-frame');
+        // Check if the CSS custom property is set for 3:4 aspect ratio (133.33%)
+        const styles = window.getComputedStyle(frame);
+        expect(frame.style.getPropertyValue('--photoframe-aspect-padding')).toBe('133.33%');
+      });
+
+      it('maintains aspect ratio consistency with fit view', () => {
+        const { rerender } = render(<PhotoFrame {...defaultProps} viewType="fit" />);
+        const fitFrame = screen.getByTestId('test-photo-frame');
+        const fitAspectRatio = fitFrame.style.getPropertyValue('--photoframe-aspect-padding');
+
+        rerender(<PhotoFrame {...defaultProps} viewType="tryon" />);
+        const tryonFrame = screen.getByTestId('test-photo-frame');
+        const tryonAspectRatio = tryonFrame.style.getPropertyValue('--photoframe-aspect-padding');
+
+        // Both should use 3:4 aspect ratio (133.33%)
+        expect(fitAspectRatio).toBe(tryonAspectRatio);
+        expect(tryonAspectRatio).toBe('133.33%');
+      });
+    });
+
+    describe('Try-On Specific ARIA Labels', () => {
+      it('uses try-on specific ARIA labels', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" />);
+
+        const frame = screen.getByTestId('test-photo-frame');
+        const ariaLabel = frame.getAttribute('aria-label');
+        expect(ariaLabel).toContain('Try-on area');
+        expect(ariaLabel).toContain('select your image');
+      });
+
+      it('displays try-on specific empty state text', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" />);
+
+        // Check for screen reader text
+        const srText = screen.getByText(/Try-on area - click or press to select your image/);
+        expect(srText).toBeInTheDocument();
+      });
+
+      it('shows try-on specific loading message', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" loading={true} />);
+
+        const srText = screen.getByText(/Uploading image for try-on/);
+        expect(srText).toBeInTheDocument();
+      });
+
+      it('displays try-on specific loaded message', async () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" imageUrl="/test-image.jpg" />);
+
+        const image = screen.getByAltText('Uploaded image');
+        fireEvent.load(image);
+
+        await waitFor(() => {
+          const srText = screen.getByText(/Your image ready for try-on/);
+          expect(srText).toBeInTheDocument();
+        });
+      });
+
+      it('shows try-on specific error message', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" state={PHOTO_FRAME_STATE.ERROR} />);
+
+        const errorText = screen.getByText(/Error loading try-on image/);
+        expect(errorText).toBeInTheDocument();
+      });
+    });
+
+    describe('Try-On Error Handling', () => {
+      it('handles mannequin image load failure gracefully', async () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" />);
+
+        const placeholder = screen.getByAltText('Placeholder image');
+        fireEvent.error(placeholder);
+
+        // Should not crash and should maintain functionality
+        const frame = screen.getByTestId('test-photo-frame');
+        expect(frame).toBeInTheDocument();
+        expect(frame).toHaveAttribute('data-view', 'tryon');
+      });
+
+      it('maintains retry functionality in error state', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" state={PHOTO_FRAME_STATE.ERROR} />);
+
+        const retryButton = screen.getByText('Try Again');
+        fireEvent.click(retryButton);
+
+        expect(defaultProps.onRetry).toHaveBeenCalled();
+      });
+
+      it('provides correct error context for try-on workflow', () => {
+        const customError = 'Try-on generation failed';
+        render(<PhotoFrame {...defaultProps} viewType="tryon" state={PHOTO_FRAME_STATE.ERROR} error={customError} />);
+
+        expect(screen.getByText(customError)).toBeInTheDocument();
+      });
+    });
+
+    describe('Try-On Integration', () => {
+      it('supports try-on workflow with proper callbacks', () => {
+        const onTryOnUpload = jest.fn();
+        render(<PhotoFrame {...defaultProps} viewType="tryon" onUpload={onTryOnUpload} />);
+
+        const frame = screen.getByTestId('test-photo-frame');
+        fireEvent.click(frame);
+
+        expect(onTryOnUpload).toHaveBeenCalled();
+      });
+
+      it('handles try-on image upload correctly', async () => {
+        const onImageLoad = jest.fn();
+        render(<PhotoFrame {...defaultProps} viewType="tryon" imageUrl="/user-image.jpg" onImageLoad={onImageLoad} />);
+
+        const image = screen.getByAltText('Uploaded image');
+        fireEvent.load(image);
+
+        await waitFor(() => {
+          expect(onImageLoad).toHaveBeenCalled();
+        });
+
+        const frame = screen.getByTestId('test-photo-frame');
+        expect(frame).toHaveAttribute('data-state', PHOTO_FRAME_STATE.LOADED);
+      });
+
+      it('maintains keyboard accessibility for try-on workflow', () => {
+        const onTryOnUpload = jest.fn();
+        render(<PhotoFrame {...defaultProps} viewType="tryon" onUpload={onTryOnUpload} />);
+
+        const frame = screen.getByTestId('test-photo-frame');
+        fireEvent.keyDown(frame, { key: 'Enter' });
+
+        expect(onTryOnUpload).toHaveBeenCalled();
+      });
+
+      it('supports try-on specific file acceptance', () => {
+        render(<PhotoFrame {...defaultProps} viewType="tryon" accept="image/jpeg,image/png" />);
+
+        const fileInput = screen.getByRole('button').querySelector('input[type="file"]');
+        expect(fileInput).toHaveAttribute('accept', 'image/jpeg,image/png');
+      });
+    });
+
+    describe('Try-On Configuration Validation', () => {
+      it('applies custom try-on configuration correctly', () => {
+        const customConfig = {
+          placeholderImage: '/custom-mannequin.png',
+          ariaLabels: {
+            empty: 'Custom try-on area - select image',
+            uploading: 'Custom uploading for try-on',
+            loaded: 'Custom image ready for try-on',
+            error: 'Custom try-on error message'
+          }
+        };
+
+        render(<PhotoFrame {...defaultProps} viewType="tryon" customConfig={customConfig} />);
+
+        const placeholder = screen.getByAltText('Placeholder image');
+        expect(placeholder).toHaveAttribute('src', '/custom-mannequin.png');
+
+        const frame = screen.getByTestId('test-photo-frame');
+        const ariaLabel = frame.getAttribute('aria-label');
+        expect(ariaLabel).toContain('Custom try-on area');
+      });
+
+      it('falls back to default configuration when custom config is invalid', () => {
+        const invalidConfig = {
+          placeholderImage: '', // Invalid empty string
+        };
+
+        render(<PhotoFrame {...defaultProps} viewType="tryon" customConfig={invalidConfig} />);
+
+        // Should fall back to default mannequin image
+        const placeholder = screen.getByAltText('Placeholder image');
+        expect(placeholder).toHaveAttribute('src', '/images/mobile/mannequin.png');
+      });
+    });
+  });
+
   describe('Custom Configuration', () => {
     it('accepts custom configuration', () => {
       const customConfig = {

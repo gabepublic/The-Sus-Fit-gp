@@ -50,12 +50,12 @@ const UPLOAD_FIT_CONFIG: PhotoFrameViewConfig = {
  */
 const TRY_IT_ON_CONFIG: PhotoFrameViewConfig = {
   defaultAspectRatio: '3:4',
-  placeholderImage: '/images/ScoredGarment.jpg',
+  placeholderImage: '/images/mobile/mannequin.png',
   uploadIcon: '/images/mobile/UploadIcon.svg',
   ariaLabels: {
-    empty: 'Upload area - click or press to select an image for try-on',
-    uploading: 'Uploading try-on image',
-    loaded: 'Uploaded try-on image',
+    empty: 'Try-on area - click or press to select your image',
+    uploading: 'Uploading image for try-on',
+    loaded: 'Your image ready for try-on',
     error: 'Error loading try-on image. Click to retry.'
   },
   styleOverrides: {
