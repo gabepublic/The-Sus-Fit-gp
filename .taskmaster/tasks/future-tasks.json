@@ -1,0 +1,556 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Visual Design Validation and Playwright MCP Integration",
+        "description": "Implement comprehensive visual regression testing using Playwright MCP to validate the Upload Fit View against the reference image and ensure pixel-perfect design compliance",
+        "details": "Set up Playwright MCP visual testing infrastructure to automatically compare the implemented Upload Fit View against the reference image (docs/assets/mobile/reference-images/UploadYourFitViewAfter.png). This includes: 1) Creating visual regression test suites that capture screenshots at multiple viewport sizes (iPhone SE, iPhone 14, Android medium), 2) Implementing automated comparison logic with configurable tolerance thresholds for color accuracy, positioning, and layout matching, 3) Establishing CI/CD integration for continuous visual validation, 4) Creating test fixtures for different upload states (empty, uploading, loaded, error), 5) Validating brutalist design elements (black borders, pink buttons, blue drop shadows) match reference specifications, 6) Ensuring typography, spacing, and component positioning align with reference design. Use @playwright/test with visual comparison capabilities and integrate with existing test infrastructure in __tests__/e2e/uploadFit.spec.ts.",
+        "testStrategy": "Automated visual regression tests comparing implemented components against reference image with tolerance thresholds. Test multiple viewport sizes and component states. Include accessibility testing for screen reader compatibility and keyboard navigation. Validate color contrast ratios meet WCAG 2.1 AA standards.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Playwright MCP Visual Testing Infrastructure",
+            "description": "Set up Playwright MCP server integration and configure visual regression testing infrastructure with proper project structure and reference image management",
+            "dependencies": [],
+            "details": "Configure the Playwright MCP server in the existing playwright.config.ts to support visual regression testing. Update the configuration to include visual testing capabilities with proper screenshot directories, comparison tolerances, and test organization. Set up reference image management structure matching the existing docs/assets/mobile/reference-images/ directory. Configure multiple viewport projects (iPhone SE, iPhone 14, Android medium) for comprehensive mobile testing. Integrate with existing test infrastructure in __tests__/e2e/uploadFit.spec.ts and ensure MCP server can capture and compare screenshots programmatically.",
+            "status": "pending",
+            "testStrategy": "Unit tests for configuration validation, integration tests for MCP server connection, and end-to-end tests for screenshot capture functionality. Verify reference image loading and comparison logic with tolerance thresholds."
+          },
+          {
+            "id": 2,
+            "title": "Implement Automated Visual Comparison Logic",
+            "description": "Create automated comparison logic with configurable tolerance thresholds for color accuracy, positioning, and layout matching against the UploadYourFitViewAfter.png reference",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Develop automated visual comparison logic using Playwright's visual testing capabilities to compare implemented Upload Fit View against docs/assets/mobile/reference-images/UploadYourFitViewAfter.png. Implement configurable tolerance thresholds for pixel-level comparison, color accuracy validation, and layout positioning checks. Create comparison algorithms that can detect differences in brutalist design elements (black borders, pink buttons, blue drop shadows). Implement differential image generation for failed comparisons to highlight specific mismatches. Support multiple comparison modes including pixel-perfect, layout-aware, and color-tolerance based matching.",
+            "status": "pending",
+            "testStrategy": "Unit tests for comparison algorithms with synthetic image differences, integration tests with known reference/test image pairs, and performance tests for comparison speed with large images."
+          },
+          {
+            "id": 3,
+            "title": "Create Multi-Viewport Screenshot Test Suites",
+            "description": "Develop comprehensive test suites that capture screenshots at multiple viewport sizes and validate component states against reference designs",
+            "dependencies": [
+              "1.1",
+              "1.2"
+            ],
+            "details": "Create comprehensive test suites extending the existing __tests__/e2e/uploadFit.spec.ts to capture screenshots at multiple mobile viewport sizes (iPhone SE: 375x667, iPhone 14: 393x852, Android medium: 412x915). Implement test scenarios for different upload states (empty, uploading, loaded, error) and validate each against reference designs. Create test fixtures for consistent state reproduction across test runs. Implement screenshot capture with proper timing controls to ensure animations complete and loading states are properly captured. Validate responsive design behavior and ensure proper scaling across different viewport sizes.",
+            "status": "pending",
+            "testStrategy": "Visual regression tests for each viewport size and state combination, automated comparison against reference images, and cross-browser compatibility validation using existing browser matrix (chromium, firefox, webkit)."
+          },
+          {
+            "id": 4,
+            "title": "Validate Brutalist Design Element Compliance",
+            "description": "Implement specialized validation for brutalist design elements including black borders, pink buttons, and blue drop shadows to ensure pixel-perfect design compliance",
+            "dependencies": [
+              "1.2",
+              "1.3"
+            ],
+            "details": "Create specialized validation logic for brutalist design elements specific to the Upload Fit View. Implement targeted element validation for black borders (2-4px solid black), pink buttons (#FF6B9D with proper hover states), and blue drop shadows (rgba(59, 130, 246, 0.5) with 4px offset). Create element-specific screenshot comparison for individual components like upload buttons, progress indicators, and photo frames. Validate typography compliance including font families, sizes, and spacing. Implement color accuracy validation with tolerance for screen variations while maintaining design integrity. Ensure proper contrast ratios and accessibility compliance for all design elements.",
+            "status": "pending",
+            "testStrategy": "Component-level visual regression tests for each design element, color accuracy validation with tolerance thresholds, and accessibility compliance testing for contrast ratios and keyboard navigation."
+          },
+          {
+            "id": 5,
+            "title": "Integrate CI/CD Pipeline with Continuous Visual Validation",
+            "description": "Establish CI/CD integration for continuous visual validation with automated test execution, failure reporting, and reference image management workflows",
+            "dependencies": [
+              "1.1",
+              "1.2",
+              "1.3",
+              "1.4"
+            ],
+            "details": "Integrate visual regression testing into the existing CI/CD pipeline using the configured Playwright infrastructure. Set up automated test execution on pull requests with proper artifact collection for screenshot comparisons. Implement reference image update workflows for approved design changes. Create failure reporting mechanisms that include visual diffs and comparison results. Configure test result reporting with screenshot artifacts for easy review. Implement automated notifications for visual regression failures. Set up proper test environment isolation to ensure consistent screenshot generation across different CI environments. Configure parallel test execution for efficient pipeline performance while maintaining visual consistency.",
+            "status": "pending",
+            "testStrategy": "CI/CD integration tests for pipeline execution, artifact management validation, and automated reporting verification. Performance tests for parallel execution efficiency and consistency validation across different environments."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Component Refinement and Animation Polish",
+        "description": "Refine existing Upload Fit components to ensure smooth animations, proper state transitions, and enhanced user experience following brutalist design principles",
+        "details": "Polish the existing Upload Fit components located in src/mobile/components/UploadFit/ to ensure smooth user interactions and visual consistency: 1) Enhance PhotoFrame component animations for state transitions (empty -> uploading -> loaded), implementing micro-interactions with proper easing curves using Framer Motion, 2) Refine UploadButton and NextButton components with touch feedback animations (scale transforms on press), 3) Optimize slide-in animations for NextButton using useSlideInAnimation hook, 4) Implement progressive image loading with blur-to-sharp transitions, 5) Add haptic feedback for mobile interactions where appropriate, 6) Ensure all animations respect user's reduced motion preferences, 7) Fine-tune CSS transitions in upload.module.css, animations.module.css for 60fps performance, 8) Implement proper loading skeleton states during image processing. Focus on maintaining the brutalist aesthetic with bold, immediate visual feedback.",
+        "testStrategy": "Animation performance testing with 60fps validation. Touch interaction testing on real devices. Reduced motion preference testing. Component state transition validation with React Testing Library. Performance profiling to ensure animations don't impact upload processing.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Enhance PhotoFrame State Transition Animations",
+            "description": "Implement smooth Framer Motion animations for PhotoFrame component state transitions (empty \u2192 uploading \u2192 loaded) with proper easing curves and micro-interactions",
+            "dependencies": [],
+            "details": "Update PhotoFrame component (src/mobile/components/shared/PhotoFrame/PhotoFrame.tsx) to enhance existing AnimatePresence blocks with more sophisticated animations. Implement custom Framer Motion variants for each state transition with optimized easing curves (cubic-bezier). Add micro-interactions for hover states on empty placeholder. Ensure animations respect the brutalist design principle with bold, immediate visual feedback. Update existing overlay animations (lines 225-331) with enhanced motion properties including scale, opacity, and subtle transform effects.",
+            "status": "pending",
+            "testStrategy": "Animation performance testing with 60fps validation using browser dev tools. Visual regression tests for state transitions. Component interaction testing with React Testing Library to verify animation triggers. Cross-device testing for mobile animation performance."
+          },
+          {
+            "id": 2,
+            "title": "Implement Touch Feedback Animations for Buttons",
+            "description": "Add scale transform animations and haptic feedback to UploadButton and NextButton components for enhanced mobile interactions",
+            "dependencies": [],
+            "details": "Enhance UploadButton and NextButton components with touch-responsive scale animations. Implement motion.div wrapper with onTouchStart/onTouchEnd handlers that trigger scale(0.95) on press and scale(1) on release. Integrate existing haptic feedback patterns from UploadButton (lines 57-84) into NextButton. Add visual feedback using Framer Motion's whileTap property for immediate response. Ensure animations work seamlessly with existing button press animations in animations.module.css.",
+            "status": "pending",
+            "testStrategy": "Touch interaction testing on real mobile devices. Haptic feedback validation on supported devices. Animation smoothness testing during rapid taps. Integration testing with existing button functionality."
+          },
+          {
+            "id": 3,
+            "title": "Optimize NextButton Slide-in Animation Implementation",
+            "description": "Enhance NextButton slide-in animations using the existing useSlideInAnimation hook with improved performance and visual polish",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Integrate useSlideInAnimation hook (src/mobile/components/UploadFit/hooks/useSlideInAnimation.ts) into NextButton component. Replace current motion.div fade animation (lines 233-241) with slide-up animation using the hook's intersection observer capabilities. Configure hook with threshold: 0.1, delay: 100ms, and triggerOnce: true for optimal performance. Apply slide-in classes from createSlideInClasses utility with SLIDE_DIRECTION.UP. Ensure animation respects reduced motion preferences.",
+            "status": "pending",
+            "testStrategy": "Intersection Observer functionality testing. Slide animation smoothness validation. Reduced motion preference testing. Performance profiling to ensure no layout thrashing."
+          },
+          {
+            "id": 4,
+            "title": "Implement Progressive Image Loading with Blur-to-Sharp Transitions",
+            "description": "Add progressive image loading with smooth blur-to-sharp transition effects for enhanced user experience during image processing",
+            "dependencies": [],
+            "details": "Implement progressive image loading in PhotoFrame component using CSS backdrop-filter and Framer Motion. Create low-quality placeholder with blur effect that transitions to sharp image on load. Use Next.js Image component's onLoad handler to trigger blur removal animation. Implement CSS-in-JS blur filter animation (backdrop-filter: blur(20px) \u2192 blur(0px)) with 500ms duration. Add loading skeleton with subtle pulse animation during image processing. Ensure fallback for browsers that don't support backdrop-filter.",
+            "status": "pending",
+            "testStrategy": "Image loading performance testing with various image sizes. Blur transition smoothness validation. Browser compatibility testing for backdrop-filter. Network throttling testing for progressive loading experience."
+          },
+          {
+            "id": 5,
+            "title": "Optimize CSS Animations for 60fps Performance",
+            "description": "Fine-tune existing CSS transitions in upload.module.css and animations.module.css to ensure consistent 60fps performance across all mobile devices",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Audit and optimize existing animations in animations.module.css (lines 160-501). Ensure all animations use only transform and opacity properties for GPU acceleration. Add proper will-change management for animation lifecycle. Optimize keyframes to use translateZ(0) for hardware acceleration. Review and enhance brutalist animation overrides (lines 486-501) for immediate visual feedback. Add performance monitoring classes for development debugging. Ensure all animations respect prefers-reduced-motion with instant feedback alternatives.",
+            "status": "pending",
+            "testStrategy": "Performance profiling with 60fps validation across devices. Frame rate analysis during animations. GPU usage monitoring. Battery usage testing on mobile devices. Accessibility testing for reduced motion compliance."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Mobile Performance Optimization and Bundle Analysis",
+        "description": "Optimize Upload Fit components for mobile performance, implementing code splitting, image optimization, and bundle size reduction strategies",
+        "details": "Implement comprehensive performance optimizations for the Upload Fit mobile experience: 1) Analyze current bundle size using webpack-bundle-analyzer and identify optimization opportunities, 2) Implement dynamic imports for Upload Fit components to enable code splitting and reduce initial bundle size, 3) Optimize image processing pipeline using Web Workers (imageWorker.ts) for non-blocking compression and resizing, 4) Implement progressive image loading with placeholder strategies (blur-up, skeleton), 5) Add service worker caching for repeated visits, 6) Optimize CSS with critical path extraction and non-critical CSS lazy loading, 7) Implement tree shaking for unused utilities and components, 8) Add performance monitoring with Core Web Vitals tracking, 9) Configure Next.js Image component with optimized responsive images and format selection (WebP/AVIF with JPEG fallback), 10) Target <50KB gzipped bundle size for Upload Fit component tree. Use Lighthouse CI for automated performance testing.",
+        "testStrategy": "Performance testing with Lighthouse CI targeting scores >90 for all metrics. Bundle size analysis with size-limit tool. Real device testing on 3G networks. Memory leak detection during image processing. Core Web Vitals monitoring in development and staging environments.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Bundle Analysis and Code Splitting Setup",
+            "description": "Implement bundle analysis using webpack-bundle-analyzer and set up dynamic imports for Upload Fit components to enable code splitting",
+            "dependencies": [],
+            "details": "Set up webpack-bundle-analyzer to analyze current bundle size and identify optimization opportunities. Implement dynamic imports using React.lazy() for Upload Fit components (UploadFitContainer, UploadFit, UploadFitWithErrorBoundary) to enable code splitting. Create proper Suspense boundaries with loading states. Configure Next.js for optimized code splitting. Target initial bundle size reduction of 30-40% for Upload Fit component tree. Add size-limit configuration to enforce bundle size limits in CI/CD pipeline.",
+            "status": "pending",
+            "testStrategy": "Bundle size analysis with webpack-bundle-analyzer showing before/after metrics. Code splitting verification with dynamic import loading tests. Suspense boundary functionality testing. Size-limit enforcement validation in build process."
+          },
+          {
+            "id": 2,
+            "title": "Web Workers Image Processing Optimization",
+            "description": "Optimize the existing imageWorker.ts pipeline for non-blocking compression and resizing with mobile performance enhancements",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Enhance the existing ImageProcessingWorkerPool in src/mobile/components/UploadFit/utils/imageWorker.ts for optimal mobile performance. Implement mobile-optimized worker configuration with reduced worker count and memory management. Add progressive compression with quality fallbacks. Implement batch processing for multiple images. Add Web Workers capability detection and graceful fallbacks. Configure worker pool with mobile-specific timeouts and memory limits. Integrate with existing compression utilities (imageCompression.ts, formatConversion.ts).",
+            "status": "pending",
+            "testStrategy": "Web Workers functionality testing with capability detection. Image processing performance benchmarks comparing main thread vs worker thread. Memory usage monitoring during batch processing. Mobile device testing with various hardware configurations."
+          },
+          {
+            "id": 3,
+            "title": "Progressive Image Loading with Placeholder Strategies",
+            "description": "Implement progressive image loading with blur-up and skeleton placeholder strategies for improved perceived performance",
+            "dependencies": [
+              "3.2"
+            ],
+            "details": "Implement progressive image loading system using Intersection Observer API for lazy loading. Create blur-up placeholder strategy using low-quality image previews generated by Web Workers. Implement skeleton loading placeholders for PhotoFrame components. Add next/image component optimization with proper srcSet and sizes configuration. Implement WebP/AVIF format support with JPEG fallback. Configure responsive images for different viewport sizes. Add preloading for critical images and prefetching for likely-to-be-viewed images.",
+            "status": "pending",
+            "testStrategy": "Progressive loading functionality tests with Intersection Observer. Image format optimization validation (WebP/AVIF fallback). Placeholder rendering tests for skeleton and blur-up strategies. Performance metrics for perceived loading speed."
+          },
+          {
+            "id": 4,
+            "title": "Service Worker Caching and CSS Optimization",
+            "description": "Add service worker caching for repeated visits and implement CSS optimization with critical path extraction",
+            "dependencies": [
+              "3.3"
+            ],
+            "details": "Implement service worker for caching Upload Fit assets including images, CSS, and JavaScript bundles. Configure cache strategies (cache-first for assets, network-first for API calls). Implement critical CSS extraction using Next.js built-in optimization. Set up non-critical CSS lazy loading using loadCSS or similar technique. Configure CSS chunking and optimization in next.config.js. Implement tree shaking for unused CSS classes and utility functions. Add CSS minification and compression for production builds.",
+            "status": "pending",
+            "testStrategy": "Service worker functionality testing with cache strategies validation. Critical CSS extraction verification with above-the-fold content rendering. Cache performance testing with repeat visits. CSS optimization metrics showing reduced render-blocking resources."
+          },
+          {
+            "id": 5,
+            "title": "Performance Monitoring and Lighthouse CI Integration",
+            "description": "Implement Core Web Vitals tracking and Lighthouse CI for automated performance testing targeting >90 scores",
+            "dependencies": [
+              "3.1",
+              "3.2",
+              "3.3",
+              "3.4"
+            ],
+            "details": "Set up Core Web Vitals monitoring using web-vitals library for LCP, INP, and CLS tracking. Implement performance monitoring dashboard with real-time metrics collection. Configure Lighthouse CI for automated performance auditing in build pipeline. Set performance budgets enforcing <50KB gzipped bundle size for Upload Fit components. Add performance regression detection with automated alerts. Implement real device testing on 3G networks simulation. Create performance reporting with detailed metrics and optimization recommendations.",
+            "status": "pending",
+            "testStrategy": "Lighthouse CI scores validation targeting >90 for all metrics (Performance, Accessibility, Best Practices, SEO). Core Web Vitals monitoring with real user metrics. Performance budget enforcement in CI/CD pipeline. Memory leak detection during image processing workflows."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Accessibility Enhancement and WCAG 2.1 AA Compliance",
+        "description": "Implement comprehensive accessibility features ensuring WCAG 2.1 AA compliance across all Upload Fit components with screen reader support and keyboard navigation",
+        "details": "Enhance accessibility across all Upload Fit components to achieve WCAG 2.1 AA compliance: 1) Implement comprehensive ARIA labels, roles, and properties for all interactive elements, 2) Add proper focus management and keyboard navigation support (tab order, Enter/Space activation), 3) Ensure color contrast ratios meet AA standards (4.5:1 for normal text, 3:1 for large text), 4) Implement screen reader announcements for upload progress and state changes using live regions, 5) Add high contrast mode support and respect user's color preferences, 6) Provide alternative text for all images and visual content, 7) Implement proper error messaging with clear instructions for resolution, 8) Add skip links and landmark navigation, 9) Test with VoiceOver (iOS) and TalkBack (Android) screen readers, 10) Implement touch target sizing (minimum 44px) for all interactive elements, 11) Add reduced motion support for animations and transitions, 12) Create comprehensive accessibility test suite using jest-axe and @axe-core/playwright.",
+        "testStrategy": "Automated accessibility testing with jest-axe and @axe-core/playwright. Manual testing with VoiceOver and TalkBack screen readers. Keyboard-only navigation testing. Color contrast validation with automated tools. Touch target size validation on real devices. User testing with accessibility advocates.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement ARIA Labels and Properties for Interactive Elements",
+            "description": "Add comprehensive ARIA attributes including roles, labels, and properties to all interactive elements across Upload Fit components to ensure screen reader compatibility.",
+            "dependencies": [],
+            "details": "Review and enhance ARIA implementation across all Upload Fit components: 1) Add proper ARIA labels to Button, PhotoFrame, and UploadButton components, 2) Implement ARIA roles for complex UI patterns (progressbar, status, alert), 3) Add aria-describedby relationships for form controls and help text, 4) Implement aria-live regions for dynamic content updates, 5) Add aria-busy for loading states, 6) Ensure proper aria-expanded for collapsible content, 7) Add aria-invalid for error states, 8) Update existing aria-label implementations in Button.tsx:132 and PhotoFrame.tsx:162 to meet WCAG standards, 9) Implement aria-labelledby where appropriate for complex label relationships.",
+            "status": "pending",
+            "testStrategy": "Unit tests with jest-axe for ARIA compliance. Manual testing with VoiceOver (iOS) and TalkBack (Android) screen readers. Automated accessibility scanning with @axe-core/playwright integration. ARIA attribute validation tests to ensure proper relationships and values."
+          },
+          {
+            "id": 2,
+            "title": "Enhance Keyboard Navigation and Focus Management",
+            "description": "Implement comprehensive keyboard navigation support with proper tab order, Enter/Space activation, and focus management throughout the Upload Fit workflow.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Build upon existing keyboard support in Button.tsx:51-60 to create comprehensive navigation: 1) Implement proper tab order across all Upload Fit components, 2) Add skip links for main content areas, 3) Implement focus trapping in modal states, 4) Add visible focus indicators that meet 2px minimum and 3:1 contrast ratio, 5) Ensure Enter and Space key activation for all interactive elements, 6) Implement focus management for dynamic content changes, 7) Add keyboard shortcuts for common actions, 8) Ensure escape key functionality for dismissible elements, 9) Test with keyboard-only navigation patterns, 10) Implement focus restoration after modal interactions.",
+            "status": "pending",
+            "testStrategy": "Keyboard navigation testing with automated tab sequence validation. Focus indicator contrast testing. User testing with keyboard-only interaction patterns. Integration tests for focus management during state transitions."
+          },
+          {
+            "id": 3,
+            "title": "Validate and Fix Color Contrast Compliance",
+            "description": "Audit and ensure all text and interactive elements meet WCAG 2.1 AA color contrast requirements (4.5:1 normal text, 3:1 large text) across all Upload Fit components.",
+            "dependencies": [],
+            "details": "Comprehensive color contrast audit and fixes: 1) Use automated tools to scan existing components for contrast violations, 2) Update brutalist design system colors in Button.module.css and related stylesheets to meet AA standards, 3) Ensure error messages and status text meet contrast requirements, 4) Implement high contrast mode support using prefers-contrast media query, 5) Test against different background colors and states, 6) Add support for Windows High Contrast Mode, 7) Verify focus indicators meet 3:1 contrast ratio against adjacent colors, 8) Document color palette with contrast ratios for future reference, 9) Implement fallback colors for better accessibility.",
+            "status": "pending",
+            "testStrategy": "Automated color contrast testing with tools like axe-core and Lighthouse. Manual testing with Windows High Contrast Mode and macOS Increase Contrast. Visual regression testing for color combinations. User testing with low vision scenarios."
+          },
+          {
+            "id": 4,
+            "title": "Implement Screen Reader Announcements and Live Regions",
+            "description": "Create comprehensive screen reader support with live regions for upload progress, state changes, and error notifications throughout the Upload Fit experience.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Extend existing aria-live implementation in PhotoFrame.tsx:234 and accessibility tests from uploadFit.a11y.test.tsx:167: 1) Implement aria-live regions for upload progress announcements, 2) Add status announcements for successful uploads and errors, 3) Create live region for file validation feedback, 4) Implement proper announcement timing to avoid overwhelming screen reader users, 5) Add support for both polite and assertive announcements based on urgency, 6) Create announcement queue system for multiple rapid updates, 7) Implement screen reader-specific text that provides clear context, 8) Add role=status and role=alert for appropriate content, 9) Test announcements with multiple screen readers (VoiceOver, NVDA, JAWS).",
+            "status": "pending",
+            "testStrategy": "Screen reader testing with VoiceOver (iOS/macOS), TalkBack (Android), NVDA (Windows), and JAWS (Windows). Announcement timing validation. Live region effectiveness testing. User testing with actual screen reader users."
+          },
+          {
+            "id": 5,
+            "title": "Create Comprehensive Accessibility Test Suite",
+            "description": "Implement automated accessibility testing with jest-axe and @axe-core/playwright, plus manual testing procedures to ensure ongoing WCAG 2.1 AA compliance.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4"
+            ],
+            "details": "Build comprehensive testing framework extending existing accessibility tests in uploadFit.a11y.test.tsx: 1) Enhance jest-axe integration for automated WCAG scanning, 2) Implement @axe-core/playwright for E2E accessibility testing, 3) Create accessibility testing utilities for common patterns, 4) Add visual regression tests for focus indicators and high contrast mode, 5) Implement touch target size validation (minimum 44px), 6) Create testing procedures for reduced motion compliance, 7) Add automated color contrast validation, 8) Implement keyboard navigation test automation, 9) Create accessibility testing checklist for manual validation, 10) Set up CI/CD integration for accessibility testing, 11) Document accessibility testing procedures for future development.",
+            "status": "pending",
+            "testStrategy": "Automated accessibility test suite with jest-axe achieving 100% WCAG 2.1 AA compliance. E2E accessibility testing with Playwright. Manual testing procedures with actual assistive technologies. Performance testing for accessibility features to ensure no impact on app performance."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Error Handling and Recovery Mechanisms",
+        "description": "Implement robust error handling, validation, and recovery mechanisms for Upload Fit functionality with user-friendly messaging and retry strategies",
+        "details": "Develop comprehensive error handling and recovery systems for Upload Fit components: 1) Implement client-side file validation with clear error messaging for invalid file types, sizes, and formats, 2) Add network error detection and automatic retry mechanisms with exponential backoff, 3) Create user-friendly error displays with actionable recovery instructions, 4) Implement progressive error states (warning -> error -> critical) with appropriate visual indicators, 5) Add file corruption detection and validation during upload process, 6) Implement graceful degradation for unsupported browsers or missing features, 7) Create comprehensive error logging and monitoring integration, 8) Add timeout handling for long-running image processing operations, 9) Implement proper cleanup of failed uploads (blob URLs, event listeners), 10) Create error boundary components with fallback UI, 11) Add offline detection and appropriate messaging for network unavailability, 12) Implement validation for 3:4 aspect ratio with user guidance for proper image cropping.",
+        "testStrategy": "Error scenario testing with network simulation (offline, slow 3G, intermittent connectivity). File validation testing with various invalid inputs. Error boundary testing with intentional component failures. User experience testing for error recovery flows. Integration testing with monitoring systems.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Client-Side File Validation with Error Messaging",
+            "description": "Create comprehensive client-side file validation system for Upload Fit with detailed error messages for invalid file types, sizes, formats, and 3:4 aspect ratio requirements.",
+            "dependencies": [],
+            "details": "Extend existing imageValidation.ts to add specific validation for Upload Fit requirements: 1) Enhance file type validation with specific error messages for unsupported formats, 2) Add file size validation with clear limits and user-friendly messages, 3) Implement 3:4 aspect ratio validation with guidance for proper image cropping, 4) Create progressive validation states (info -> warning -> error), 5) Add format-specific validation (JPEG quality, PNG transparency, WebP support), 6) Implement real-time validation feedback during file selection, 7) Create validation summary component showing all issues and suggestions, 8) Add accessibility support for validation messages with proper ARIA labels.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all validation functions with various file types and edge cases. Integration tests for validation flow in UploadFit component. Accessibility testing for validation messages. Error scenario testing with invalid files."
+          },
+          {
+            "id": 2,
+            "title": "Implement Network Error Detection and Retry Mechanisms",
+            "description": "Create robust network error detection system with automatic retry mechanisms using exponential backoff for Upload Fit operations.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Build upon existing error handling to add network-specific retry logic: 1) Implement network connectivity detection using Navigator.onLine and periodic ping tests, 2) Create exponential backoff retry mechanism with configurable delays (1s, 2s, 4s, 8s), 3) Add request timeout detection with appropriate error messaging, 4) Implement retry queue for failed upload operations, 5) Create network status indicator in UI showing connection quality, 6) Add retry limits and fallback strategies for persistent failures, 7) Implement offline mode detection with appropriate user messaging, 8) Create network error classification (timeout, connection lost, slow connection), 9) Add retry progress indication and user controls to pause/resume.",
+            "status": "pending",
+            "testStrategy": "Network simulation testing with throttled connections. Offline/online transition testing. Retry mechanism testing with mock failures. Timeout scenario testing. User experience testing for retry feedback."
+          },
+          {
+            "id": 3,
+            "title": "Create User-Friendly Error Display Components",
+            "description": "Design and implement comprehensive error display system with actionable recovery instructions and progressive error states.",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "Enhance existing ErrorDisplay components with Upload Fit specific features: 1) Create modular error display components for different error types (validation, network, processing), 2) Implement progressive error states with visual indicators (warning yellow, error red, critical dark red), 3) Add actionable recovery instructions with interactive buttons, 4) Create error detail expansion with technical information toggle, 5) Implement error history tracking and display for debugging, 6) Add contextual help and FAQ links for common errors, 7) Create error reporting functionality for user feedback, 8) Implement error toast notifications with auto-dismiss and manual controls, 9) Add error summary dashboard for multiple simultaneous errors.",
+            "status": "pending",
+            "testStrategy": "Visual regression testing for error displays. User interaction testing for recovery actions. Accessibility testing for error messaging. Error categorization testing. User experience testing for error flows."
+          },
+          {
+            "id": 4,
+            "title": "Implement Timeout Handling and Progress Monitoring",
+            "description": "Create comprehensive timeout handling system for long-running image processing operations with progress monitoring and user controls.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Implement timeout management for Upload Fit processing operations: 1) Add configurable timeout settings for different operation types (validation: 5s, compression: 30s, upload: 60s), 2) Create progress monitoring with estimated completion times, 3) Implement operation cancellation with proper cleanup, 4) Add timeout warnings before operations fail, 5) Create progress indicators with detailed status messages, 6) Implement background processing with user notification, 7) Add operation queuing for multiple files, 8) Create timeout recovery options (extend timeout, cancel, retry), 9) Implement proper cleanup of resources (blob URLs, event listeners, workers) on timeout.",
+            "status": "pending",
+            "testStrategy": "Long-running operation testing with various timeout scenarios. Progress monitoring accuracy testing. Cancellation and cleanup testing. Resource leak testing. User interaction testing for timeout controls."
+          },
+          {
+            "id": 5,
+            "title": "Implement Error Monitoring and Logging Integration",
+            "description": "Create comprehensive error monitoring, logging, and analytics system for Upload Fit with integration points for external monitoring services.",
+            "dependencies": [
+              "5.1",
+              "5.2",
+              "5.3"
+            ],
+            "details": "Enhance existing error logging with production monitoring capabilities: 1) Extend ConsoleErrorLogger for production logging with structured data, 2) Add error categorization and severity tracking with metrics, 3) Implement error rate limiting to prevent log spam, 4) Create error aggregation and pattern detection, 5) Add user session tracking for error correlation, 6) Implement error context capture (device info, browser, network conditions), 7) Create error reporting API integration for external monitoring services, 8) Add error trend analysis and alerting thresholds, 9) Implement privacy-compliant error logging with data sanitization, 10) Create error dashboard for development and monitoring teams.",
+            "status": "pending",
+            "testStrategy": "Error logging verification with various error types. Performance testing for logging overhead. Data privacy compliance testing. Integration testing with monitoring services. Error aggregation and reporting testing."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Integration Testing and End-to-End Workflows",
+        "description": "Implement comprehensive integration testing for Upload Fit components within the mobile onboarding flow and cross-component interactions",
+        "details": "Create comprehensive integration test suites for Upload Fit functionality: 1) Develop end-to-end test scenarios covering complete user journey from /m/upload-angle through /m/upload-fit to /m/tryon, 2) Test navigation state persistence across route changes, 3) Validate mobile header integration and back button functionality, 4) Test image upload and processing workflows with real image files, 5) Implement cross-browser testing for mobile browsers (Safari iOS, Chrome Android, Samsung Internet), 6) Create test scenarios for different device orientations and viewport sizes, 7) Test integration with mobile analytics and tracking systems, 8) Validate proper cleanup and memory management during component lifecycle, 9) Test offline/online state transitions and data persistence, 10) Implement regression testing to ensure no impact on existing HomeView functionality, 11) Create performance regression tests for upload processing times, 12) Test deep linking and URL state management for /m/upload-fit route.",
+        "testStrategy": "End-to-end testing with Playwright covering complete user workflows. Cross-browser testing on real devices. Performance regression testing with automated benchmarks. Integration testing with mobile infrastructure components. Memory leak detection during extended usage sessions.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create E2E Test Suite for Complete Mobile Upload Flow",
+            "description": "Implement comprehensive end-to-end test scenarios covering the complete user journey from /m/upload-angle through /m/upload-fit to /m/tryon with cross-browser testing on mobile devices",
+            "dependencies": [],
+            "details": "Create comprehensive E2E test suites using Playwright that test the complete mobile upload workflow: 1) Set up test scenarios for the full user journey from /m/upload-angle \u2192 /m/upload-fit \u2192 /m/tryon, testing file selection, upload progress, navigation state persistence, and component transitions. 2) Implement cross-browser testing for mobile browsers including Safari iOS, Chrome Android, and Samsung Internet using existing Playwright configuration. 3) Add test scenarios for different device orientations (portrait/landscape) and viewport sizes (iPhone SE, iPhone 12, Pixel 5, iPad). 4) Test deep linking functionality and URL state management for all mobile routes. 5) Extend existing test structure in tests/e2e/ directory following patterns from mobile-flow.spec.ts and uploadFit.spec.ts.",
+            "status": "pending",
+            "testStrategy": "Playwright E2E tests with page object models for each mobile route. Cross-browser testing matrix including mobile Safari, Chrome Android. Device orientation and viewport testing. Deep linking and URL state validation. Navigation flow assertions and component integration testing."
+          },
+          {
+            "id": 2,
+            "title": "Implement Mobile Header and Navigation Integration Tests",
+            "description": "Create integration tests for mobile header functionality, back button behavior, hamburger menu interactions, and navigation state persistence across route changes",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Build comprehensive integration tests for mobile navigation components: 1) Test mobile header integration with all upload flow routes, ensuring proper positioning and visibility during route transitions. 2) Validate back button functionality and browser history management during the upload workflow. 3) Test hamburger menu interactions, ensuring menu state resets appropriately during navigation. 4) Implement tests for navigation state persistence, verifying that route changes maintain proper component state and user progress. 5) Test RouteGuard integration and mobile layout consistency. 6) Use existing mobile testing patterns from tests/e2e/mobile-flow.spec.ts and extend MobileHomePage, MobileMenu page object models.",
+            "status": "pending",
+            "testStrategy": "Integration testing with page object models for mobile header and menu components. Navigation state persistence validation. Browser history and back button testing. Component interaction testing across route changes. Mobile layout consistency verification."
+          },
+          {
+            "id": 3,
+            "title": "Create Image Upload and Processing Integration Tests",
+            "description": "Implement comprehensive integration tests for image upload workflows including real file processing, error handling, retry mechanisms, and memory management during extended usage",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Develop robust integration tests for image upload and processing functionality: 1) Test image upload workflows with real image files of various formats (JPEG, PNG, WebP) and sizes. 2) Implement tests for image processing pipeline including compression, orientation correction, and format conversion using actual image data. 3) Test error handling scenarios including network failures, oversized files, invalid formats, and processing errors with proper retry mechanisms. 4) Create memory leak detection tests during extended usage sessions with multiple uploads. 5) Test offline/online state transitions and data persistence during network interruptions. 6) Validate proper cleanup of blob URLs and canvas contexts. 7) Extend existing upload test patterns from __tests__/e2e/uploadFit.spec.ts with real image processing validation.",
+            "status": "pending",
+            "testStrategy": "Integration testing with real image files and processing validation. Memory leak detection during extended usage. Network failure simulation and retry testing. Blob URL and canvas cleanup verification. Image processing pipeline validation with multiple file formats."
+          },
+          {
+            "id": 4,
+            "title": "Implement Performance and Regression Testing Suite",
+            "description": "Create automated performance regression tests for upload processing times, component lifecycle management, and integration with existing HomeView functionality",
+            "dependencies": [
+              "6.2",
+              "6.3"
+            ],
+            "details": "Build comprehensive performance and regression testing infrastructure: 1) Implement performance regression tests for upload processing times with benchmarks for different file sizes and device capabilities. 2) Create automated tests to ensure no impact on existing HomeView functionality, validating that upload components don't affect desktop experience. 3) Test component lifecycle management and proper cleanup during navigation transitions to prevent memory leaks. 4) Implement automated performance monitoring for mobile browsers with metrics collection for render times, upload speeds, and component interaction responsiveness. 5) Create regression tests for mobile analytics integration ensuring tracking events fire correctly during upload workflows. 6) Add performance budgets and automated alerts for degradation detection. 7) Integrate with existing performance testing patterns from __tests__/performance/ directory.",
+            "status": "pending",
+            "testStrategy": "Automated performance regression testing with benchmarks. Component lifecycle and memory management validation. HomeView integration regression testing. Mobile analytics tracking verification. Performance budget monitoring with automated alerts."
+          },
+          {
+            "id": 5,
+            "title": "Create Mobile Analytics and Tracking Integration Tests",
+            "description": "Implement comprehensive tests for mobile analytics integration, tracking system validation, and cross-component event monitoring during upload workflows",
+            "dependencies": [
+              "6.4"
+            ],
+            "details": "Develop comprehensive mobile analytics and tracking integration tests: 1) Test integration with useMobileAnalytics hook during upload workflows, ensuring proper event tracking for user interactions, file selections, upload progress, and navigation. 2) Validate tracking system integration across all mobile upload components with proper event sequencing and data collection. 3) Test custom event tracking for upload-specific actions including file validation errors, retry attempts, and completion events. 4) Implement cross-component interaction monitoring to ensure analytics events fire correctly during component transitions. 5) Test route change tracking accuracy during the upload workflow from /m/upload-angle to /m/tryon. 6) Validate proper device type detection and mobile-specific analytics metadata. 7) Extend existing analytics testing patterns from __tests__/mobile/hooks/useMobileAnalytics.test.tsx with upload workflow integration.",
+            "status": "pending",
+            "testStrategy": "Mobile analytics integration testing with event tracking validation. Custom event monitoring for upload workflows. Cross-component interaction tracking verification. Route change analytics testing. Device detection and metadata validation for mobile analytics."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Security Hardening and Data Protection",
+        "description": "Implement security measures for file upload functionality including validation, sanitization, and data protection mechanisms",
+        "details": "Implement comprehensive security measures for Upload Fit functionality: 1) Add client-side and server-side file type validation with MIME type verification, 2) Implement file size limits and content scanning for malicious uploads, 3) Add image metadata sanitization to remove potentially sensitive EXIF data, 4) Implement Content Security Policy (CSP) headers for upload endpoints, 5) Add rate limiting for upload operations to prevent abuse, 6) Implement secure blob URL handling with proper cleanup to prevent memory leaks, 7) Add input sanitization for all user-provided data, 8) Implement proper error handling that doesn't expose sensitive system information, 9) Add HTTPS enforcement for all upload operations, 10) Implement secure session management for upload state, 11) Add logging and monitoring for security events, 12) Ensure compliance with data privacy regulations (GDPR, CCPA) for image handling, 13) Implement secure temporary file handling with automatic cleanup.",
+        "testStrategy": "Security testing with malicious file uploads and boundary testing. CSP validation and XSS prevention testing. Rate limiting testing with automated tools. Privacy compliance validation. Penetration testing for upload endpoints. Data leak detection in error messages and logs.",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement File Validation and Type Security",
+            "description": "Add comprehensive client-side and server-side file type validation with MIME type verification, file size limits, and malicious content detection for upload functionality",
+            "dependencies": [],
+            "details": "Enhance existing validation in src/utils/imageValidation.ts and src/mobile/components/UploadFit/utils/fileValidation.ts to include: 1) Server-side MIME type verification using magic numbers, not just file extensions, 2) Enhanced file size validation with configurable limits per upload type, 3) Basic malicious content scanning for common attack vectors, 4) File signature validation to prevent file type spoofing, 5) Integration with existing upload hooks in src/hooks/useImageUpload.ts to enforce validation before processing",
+            "status": "pending",
+            "testStrategy": "Unit tests for file validation functions including malicious file detection. Integration tests with various file types including edge cases. Security testing with crafted malicious files to ensure validation blocks them."
+          },
+          {
+            "id": 2,
+            "title": "Implement Image Metadata Sanitization and EXIF Removal",
+            "description": "Add image metadata sanitization to remove potentially sensitive EXIF data, GPS coordinates, and other privacy-compromising information from uploaded images",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Create metadata sanitization utilities: 1) Add EXIF data removal functionality using Canvas API to strip metadata during image processing, 2) Implement in src/mobile/components/UploadFit/utils/imageProcessing.ts to sanitize images before storage, 3) Add privacy-safe image processing that preserves quality while removing metadata, 4) Integrate with existing image processing pipeline in useFitUpload and useAngleUpload hooks, 5) Add user notification about metadata removal for transparency",
+            "status": "pending",
+            "testStrategy": "Unit tests for EXIF removal verification. Integration tests to ensure images are properly sanitized. Privacy compliance testing to validate no sensitive data remains in processed images."
+          },
+          {
+            "id": 3,
+            "title": "Implement Content Security Policy and HTTP Security Headers",
+            "description": "Add Content Security Policy (CSP) headers and other security headers for upload endpoints to prevent XSS and other security vulnerabilities",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Configure security headers in Next.js: 1) Add CSP headers in next.config.js for upload-related pages, 2) Implement strict CSP policies that allow only trusted sources for scripts and styles, 3) Add security headers in src/middleware.ts for upload endpoints (/api/upload*, /m/upload-*), 4) Configure headers for X-Frame-Options, X-Content-Type-Options, and Referrer-Policy, 5) Ensure blob URL handling complies with CSP policies for image previews",
+            "status": "pending",
+            "testStrategy": "Security header validation tests. CSP compliance testing with browser developer tools. XSS prevention testing to ensure policies block malicious scripts."
+          },
+          {
+            "id": 4,
+            "title": "Implement Rate Limiting and Upload Abuse Prevention",
+            "description": "Add rate limiting for upload operations to prevent abuse, including per-user limits and IP-based throttling",
+            "dependencies": [
+              "7.3"
+            ],
+            "details": "Implement rate limiting system: 1) Add server-side rate limiting middleware for upload endpoints using Next.js API routes, 2) Implement per-IP and per-session upload limits with configurable thresholds, 3) Add client-side upload throttling to prevent rapid successive uploads, 4) Create rate limit storage using in-memory cache or Redis for production, 5) Add proper error handling and user feedback for rate limit violations, 6) Integrate with existing upload hooks to respect rate limits",
+            "status": "pending",
+            "testStrategy": "Rate limiting functionality tests with automated request generation. Load testing to verify limits prevent abuse. User experience testing to ensure legitimate users aren't blocked."
+          },
+          {
+            "id": 5,
+            "title": "Implement Secure Session Management and Error Handling",
+            "description": "Add secure session management for upload state, proper error handling that doesn't expose sensitive information, and comprehensive security logging",
+            "dependencies": [
+              "7.2",
+              "7.4"
+            ],
+            "details": "Enhance security infrastructure: 1) Implement secure upload session tokens with expiration for multi-step uploads, 2) Add secure blob URL handling with automatic cleanup in useImageUpload.ts to prevent memory leaks, 3) Implement sanitized error handling that logs security events without exposing system information, 4) Add HTTPS enforcement for all upload operations in middleware, 5) Create security event logging for upload attempts, validation failures, and potential attacks, 6) Ensure GDPR/CCPA compliance for image handling with proper data retention policies",
+            "status": "pending",
+            "testStrategy": "Security session testing with token validation. Error handling tests to ensure no sensitive data exposure. Compliance testing for data privacy regulations. Penetration testing for upload endpoint security."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Documentation and Developer Experience",
+        "description": "Create comprehensive documentation, type definitions, and developer tools for Upload Fit components including API documentation and usage examples",
+        "details": "Develop comprehensive documentation and developer experience tools: 1) Create detailed API documentation for all Upload Fit components using TypeDoc, 2) Write usage examples and integration guides for future developers, 3) Document component architecture and design decisions, 4) Create Storybook stories for all Upload Fit components with interactive controls, 5) Document accessibility features and WCAG compliance measures, 6) Create troubleshooting guides for common issues and error scenarios, 7) Document performance optimization techniques and bundle analysis, 8) Write migration guides from UploadAngle to UploadFit patterns, 9) Create development environment setup instructions, 10) Document testing strategies and test writing guidelines, 11) Create component prop documentation with examples, 12) Add JSDoc comments to all functions and components, 13) Create visual design system documentation for brutalist components, 14) Document security considerations and best practices.",
+        "testStrategy": "Documentation accuracy validation through manual review. Code example testing to ensure all documented patterns work correctly. Storybook functionality testing across different scenarios. Developer onboarding testing with new team members. API documentation completeness validation.",
+        "priority": "low",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create TypeDoc API Documentation for Upload Fit Components",
+            "description": "Set up comprehensive TypeDoc documentation generation for all Upload Fit components including JSDoc comments, proper TypeScript interfaces, and automated HTML documentation with examples and usage patterns.",
+            "dependencies": [],
+            "details": "Extend the existing TypeDoc configuration to include Upload Fit components: 1) Update typedoc.json to include src/mobile/components/UploadFit/** in entry points, 2) Add comprehensive JSDoc comments to all Upload Fit components with @param, @returns, @example tags, 3) Document all TypeScript interfaces and types in UploadFit/types/, 4) Create detailed API documentation for UploadFitContainer, UploadFit, and utility functions, 5) Include usage examples and integration patterns, 6) Generate HTML documentation using existing npm run docs script, 7) Ensure documentation follows existing patterns seen in business-layer components.",
+            "status": "pending",
+            "testStrategy": "Documentation accuracy validation through manual review. Code example testing to ensure all documented patterns work correctly. HTML documentation generation testing. Link validation for internal references. Completeness testing to ensure all public APIs are documented."
+          },
+          {
+            "id": 2,
+            "title": "Create Storybook Stories for Upload Fit Components",
+            "description": "Develop comprehensive Storybook stories for all Upload Fit components with interactive controls, multiple states, and visual documentation to enhance developer experience and component testing.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create Storybook infrastructure for Upload Fit components: 1) Set up Storybook configuration extending existing @storybook/react setup, 2) Create stories for UploadFit.stories.tsx with multiple states (loading, error, success, disabled), 3) Add UploadFitContainer.stories.tsx with different upload scenarios, 4) Create Button/ActionButton.stories.tsx for the new action buttons, 5) Add PhotoFrame.stories.tsx showcasing different image states, 6) Include interactive controls for props manipulation, 7) Add accessibility testing within stories, 8) Create documentation pages explaining component architecture and usage patterns, 9) Include visual regression testing setup for consistent UI validation.",
+            "status": "pending",
+            "testStrategy": "Storybook functionality testing across different scenarios. Interactive controls validation. Visual regression testing for consistent UI. Accessibility testing within stories. Component isolation testing to ensure stories render independently."
+          },
+          {
+            "id": 3,
+            "title": "Write Developer Integration Guides and Usage Examples",
+            "description": "Create comprehensive developer documentation including integration guides, usage examples, migration patterns from UploadAngle to UploadFit, and best practices for implementing Upload Fit components in new projects.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create detailed developer documentation: 1) Write comprehensive integration guide in .taskmaster/docs/upload-fit-integration.md, 2) Create usage examples showing common implementation patterns, 3) Document migration guide from UploadAngle to UploadFit patterns, 4) Create troubleshooting guide for common issues and error scenarios, 5) Document performance optimization techniques and bundle analysis, 6) Write development environment setup instructions, 7) Document testing strategies and test writing guidelines for Upload Fit components, 8) Create component prop documentation with practical examples, 9) Document accessibility features and WCAG compliance measures, 10) Include security considerations and best practices.",
+            "status": "pending",
+            "testStrategy": "Documentation accuracy validation through developer onboarding testing. Integration guide testing with new team members. Code example validation to ensure all patterns work correctly. Migration guide testing from UploadAngle patterns. Troubleshooting guide effectiveness testing."
+          },
+          {
+            "id": 4,
+            "title": "Document Component Architecture and Design Decisions",
+            "description": "Create detailed architectural documentation explaining the Upload Fit component structure, design patterns, state management decisions, and integration with the brutalist design system.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Document the architectural foundations: 1) Create architecture documentation in .taskmaster/docs/upload-fit-architecture.md explaining container-component pattern, 2) Document state management decisions and useFitUpload hook architecture, 3) Explain ErrorBoundary integration and error handling patterns, 4) Document brutalist design system implementation with color schemes (#ff69b4 pink, black borders, blue shadows), 5) Explain mobile-first responsive design decisions, 6) Document TypeScript type system and interface design, 7) Explain testing architecture and test organization patterns, 8) Document performance optimization strategies and lazy loading patterns, 9) Create visual design system documentation for brutalist components, 10) Document accessibility implementation patterns and WCAG compliance approach.",
+            "status": "pending",
+            "testStrategy": "Architecture documentation validation through code review. Design pattern consistency testing across components. Documentation completeness verification. Developer understanding testing through architecture walkthroughs. Design system compliance validation."
+          },
+          {
+            "id": 5,
+            "title": "Add Comprehensive JSDoc Comments and Type Definitions",
+            "description": "Systematically add detailed JSDoc comments to all Upload Fit functions, components, and utilities with proper TypeScript integration, examples, and cross-references to create complete inline documentation.",
+            "dependencies": [],
+            "details": "Enhance all Upload Fit code with comprehensive JSDoc documentation: 1) Add JSDoc comments to all components in src/mobile/components/UploadFit/ with @param, @returns, @example tags, 2) Document all custom hooks (useFitUpload, useNextButtonState, useSlideInAnimation, useNavigateToTryOn) with usage examples, 3) Add comprehensive JSDoc to utility functions in UploadFit/utils/ with parameter descriptions and return value documentation, 4) Document all TypeScript interfaces and types with @interface tags and property descriptions, 5) Add cross-references between related components and utilities, 6) Include practical code examples in @example tags, 7) Document component prop interfaces with clear descriptions, 8) Add JSDoc to error handling and validation functions, 9) Ensure JSDoc follows existing patterns from shared components like Button.tsx, 10) Generate updated TypeDoc documentation including new JSDoc comments.",
+            "status": "pending",
+            "testStrategy": "JSDoc completeness validation through TypeDoc generation. Code example testing to ensure documented patterns work. Type definition accuracy testing. Cross-reference validation. Documentation consistency testing across all Upload Fit components."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "description": "Future tasks (1-9) moved from main tasks.json",
+      "moved_at": "2025-09-20",
+      "reason": "Focus on current Try It On implementation tasks (10+)"
+    }
+  }
+}
