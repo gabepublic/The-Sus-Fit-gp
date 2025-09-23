@@ -8,17 +8,19 @@
 
 import React, { useReducer, useCallback, useMemo, Suspense, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TryItOn } from '../components/TryItOn';
-import { useTryonWorkflow } from '../../../hooks/useTryonWorkflow';
+import TryItOn from '../components/TryItOn';
+import { useTryonWorkflow } from '@/hooks/useTryonWorkflow';
 import type {
   TryItOnContainerProps,
   TryItOnState,
   TryItOnAction,
   TryItOnConfig,
   TryItOnError,
-  DEFAULT_TRYITON_CONFIG,
-  TRYITON_ACTIONS,
   TryItOnMockData
+} from '../types';
+import {
+  DEFAULT_TRYITON_CONFIG,
+  TRYITON_ACTIONS
 } from '../types';
 
 // =============================================================================
@@ -508,7 +510,7 @@ export const TryItOnContainer = React.memo<TryItOnContainerProps>(function TryIt
     <motion.div
       className={`tryiton-container ${className}`}
       data-testid={testId}
-      style={style}
+      style={{ ...style, opacity: 1 }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

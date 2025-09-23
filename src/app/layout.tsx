@@ -30,6 +30,10 @@ const modakFont = Modak({
 export const metadata: Metadata = {
   title: "The Sus Fit",
   description: "we be doin' the most - a Those People production",
+  metadataBase: new URL(process.env.NODE_ENV === 'production'
+    ? 'https://your-production-domain.com'
+    : 'http://localhost:3004'
+  ),
 };
 
 export default function RootLayout({

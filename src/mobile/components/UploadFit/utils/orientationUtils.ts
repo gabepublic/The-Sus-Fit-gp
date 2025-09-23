@@ -15,7 +15,7 @@ import {
   detectImageOrientation,
   isPortraitOrientation,
   meetsPortraitRequirements
-} from '../types';
+} from '../types/index';
 
 /**
  * Calculates aspect ratio from dimensions
@@ -54,8 +54,8 @@ export const aspectRatioToString = (aspectRatio: number): AspectRatio => {
     { ratio: 9/16, string: '9:16' },
     { ratio: 16/9, string: '16:9' },
     { ratio: 1/1, string: '1:1' },
-    { ratio: 2/3, string: '2:3' },
-    { ratio: 3/2, string: '3:2' }
+    { ratio: 2/3, string: '2:3' as AspectRatio },
+    { ratio: 3/2, string: '3:2' as AspectRatio }
   ];
 
   // Find closest match within tolerance

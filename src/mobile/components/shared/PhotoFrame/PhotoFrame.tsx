@@ -262,29 +262,31 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
                   opacity: 0.5,
                   filter: 'grayscale(20%) brightness(0.8)'
                 }}
-                priority={false}
+                priority={true}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 onLoad={() => {}} // Prevent triggering the main image load handler
               />
 
-              {/* Upload icon overlay */}
-              <motion.div
-                className={styles.placeholderArea}
-                data-disabled={disabled}
-                variants={overlayVariants}
-                initial="exit"
-                animate="enter"
-                exit="exit"
-                aria-describedby="upload-instructions"
-                style={{ background: 'transparent' }}
-              >
-                <img
-                  src={config.uploadIcon}
-                  alt="Upload icon"
-                  className={styles.placeholderIcon}
-                  aria-hidden="true"
-                />
-              </motion.div>
+              {/* Upload icon overlay - only show for upload views (angle/fit), not tryon */}
+              {viewType !== 'tryon' && (
+                <motion.div
+                  className={styles.placeholderArea}
+                  data-disabled={disabled}
+                  variants={overlayVariants}
+                  initial="exit"
+                  animate="enter"
+                  exit="exit"
+                  aria-describedby="upload-instructions"
+                  style={{ background: 'transparent' }}
+                >
+                  <img
+                    src={config.uploadIcon}
+                    alt="Upload icon"
+                    className={styles.placeholderIcon}
+                    aria-hidden="true"
+                  />
+                </motion.div>
+              )}
             </>
           )}
         </AnimatePresence>

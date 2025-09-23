@@ -24,7 +24,7 @@ export function MobileUploadFitClient({ searchParams: _searchParams }: MobileUpl
     enableCompression: true,
   }
 
-  const handleUploadSuccess = (imageUrl: string, metadata: { filename: string; size: number; type: string; width: number; height: number }) => {
+  const handleUploadSuccess = (imageUrl: string, metadata?: Record<string, unknown>) => {
     console.log('Upload successful:', { imageUrl, metadata })
     setHasUnsavedChanges(false);
     setUploadInProgress(false);

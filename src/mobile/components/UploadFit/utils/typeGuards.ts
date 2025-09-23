@@ -28,7 +28,7 @@ import {
   isUploadError,
   isSuccessfulUpload,
   isPortraitOrientation
-} from '../types';
+} from '../types/index';
 
 /**
  * Type guard to check if value is a valid File object
@@ -89,7 +89,7 @@ export const isUploadAction = (value: unknown): value is UploadAction => {
         isFile((action.payload as any).file) &&
         typeof (action.payload as any).imageUrl === 'string'
       );
-      
+
     case UPLOAD_ACTIONS.SET_PROGRESS:
       return Boolean(
         action.payload &&
@@ -98,14 +98,14 @@ export const isUploadAction = (value: unknown): value is UploadAction => {
         (action.payload as any).progress >= 0 &&
         (action.payload as any).progress <= 100
       );
-      
+
     case UPLOAD_ACTIONS.SET_SUCCESS:
       return Boolean(
         action.payload &&
         typeof action.payload === 'object' &&
         typeof (action.payload as any).imageUrl === 'string'
       );
-      
+
     case UPLOAD_ACTIONS.SET_ERROR:
       return Boolean(
         action.payload &&
@@ -234,11 +234,11 @@ export const isImageMetadata = (value: unknown): value is ImageMetadata => {
 
 /**
  * Type guard to check if value is a valid UploadResult
- * 
+ *
  * @param value Value to check
  * @returns Whether value is UploadResult
  */
-export const isUploadResult = <T>(value: unknown): value is UploadResult<T> => {
+export const isUploadResult = (value: unknown): value is UploadResult => {
   if (!value || typeof value !== 'object') return false;
   
   const result = value as Record<string, unknown>;

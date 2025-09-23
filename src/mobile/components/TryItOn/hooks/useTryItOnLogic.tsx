@@ -34,13 +34,15 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useTryonWorkflow, type WorkflowState } from '../../../hooks/useTryonWorkflow';
+import { useTryonWorkflow, type WorkflowState } from '@/hooks/useTryonWorkflow';
 import type {
   TryItOnState,
   TryItOnConfig,
   TryItOnError,
   UseTryItOnReturn,
-  TryItOnViewState,
+  TryItOnViewState
+} from '../types';
+import {
   DEFAULT_TRYITON_CONFIG
 } from '../types';
 import {

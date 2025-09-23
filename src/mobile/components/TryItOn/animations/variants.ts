@@ -80,9 +80,8 @@ export interface AnimationConfig {
 /**
  * Custom animation variants with configuration
  */
-export interface CustomVariants extends Variants {
-  /** Additional metadata for configuration */
-  _config?: Partial<AnimationConfig>;
+export interface CustomVariants {
+  [key: string]: any;
 }
 
 // =============================================================================
@@ -165,7 +164,7 @@ export function createOptimizedTransition(
   const transition: Transition = {
     duration: timing.duration / 1000, // Convert to seconds
     delay: (timing.delay || 0) / 1000,
-    ease: timing.ease || DEFAULT_TIMING.ease
+    ease: (timing.ease || DEFAULT_TIMING.ease) as any
   };
 
   if (timing.useSpring && timing.spring) {

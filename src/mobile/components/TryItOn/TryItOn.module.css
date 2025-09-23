@@ -1,0 +1,457 @@
+/**
+ * @fileoverview TryItOn Component Styles - Mobile-optimized styles for Try It On component
+ * @module @/mobile/components/TryItOn/TryItOn.module.css
+ * @version 1.0.0
+ */
+
+/* =============================================================================
+   BASE COMPONENT STYLES
+   ============================================================================= */
+
+.tryiton {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh; /* Use dynamic viewport height for mobile */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+  /* Safe area support for notched devices */
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  gap: 0; /* Remove gap to allow content to center properly */
+  background: #faba01;
+  overflow-x: visible;
+
+  /* Performance optimizations for mobile */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+
+  /* Disable text selection for better mobile UX */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+
+  /* Disable iOS tap highlight */
+  -webkit-tap-highlight-color: transparent;
+
+  /* Force visibility */
+  opacity: 1 !important;
+}
+
+/* =============================================================================
+   STATE VARIANTS
+   ============================================================================= */
+
+.tryiton--initial {
+  /* Initial state specific styles */
+}
+
+.tryiton--processing {
+  /* Processing state specific styles */
+  cursor: wait;
+}
+
+.tryiton--processing .tryiton__content {
+  /* Processing state - no shadow animation */
+}
+
+.tryiton--transformed {
+  /* Transformed state specific styles */
+}
+
+.tryiton--error {
+  /* Error state specific styles */
+}
+
+.tryiton--disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* =============================================================================
+   CONTENT AREA
+   ============================================================================= */
+
+.tryiton__content {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  min-height: 60vh; /* Match UploadFit view height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0; /* Reduced padding to move content up */
+  /* Ensure content is visible */
+  opacity: 1 !important;
+}
+
+.tryiton__photoframe {
+  /* PhotoFrame positioning and sizing - let PhotoFrame component handle styling */
+  width: 70vw; /* Match other views' default width to prevent hydration issues */
+  height: 400px; /* Fixed height for image container */
+  aspect-ratio: 3/4; /* 3:4 ratio for portrait mode */
+  /* Removed overrides to preserve brutalist styling from PhotoFrame component */
+}
+
+.tryiton__transformation {
+  /* ImageTransformation component positioning */
+  width: 100%;
+  height: auto;
+}
+
+/* =============================================================================
+   BUTTON CONTAINER AND POSITIONING
+   ============================================================================= */
+
+.tryiton__actions {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0 1rem 0; /* Reduced top padding to bring content up */
+  z-index: 10;
+  /* Force visibility */
+  opacity: 1 !important;
+}
+
+.tryiton__button_container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Individual button styles */
+.tryiton__tryiton_button,
+.tryiton__share_button {
+  /* Clean button styling - let Button component handle design */
+  min-height: 52px;
+  max-width: 280px;
+
+  /* Enhanced touch targets for mobile */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Performance optimizations */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+
+/* =============================================================================
+   PROGRESS INDICATOR
+   ============================================================================= */
+
+.tryiton__progress {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tryiton__progress_bar {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #000;
+}
+
+.tryiton__progress_fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff69b4, #007acc);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.tryiton__progress_text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* =============================================================================
+   ERROR DISPLAY
+   ============================================================================= */
+
+.tryiton__error {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 1rem;
+  background: #ffe6e6;
+  border: 3px solid #ff4444;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tryiton__error_message {
+  font-size: 0.875rem;
+  color: #cc0000;
+  text-align: center;
+  font-weight: 500;
+}
+
+.tryiton__error_retry,
+.tryiton__error_dismiss {
+  padding: 0.5rem 1rem;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 80px;
+}
+
+.tryiton__error_retry:hover,
+.tryiton__error_dismiss:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+}
+
+.tryiton__error_retry:active,
+.tryiton__error_dismiss:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* =============================================================================
+   MOCK MODE INDICATOR
+   ============================================================================= */
+
+.tryiton__mock_indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: #ffeb3b;
+  color: #000;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* =============================================================================
+   ACCESSIBILITY STYLES
+   ============================================================================= */
+
+.tryiton__sr_only {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Focus management */
+.tryiton:focus-within {
+  outline: none;
+}
+
+.tryiton__button-container:focus-within {
+  outline: 3px solid #007acc;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .tryiton {
+    background: #fff;
+  }
+
+  .tryiton__photoframe {
+    border: 3px solid #000;
+  }
+
+  .tryiton__progress-bar {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tryiton__content,
+  .tryiton__button-container,
+  .tryiton__progress-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.3);
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+
+/* Small mobile devices (320px - 375px) */
+@media (max-width: 375px) {
+  .tryiton {
+    padding: 0.75rem;
+    gap: 1rem;
+    /* Enhanced performance for smaller screens */
+    transform: translateZ(0);
+    will-change: auto;
+  }
+
+  .tryiton__content {
+    /* Optimize for small screens */
+    padding: 0.5rem 0;
+  }
+
+  .tryiton__photoframe {
+    height: 300px;
+  }
+
+  .tryiton__actions {
+    padding: 0.75rem 0;
+  }
+
+  .tryiton__tryiton_button,
+  .tryiton__share_button {
+    min-height: 48px;
+    font-size: 0.875rem;
+    /* Enhanced touch targets for small screens */
+    padding: 0.75rem 1rem;
+  }
+
+  .tryiton__progress {
+    padding: 0.75rem;
+  }
+
+  .tryiton__error {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Medium mobile devices (376px - 414px) */
+@media (min-width: 376px) and (max-width: 414px) {
+  .tryiton {
+    padding: 1rem;
+  }
+
+  .tryiton__tryiton_button,
+  .tryiton__share_button {
+    min-height: 52px;
+  }
+}
+
+/* Large mobile devices (415px - 768px) */
+@media (min-width: 415px) and (max-width: 768px) {
+  .tryiton {
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+
+  .tryiton__content {
+    max-width: 500px;
+  }
+
+  .tryiton__actions {
+    max-width: 500px;
+  }
+
+  .tryiton__photoframe {
+    height: 500px;
+  }
+
+  .tryiton__tryiton_button,
+  .tryiton__share_button {
+    min-height: 56px;
+    max-width: 320px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .tryiton {
+    min-height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .tryiton__content {
+    flex: none;
+    max-height: 60vh;
+  }
+
+  .tryiton__actions {
+    padding: 0.5rem 0;
+  }
+}
+
+/* =============================================================================
+   GESTURE SUPPORT
+   ============================================================================= */
+
+.tryiton--touching {
+  /* Visual feedback during touch */
+  transform: scale(0.998);
+  transition: transform 0.1s ease;
+}
+
+.tryiton--dragging {
+  /* Visual feedback during drag */
+  cursor: grabbing;
+}
+
+/* =============================================================================
+   DARK MODE SUPPORT (if needed)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .tryiton {
+    background: #faba01;
+    color: #000;
+  }
+
+  .tryiton__progress-text {
+    color: #000;
+  }
+
+  .tryiton__error {
+    background: #2d1a1a;
+    color: #ff6b6b;
+  }
+}

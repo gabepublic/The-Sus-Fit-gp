@@ -27,7 +27,7 @@ export {
   convertToBestFormat,
   convertMultipleToModernFormat,
   detectBrowserSupport,
-  isFormatSupported,
+  isFormatSupported as isModernFormatSupported,
   getRecommendedFormat,
   estimateConvertedSize,
   shouldConvert,

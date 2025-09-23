@@ -15,7 +15,6 @@ export type {
   PhotoFrameState,
   AspectRatio,
   PhotoFrameInternalState,
-  PhotoFrameAnimationVariants,
   PhotoFrameErrorDetails,
   ConfigValidationResult,
   SharedPhotoFrameProps,

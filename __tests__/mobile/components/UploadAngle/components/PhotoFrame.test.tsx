@@ -6,7 +6,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PhotoFrame } from '@/mobile/components/shared'
-import { PHOTO_FRAME_STATE } from '../../types/upload.types'
+import { PHOTO_FRAME_STATE } from '@/mobile/components/shared/PhotoFrame/PhotoFrame.types'
 import { runA11yTests } from '@test/upload-test-utils'
 
 // Mock framer-motion to avoid animation complexities in tests

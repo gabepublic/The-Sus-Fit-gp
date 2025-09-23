@@ -273,7 +273,7 @@ export function useViewNavigation(viewType: 'angle' | 'fit' | 'tryon') {
       case 'tryon':
         return {
           current: '/m/tryon',
-          next: '/m/results',
+          next: '/m/share',
           previous: '/m/upload-fit'
         };
       default:

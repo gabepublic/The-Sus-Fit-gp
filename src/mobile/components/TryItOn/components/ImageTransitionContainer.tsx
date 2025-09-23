@@ -629,13 +629,7 @@ ImageTransitionContainer.displayName = 'ImageTransitionContainer';
 
 export default ImageTransitionContainer;
 
-export type {
-  ImageTransitionContainerProps,
-  ImageTransitionConfig,
-  TransitionMode,
-  TransitionDirection,
-  TransitionTiming
-};
+// Types are re-exported from the components index file
 
 export {
   TRANSITION_VARIANTS,

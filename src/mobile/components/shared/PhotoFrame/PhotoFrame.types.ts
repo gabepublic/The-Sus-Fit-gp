@@ -87,6 +87,18 @@ export interface PhotoFrameProps {
   onUpload?: (event: React.TouchEvent | React.MouseEvent | React.KeyboardEvent) => void;
   /** Called when user clicks retry */
   onRetry?: () => void;
+  /** Called on touch start */
+  onTouchStart?: (event: React.TouchEvent) => void;
+  /** Called on touch end */
+  onTouchEnd?: (event: React.TouchEvent) => void;
+
+  // Upload configuration
+  /** Accepted file types for upload */
+  accept?: string;
+  /** Whether to prioritize image loading */
+  priority?: boolean;
+  /** Optional children content */
+  children?: ReactNode;
 
   // Styling
   /** Additional CSS class names */

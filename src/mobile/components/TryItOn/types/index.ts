@@ -27,11 +27,11 @@ export type {
   WorkflowConfig,
   TryonWorkflowState,
   TryonWorkflowActions
-} from '../../../hooks/useTryonWorkflow';
+} from '@/hooks/useTryonWorkflow';
 
 export {
   WorkflowState
-} from '../../../hooks/useTryonWorkflow';
+} from '@/hooks/useTryonWorkflow';
 
 // =============================================================================
 // CORE STATE TYPES
@@ -158,7 +158,7 @@ export interface TryItOnConfig {
 export const DEFAULT_TRYITON_CONFIG: Required<TryItOnConfig> = {
   useMockData: process.env.NODE_ENV === 'development',
   mockDelay: 2000,
-  mockSuccessRate: 0.8,
+  mockSuccessRate: 1.0,
   mockImageUrls: [
     'https://picsum.photos/400/600?random=1',
     'https://picsum.photos/400/600?random=2',

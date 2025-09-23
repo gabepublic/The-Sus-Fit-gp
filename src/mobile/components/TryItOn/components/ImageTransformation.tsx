@@ -32,7 +32,8 @@ import { useImagePreloader } from '../hooks/useImagePreloader';
 import { createAriaLiveRegion, getStateAnnouncement, getProgressAnnouncement } from '../utils/accessibility';
 import { transformComplete, getOptimizedVariants } from '../animations/variants';
 import { PHOTOFRAME_VIEW_CONFIGS } from '../../shared/PhotoFrame/photoframe.config';
-import type { PHOTO_FRAME_STATE } from '../../shared/PhotoFrame/PhotoFrame.types';
+import type { PhotoFrameState } from '../../shared/PhotoFrame/PhotoFrame.types';
+import { PHOTO_FRAME_STATE } from '../../shared/PhotoFrame/PhotoFrame.types';
 
 // =============================================================================
 // TYPES AND INTERFACES
@@ -633,13 +634,13 @@ function ImageTransformation({
     switch (transformationPhase) {
       case 'preparing':
       case 'transforming':
-        return 'UPLOADING';
+        return PHOTO_FRAME_STATE.UPLOADING;
       case 'complete':
-        return 'LOADED';
+        return PHOTO_FRAME_STATE.LOADED;
       case 'error':
-        return 'ERROR';
+        return PHOTO_FRAME_STATE.ERROR;
       default:
-        return 'EMPTY';
+        return PHOTO_FRAME_STATE.EMPTY;
     }
   }, [photoFrameState, transformationPhase]);
 
@@ -655,6 +656,8 @@ function ImageTransformation({
       },
       performance: {
         hardwareAcceleration: true,
+        useWillChange: true,
+        preferTransform3d: true,
         adaptiveComplexity: devicePerformance === 'low',
         targetFPS: PERFORMANCE_THRESHOLDS[devicePerformance === 'low' ? 'lowEnd' :
                    devicePerformance === 'mid' ? 'midRange' : 'highEnd'].targetFPS
@@ -714,7 +717,7 @@ function ImageTransformation({
         ) : (
           <PhotoFrame
             imageUrl={transformationPhase === 'complete' ? generatedImageUrl : null}
-            state={photoFrameStateValue}
+            state={photoFrameStateValue as PhotoFrameState}
             viewType="tryon"
             progress={Math.round(internalProgress * 100)}
             loading={transformationPhase === 'preparing' || transformationPhase === 'transforming'}
@@ -762,12 +765,6 @@ ImageTransformation.displayName = 'ImageTransformation';
 
 export default ImageTransformation;
 
-export type {
-  ImageTransformationProps,
-  ImageTransformationConfig,
-  TransformationPhase,
-  PerformanceMetrics
-};
 
 export {
   detectDevicePerformance,

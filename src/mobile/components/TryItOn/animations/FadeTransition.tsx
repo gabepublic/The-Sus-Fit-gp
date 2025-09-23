@@ -579,11 +579,7 @@ FadeTransition.displayName = 'FadeTransition';
 
 export default FadeTransition;
 
-export type {
-  FadeTransitionProps,
-  FadeTransitionConfig,
-  BrowserCapabilities
-};
+export type { BrowserCapabilities };
 
 export {
   detectBrowserCapabilities,

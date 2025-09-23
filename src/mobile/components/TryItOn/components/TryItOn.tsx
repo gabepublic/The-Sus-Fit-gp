@@ -9,12 +9,15 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhotoFrame, ProgressIndicator, ErrorDisplay } from '../../shared';
-import { ActionButton, Button } from '../../shared/Button';
+import { Button } from '../../shared/Button';
+import styles from '../TryItOn.module.css';
 import type {
   TryItOnProps,
   TryItOnState,
   TryItOnViewState,
-  TryItOnError,
+  TryItOnError
+} from '../types';
+import {
   TRYITON_STATUS_MESSAGES
 } from '../types';
 
@@ -56,36 +59,24 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
   // =============================================================================
 
   /**
-   * Fade-in transformation animation variants
+   * Fade-in transformation animation variants - force opacity to 1 for all states
    */
   const transformationVariants = {
     initial: {
-      opacity: 0,
-      scale: 0.95
+      opacity: 1,
+      scale: 1
     },
     processing: {
       opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: 'easeOut'
-      }
+      scale: 1
     },
     transformed: {
       opacity: 1,
-      scale: 1,
-      transition: {
-        duration: config?.animation?.fadeInDuration ? config.animation.fadeInDuration / 1000 : 1,
-        ease: 'easeInOut'
-      }
+      scale: 1
     },
     error: {
       opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: 'easeOut'
-      }
+      scale: 1
     }
   };
 
@@ -104,7 +95,7 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
       scale: 1,
       transition: {
         duration: 0.4,
-        ease: 'easeOut'
+        ease: [0.4, 0.0, 0.2, 1]
       }
     },
     exit: {
@@ -163,10 +154,9 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
   const buttonVisibility = useMemo(() => {
     return {
       showTryItOn: state.viewState === 'initial' && !state.isProcessing,
-      showShare: state.viewState === 'transformed' && state.generatedImageUrl !== null,
-      showRetry: state.viewState === 'error' && state.error?.retryable
+      showShare: state.viewState === 'transformed' && state.generatedImageUrl !== null
     };
-  }, [state.viewState, state.isProcessing, state.generatedImageUrl, state.error]);
+  }, [state.viewState, state.isProcessing, state.generatedImageUrl]);
 
   /**
    * Status message for current state
@@ -208,15 +198,6 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
     if (disabled) return;
     onShare();
   }, [disabled, onShare]);
-
-  /**
-   * Handle retry button click
-   */
-  const handleRetryClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    if (disabled) return;
-    onRetry();
-  }, [disabled, onRetry]);
 
   /**
    * Handle PhotoFrame image load
@@ -268,11 +249,11 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
    * Container CSS classes
    */
   const containerClasses = useMemo(() => [
-    'tryiton',
-    `tryiton--${state.viewState}`,
-    state.isProcessing ? 'tryiton--processing' : '',
-    state.error ? 'tryiton--error' : '',
-    disabled ? 'tryiton--disabled' : '',
+    styles.tryiton,
+    styles[`tryiton--${state.viewState}`],
+    state.isProcessing ? styles['tryiton--processing'] : '',
+    state.error ? styles['tryiton--error'] : '',
+    disabled ? styles['tryiton--disabled'] : '',
     className
   ].filter(Boolean).join(' '), [state.viewState, state.isProcessing, state.error, disabled, className]);
 
@@ -283,7 +264,7 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
     'aria-label': ariaLabel || 'Try It On interface',
     'aria-describedby': ariaDescribedBy,
     'aria-busy': state.isProcessing,
-    'aria-live': state.isProcessing ? 'polite' : 'off',
+    'aria-live': (state.isProcessing ? 'polite' : 'off') as 'polite' | 'off',
     role: 'region'
   }), [ariaLabel, ariaDescribedBy, state.isProcessing]);
 
@@ -303,145 +284,106 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
       {...ariaAttributes}
     >
       {/* Main PhotoFrame Container */}
-      <div className="tryiton__photo-container">
-        <PhotoFrame
-          imageUrl={state.generatedImageUrl}
-          alt={state.generatedImageUrl ? 'Generated try-on result' : 'Mannequin placeholder'}
-          {...photoFrameConfig}
-          progress={state.progress}
-          error={state.error?.message}
-          loading={state.isProcessing}
-          disabled={disabled}
-          onImageLoad={handleImageLoad}
-          onImageError={handleImageError}
-          testId={`${testId}-photoframe`}
-          className="tryiton__photoframe"
-        />
+      <div className={styles.tryiton__content}>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <PhotoFrame
+            imageUrl={state.generatedImageUrl}
+            alt={state.generatedImageUrl ? 'Generated try-on result' : 'Mannequin placeholder'}
+            {...photoFrameConfig}
+            progress={state.progress}
+            error={state.error?.message}
+            loading={state.isProcessing}
+            disabled={disabled}
+            onImageLoad={handleImageLoad}
+            onImageError={handleImageError}
+            testId={`${testId}-photoframe`}
+            className={styles.tryiton__photoframe}
+          />
 
-        {/* Transformation overlay for animation effects */}
-        {state.viewState === 'processing' && (
-          <motion.div
-            ref={imageTransitionRef}
-            className="tryiton__transformation-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Custom transformation effect will be added here */}
-          </motion.div>
-        )}
-      </div>
-
-      {/* Action Buttons Container */}
-      <div className="tryiton__actions">
-        <AnimatePresence mode="wait">
-          {/* Try It On Button */}
+          {/* Try It On Button - positioned to match Upload Fit button */}
           {buttonVisibility.showTryItOn && (
-            <motion.div
-              key="tryiton-button"
-              variants={buttonVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="tryiton__action-container"
-            >
-              <ActionButton
-                variant="tryon"
+            <div style={{
+              position: 'absolute',
+              bottom: '70px',
+              left: '-25px',
+              zIndex: 20
+            }}>
+              <Button
+                variant="primary"
                 size="large"
                 onClick={handleTryItOnClick}
                 disabled={disabled || state.isProcessing}
-                state={state.isProcessing ? 'processing' : 'visible'}
-                progress={state.progress}
+                loading={state.isProcessing}
                 testId={`${testId}-tryiton-button`}
                 viewType="tryon"
                 ariaLabel="Generate virtual try-on"
-                className="tryiton__tryiton-button"
-                fullWidth
-                config={{
-                  immediateHide: true,
-                  enableHapticFeedback: true
-                }}
-              />
-            </motion.div>
+                className={styles.tryiton__tryiton_button}
+              >
+                {state.isProcessing ? 'Processing...' : 'Try It On'}
+              </Button>
+            </div>
           )}
 
-          {/* Share Button */}
+          {/* Share Button - positioned to match Upload Fit Next button */}
           {buttonVisibility.showShare && (
-            <motion.div
-              key="share-button"
-              variants={buttonVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="tryiton__action-container"
-            >
-              <ActionButton
-                variant="share"
+            <div style={{
+              position: 'absolute',
+              bottom: '70px',
+              right: '-30px',
+              zIndex: 20
+            }}>
+              <Button
+                variant="primary"
                 size="large"
                 onClick={handleShareClick}
                 disabled={disabled}
-                state="visible"
                 testId={`${testId}-share-button`}
                 viewType="tryon"
                 ariaLabel="Share try-on result"
-                className="tryiton__share-button"
-                fullWidth
-                config={{
-                  immediateHide: true,
-                  enableHapticFeedback: true
-                }}
-              />
-            </motion.div>
+                className={styles.tryiton__share_button}
+              >
+                Share
+              </Button>
+            </div>
           )}
 
-          {/* Retry Button */}
-          {buttonVisibility.showRetry && (
+          {/* Transformation overlay for animation effects */}
+          {state.viewState === 'processing' && (
             <motion.div
-              key="retry-button"
-              variants={buttonVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="tryiton__action-container"
+              ref={imageTransitionRef}
+              className={styles.tryiton__transformation}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              <Button
-                variant="secondary"
-                size="medium"
-                onClick={handleRetryClick}
-                disabled={disabled}
-                testId={`${testId}-retry-button`}
-                viewType="tryon"
-                ariaLabel="Retry try-on generation"
-                className="tryiton__retry-button"
-              >
-                Try Again
-              </Button>
+              {/* Custom transformation effect will be added here */}
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
       </div>
+
+      {/* Action Buttons Container - No retry button to prevent expensive AI service spam */}
 
       {/* Progress Indicator */}
       {state.isProcessing && state.progress > 0 && (
-        <div className="tryiton__progress">
+        <div className={styles.tryiton__progress}>
           <ProgressIndicator
             progress={state.progress}
-            message={statusMessage || undefined}
             testId={`${testId}-progress`}
-            className="tryiton__progress-indicator"
+            className={styles.tryiton__progress_indicator}
           />
         </div>
       )}
 
-      {/* Error Display */}
+      {/* Error Display - No retry to prevent expensive AI service spam */}
       {state.error && state.viewState === 'error' && (
-        <div className="tryiton__error">
+        <div className={styles.tryiton__error}>
           <ErrorDisplay
             error={state.error.message}
-            onRetry={state.error.retryable ? handleRetryClick : undefined}
+            onRetry={undefined}
             onDismiss={onClearError}
             testId={`${testId}-error`}
-            className="tryiton__error-display"
+            className={styles.tryiton__error_display}
           />
         </div>
       )}
@@ -449,7 +391,7 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
       {/* Status Message for Screen Readers */}
       {statusMessage && (
         <div
-          className="tryiton__status sr-only"
+          className={`${styles.tryiton__status} ${styles.tryiton__sr_only}`}
           aria-live="polite"
           aria-atomic="true"
         >
@@ -459,7 +401,7 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
 
       {/* Mock Mode Indicator */}
       {state.useMockData && process.env.NODE_ENV === 'development' && (
-        <div className="tryiton__mock-indicator">
+        <div className={styles.tryiton__mock_indicator}>
           Mock Mode
         </div>
       )}
@@ -468,3 +410,5 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
 });
 
 TryItOn.displayName = 'TryItOn';
+
+export default TryItOn;

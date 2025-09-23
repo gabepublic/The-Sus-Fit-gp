@@ -59,7 +59,7 @@ export interface MockConfig {
 export const DEFAULT_MOCK_CONFIG: MockConfig = {
   scenario: 'success',
   processingDelay: 2000,
-  successRate: 0.8,
+  successRate: 1.0,
   imageUrls: [
     'https://picsum.photos/400/600?random=1',
     'https://picsum.photos/400/600?random=2',

@@ -4,8 +4,8 @@
  * @version 1.0.0
  */
 
-// Export types
-export * from './types';
+// Export types from the organized types directory
+export * from './types/index';
 
 // Export utilities
 export * from './utils';

@@ -106,7 +106,7 @@ export const calculateOptimalDimensions = (
 export const compressImage = async (
   file: File,
   options: Partial<UploadConfig> = {}
-): Promise<UploadResult<Blob>> => {
+): Promise<UploadResult> => {
   try {
     const config = { ...DEFAULT_UPLOAD_CONFIG, ...options };
     const img = await loadImageFromFile(file);
@@ -114,8 +114,8 @@ export const compressImage = async (
     const { width, height } = calculateOptimalDimensions(
       img.naturalWidth,
       img.naturalHeight,
-      config.maxWidth,
-      config.maxHeight
+      config.maxWidth || 2048,
+      config.maxHeight || 2048
     );
 
     const { canvas, ctx } = createCanvas(width, height);
@@ -132,15 +132,19 @@ export const compressImage = async (
         (blob) => {
           if (blob) {
             resolve({
-              success: true,
-              data: blob,
-              error: null
+              status: 'complete',
+              file: file,
+              imageUrl: URL.createObjectURL(blob),
+              error: null,
+              progress: 100
             });
           } else {
             resolve({
-              success: false,
-              data: null,
-              error: 'Failed to compress image'
+              status: 'error',
+              file: null,
+              imageUrl: null,
+              error: { code: 'COMPRESSION_FAILED', message: 'Failed to compress image' },
+              progress: 0
             });
           }
         },
@@ -151,9 +155,11 @@ export const compressImage = async (
 
   } catch (error) {
     return {
-      success: false,
-      data: null,
-      error: error instanceof Error ? error.message : 'Image compression failed'
+      status: 'error',
+      file: null,
+      imageUrl: null,
+      error: { code: 'COMPRESSION_ERROR', message: error instanceof Error ? error.message : 'Image compression failed' },
+      progress: 0
     };
   }
 };
@@ -168,7 +174,7 @@ export const compressImage = async (
 export const generateThumbnail = async (
   file: File,
   maxSize: number = 200
-): Promise<UploadResult<string>> => {
+): Promise<UploadResult> => {
   try {
     const img = await loadImageFromFile(file);
     
@@ -210,7 +216,7 @@ export const generateThumbnail = async (
  * @param file Image file
  * @returns Promise resolving to image metadata
  */
-export const extractImageMetadata = async (file: File): Promise<UploadResult<ImageMetadata>> => {
+export const extractImageMetadata = async (file: File): Promise<UploadResult> => {
   try {
     const img = await loadImageFromFile(file);
 
@@ -248,7 +254,7 @@ export const extractImageMetadata = async (file: File): Promise<UploadResult<Ima
 export const processImage = async (
   file: File,
   config: Partial<UploadConfig> = {}
-): Promise<UploadResult<Blob>> => {
+): Promise<UploadResult> => {
   const finalConfig = { ...DEFAULT_UPLOAD_CONFIG, ...config };
 
   // If compression is disabled, return original file as blob
@@ -296,7 +302,7 @@ export const blobToDataUrl = (blob: Blob): Promise<string> => {
 export const createImageObjectUrl = async (
   file: File,
   config: Partial<UploadConfig> = {}
-): Promise<UploadResult<string>> => {
+): Promise<UploadResult> => {
   try {
     const result = await processImage(file, config);
     

@@ -341,16 +341,17 @@ export const ActionButton = React.memo<ActionButtonProps>(function ActionButton(
       }
     },
     processing: {
-      scale: [1, 1.02, 1],
+      scale: 1.02,
       transition: {
         duration: 1.5,
         repeat: Infinity,
+        repeatType: 'reverse' as const,
         ease: 'easeInOut' as const
       }
     },
     success: {
-      scale: [1, 1.1, 1],
-      rotateZ: [0, 5, -5, 0],
+      scale: 1.1,
+      rotateZ: 5,
       transition: {
         duration: 0.6,
         ease: 'easeOut' as const
@@ -431,7 +432,7 @@ export const ActionButton = React.memo<ActionButtonProps>(function ActionButton(
         <motion.div
           key={`action-button-${variant}-${internalState}`}
           className={actionButtonClasses}
-          variants={getCurrentAnimationVariant}
+          variants={getCurrentAnimationVariant as any}
           initial="hidden"
           animate="visible"
           exit="exit"

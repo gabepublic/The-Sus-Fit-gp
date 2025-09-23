@@ -11,7 +11,7 @@ import type {
   ImageOrientation,
   ValidationFunction,
   FileSizeUnit
-} from '../types';
+} from '../types/index';
 
 import {
   DEFAULT_UPLOAD_CONFIG,
@@ -19,7 +19,7 @@ import {
   PORTRAIT_REQUIREMENTS,
   detectImageOrientation,
   meetsPortraitRequirements
-} from '../types';
+} from '../types/index';
 
 /**
  * Validates file size against configuration limits

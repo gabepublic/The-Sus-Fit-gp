@@ -10,13 +10,14 @@ import type {
   UploadConfig,
   UploadError,
   CreateUploadError,
-  ProgressCallback
-} from '../types';
+  ProgressCallback,
+  UploadStatus
+} from '../types/index';
 
 import {
   UPLOAD_STATUS,
   DEFAULT_UPLOAD_CONFIG
-} from '../types';
+} from '../types/index';
 
 /**
  * Creates a standardized upload error
@@ -33,7 +34,7 @@ export const createUploadError: CreateUploadError = (
 ): UploadError => {
   const error = new Error(message) as UploadError;
   error.code = code;
-  error.metadata = metadata;
+  (error as any).metadata = metadata || {};
   return error;
 };
 
@@ -41,7 +42,7 @@ export const createUploadError: CreateUploadError = (
  * Initial upload state for fit uploads
  */
 export const createInitialUploadState = (): UploadState => ({
-  status: UPLOAD_STATUS.IDLE,
+  status: UPLOAD_STATUS.IDLE as UploadStatus,
   file: null,
   imageUrl: null,
   error: null,
@@ -61,7 +62,7 @@ export const simulateUpload = async (
   file: File,
   onProgress?: ProgressCallback,
   config: UploadConfig = DEFAULT_UPLOAD_CONFIG
-): Promise<UploadResult<string>> => {
+): Promise<UploadResult> => {
   try {
     // Simulate upload progress
     const steps = 10;
@@ -105,7 +106,7 @@ export const handleFileUpload = async (
   file: File,
   config: UploadConfig = DEFAULT_UPLOAD_CONFIG,
   onProgress?: ProgressCallback
-): Promise<UploadResult<string>> => {
+): Promise<UploadResult> => {
   try {
     // Basic validation
     if (!file) {
@@ -124,7 +125,7 @@ export const handleFileUpload = async (
       );
     }
 
-    if (file.size > config.maxFileSize) {
+    if (config.maxFileSize && file.size > config.maxFileSize) {
       throw createUploadError(
         `File size (${file.size} bytes) exceeds maximum allowed size (${config.maxFileSize} bytes)`,
         'VALIDATION_ERROR',
@@ -132,7 +133,7 @@ export const handleFileUpload = async (
       );
     }
 
-    if (!config.allowedTypes.includes(file.type)) {
+    if (!config.allowedTypes?.includes(file.type)) {
       throw createUploadError(
         `File type "${file.type}" is not allowed`,
         'VALIDATION_ERROR',
@@ -186,11 +187,11 @@ export const handleFileUpload = async (
  * @param baseDelay Base delay between retries in milliseconds
  * @returns Promise resolving to upload result
  */
-export const retryUpload = async <T>(
-  uploadFunction: () => Promise<UploadResult<T>>,
+export const retryUpload = async (
+  uploadFunction: () => Promise<UploadResult>,
   maxRetries: number = 3,
   baseDelay: number = 1000
-): Promise<UploadResult<T>> => {
+): Promise<UploadResult> => {
   let lastError: string = 'Unknown error';
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
