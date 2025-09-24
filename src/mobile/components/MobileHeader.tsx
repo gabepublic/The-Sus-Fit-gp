@@ -71,7 +71,7 @@ export function MobileHeader({
           ) : (
             <Link
               href='/m/home'
-              className='flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded'
+              className='flex items-center focus:outline-none rounded'
               aria-label='The Sus Fit - Home'
             >
               <h1 className='font-bold leading-tight susfit-logo-font mobile-title'>

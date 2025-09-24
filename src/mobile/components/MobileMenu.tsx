@@ -65,7 +65,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         }}
       >
         <div
-          className="mobile-menu fixed inset-0 z-200 bg-black bg-opacity-50 backdrop-blur-sm"
+          className="mobile-menu fixed inset-0 z-200 backdrop-blur-sm"
+          style={{ backgroundColor: '#d4940b' }}
           role="dialog"
           aria-modal="true"
           aria-label="Navigation menu"
@@ -76,27 +77,29 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             onClick={onClose}
             aria-hidden="true"
           />
-          
+
           {/* Menu Panel */}
           <nav
             id="mobile-menu"
-            className="mobile-menu-panel relative ml-auto h-full w-80 max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
+            className="mobile-menu-panel relative ml-auto h-full w-80 max-w-sm shadow-xl transform transition-transform duration-300 ease-in-out"
+            style={{ backgroundColor: '#faba01' }}
             aria-label="Mobile navigation"
           >
             {/* Close button */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#d4940b' }}>
+              <h2 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Montserrat Alternates, sans-serif' }}>Navigation</h2>
               <button
                 data-autofocus
                 onClick={onClose}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 rounded-md text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                style={{ backgroundColor: 'rgba(212, 148, 11, 0.1)' }}
                 aria-label="Close navigation menu"
               >
                 <span className="sr-only">Close menu</span>
                 <svg
                   className="w-6 h-6"
                   fill="none"
-                  stroke="currentColor"
+                  stroke="#1989a9"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
@@ -119,17 +122,31 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <li key={route.path}>
                       <Link
                         href={route.path}
-                        className={`flex items-center px-4 py-3 text-base font-medium rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isActive
-                            ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700'
-                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
+                        className="flex items-center px-4 py-3 text-base font-semibold rounded-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 text-gray-700 hover:text-gray-900 border-l-4"
+                        style={{
+                          ...(isActive
+                            ? { backgroundColor: '#dcaa30', borderColor: '#8b6508', color: '#1f2937' }
+                            : { borderColor: 'transparent' }
+                          ),
+                          '--tw-ring-color': 'rgb(139, 101, 8)',
+                          '--tw-ring-opacity': '0.4'
+                        } as React.CSSProperties}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.backgroundColor = 'rgba(212, 148, 11, 0.2)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }
+                        }}
                         aria-current={isActive ? 'page' : undefined}
                       >
-                        <span className="mr-3 text-lg" aria-hidden="true">
+                        <span className="mr-3 text-lg" aria-hidden="true" style={{ textShadow: '0px 0px 6px #000000' }}>
                           {route.icon}
                         </span>
-                        <span>{route.label}</span>
+                        <span style={{ fontFamily: 'Montserrat Alternates, sans-serif' }}>{route.label}</span>
                       </Link>
                     </li>
                   )
@@ -138,8 +155,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 p-4">
-              <p className="text-sm text-gray-500 text-center">
+            <div className="border-t p-4" style={{ borderColor: '#d4940b' }}>
+              <p className="text-sm text-gray-700 text-center" style={{ fontFamily: 'Montserrat Alternates, sans-serif' }}>
                 The Sus Fit Mobile
               </p>
             </div>
