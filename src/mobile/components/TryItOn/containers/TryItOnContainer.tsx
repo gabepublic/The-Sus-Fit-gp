@@ -373,7 +373,17 @@ export const TryItOnContainer = React.memo<TryItOnContainerProps>(function TryIt
    * Handle share button click
    */
   const handleShare = useCallback(async () => {
-    if (disabled || !state.canNavigate) return;
+    console.log('🎯 TryItOnContainer: handleShare called', {
+      disabled,
+      canNavigate: state.canNavigate,
+      generatedImageUrl: state.generatedImageUrl,
+      viewState: state.viewState
+    });
+
+    if (disabled || !state.canNavigate) {
+      console.log('❌ TryItOnContainer: Share blocked', { disabled, canNavigate: state.canNavigate });
+      return;
+    }
 
     dispatch({
       type: CONTAINER_ACTIONS.TRACK_INTERACTION,
@@ -386,6 +396,19 @@ export const TryItOnContainer = React.memo<TryItOnContainerProps>(function TryIt
     });
 
     try {
+      // Store generated image in sessionStorage before navigation
+      if (typeof window !== 'undefined' && state.generatedImageUrl) {
+        console.log('🔄 TryItOnContainer: Storing image for sharing:', state.generatedImageUrl);
+        sessionStorage.setItem('generatedImage', JSON.stringify(state.generatedImageUrl));
+        localStorage.setItem('lastGeneratedImage', state.generatedImageUrl);
+        console.log('✅ TryItOnContainer: Image stored in sessionStorage and localStorage');
+      } else {
+        console.warn('❌ TryItOnContainer: No generatedImageUrl or window object available', {
+          hasWindow: typeof window !== 'undefined',
+          generatedImageUrl: state.generatedImageUrl
+        });
+      }
+
       onNavigate?.(config.navigation.shareRoute);
     } catch (error) {
       const navigationError: TryItOnError = {
@@ -402,7 +425,7 @@ export const TryItOnContainer = React.memo<TryItOnContainerProps>(function TryIt
 
       onError?.(navigationError);
     }
-  }, [disabled, state.canNavigate, config.navigation.shareRoute, onNavigate, onError]);
+  }, [disabled, state.canNavigate, state.generatedImageUrl, config.navigation.shareRoute, onNavigate, onError]);
 
   /**
    * Handle retry after error

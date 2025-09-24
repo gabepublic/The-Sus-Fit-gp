@@ -65,12 +65,36 @@ const TRY_IT_ON_CONFIG: PhotoFrameViewConfig = {
 };
 
 /**
+ * Sharing view configuration
+ *
+ * This configuration is specifically for the sharing view where users
+ * display and share their generated try-on results. Unlike upload views,
+ * this is display-only with no upload functionality.
+ */
+const SHARING_CONFIG: PhotoFrameViewConfig = {
+  defaultAspectRatio: '3:4',
+  placeholderImage: '/images/mobile/mannequin.png',
+  uploadIcon: '/images/mobile/UploadIcon.svg', // Required but not displayed
+  ariaLabels: {
+    empty: 'No image to share. Please generate a try-on first.',
+    uploading: 'Loading your image for sharing...',
+    loaded: 'Your try-on result ready to share',
+    error: 'Error loading image for sharing. Please try again.'
+  },
+  styleOverrides: {
+    width: '70vw',
+    height: 'auto' // Let aspect ratio determine height for sharing layout
+  }
+};
+
+/**
  * Configuration mapping for all view types
  */
 export const PHOTOFRAME_VIEW_CONFIGS: Record<PhotoFrameViewType, PhotoFrameViewConfig> = {
   angle: UPLOAD_ANGLE_CONFIG,
   fit: UPLOAD_FIT_CONFIG,
-  tryon: TRY_IT_ON_CONFIG
+  tryon: TRY_IT_ON_CONFIG,
+  sharing: SHARING_CONFIG
 };
 
 /**
@@ -228,5 +252,6 @@ export function getAspectRatioPadding(aspectRatio: string): string {
 export {
   UPLOAD_ANGLE_CONFIG,
   UPLOAD_FIT_CONFIG,
-  TRY_IT_ON_CONFIG
+  TRY_IT_ON_CONFIG,
+  SHARING_CONFIG
 };

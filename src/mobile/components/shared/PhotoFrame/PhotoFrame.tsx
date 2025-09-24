@@ -216,7 +216,7 @@ export const PhotoFrame = React.memo<PhotoFrameProps>(function PhotoFrame({
             }}
             onLoad={handleImageLoad}
             onError={handleImageError}
-            priority={false}
+            priority={viewType === 'sharing' || viewType === 'fit'}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         )}

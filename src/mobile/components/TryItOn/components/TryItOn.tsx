@@ -195,7 +195,9 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
    */
   const handleShareClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    console.log('🔘 TryItOn: Share button clicked', { disabled });
     if (disabled) return;
+    console.log('🔄 TryItOn: Calling onShare callback');
     onShare();
   }, [disabled, onShare]);
 

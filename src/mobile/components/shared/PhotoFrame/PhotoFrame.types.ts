@@ -21,7 +21,7 @@ export type PhotoFrameState = typeof PHOTO_FRAME_STATE[keyof typeof PHOTO_FRAME_
 /**
  * View-specific configurations for PhotoFrame
  */
-export type PhotoFrameViewType = 'angle' | 'fit' | 'tryon';
+export type PhotoFrameViewType = 'angle' | 'fit' | 'tryon' | 'sharing';
 
 /**
  * Aspect ratio configuration
