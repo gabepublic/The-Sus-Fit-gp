@@ -66,13 +66,6 @@ export const UploadAngle = React.memo<UploadAngleProps>(function UploadAngle({
     [uploadHook, initialImageUrl]
   );
 
-  // Debug logging for NextButton visibility
-  console.log('Upload Angle Debug:', {
-    'uploadHook.isSuccess': uploadHook.isSuccess,
-    'uploadState.status': uploadState.status,
-    'uploadState.imageUrl': uploadState.imageUrl,
-    'onNext provided': !!onNext
-  });
 
   // Handle file selection for shared UploadButton
   const handleFileSelect = useCallback(

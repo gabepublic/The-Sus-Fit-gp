@@ -344,7 +344,7 @@ export const TryItOn = React.memo<TryItOnProps>(function TryItOn({
                 ariaLabel="Share try-on result"
                 className={styles.tryiton__share_button}
               >
-                Share
+                Next &gt;
               </Button>
             </div>
           )}

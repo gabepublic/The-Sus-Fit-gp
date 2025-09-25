@@ -47,6 +47,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   const [dragCounter, setDragCounter] = useState(0);
   const [isPressed, setIsPressed] = useState(false);
   const [supportsVibration, setSupportsVibration] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   // Check for vibration support on component mount
   useEffect(() => {
@@ -55,7 +56,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
 
   // Haptic feedback utility function
   const triggerHapticFeedback = useCallback((pattern: HapticPattern = 50) => {
-    if (supportsVibration && !disabled) {
+    if (supportsVibration && !disabled && hasUserInteracted) {
       try {
         navigator.vibrate(pattern);
       } catch (error) {
@@ -63,7 +64,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
         console.debug('Haptic feedback not available:', error);
       }
     }
-  }, [supportsVibration, disabled]);
+  }, [supportsVibration, disabled, hasUserInteracted]);
 
   // Error handling utility
   const handleError = useCallback((error: string | Error, type: ButtonError['type'] = 'unknown') => {
@@ -120,6 +121,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   // Handle button click
   const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled || loading) return;
+    setHasUserInteracted(true);
     triggerHapticFeedback(25); // Light tap
     fileInputRef.current?.click();
   }, [disabled, loading, triggerHapticFeedback]);
@@ -129,6 +131,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
     if (disabled || loading) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      setHasUserInteracted(true);
       triggerHapticFeedback(30); // Keyboard activation
       fileInputRef.current?.click();
     }
@@ -137,6 +140,7 @@ export const UploadButton = React.memo<UploadButtonProps>(function UploadButton(
   // Handle touch events with enhanced feedback
   const handleTouchStart = useCallback((event: React.TouchEvent<HTMLButtonElement>) => {
     if (disabled || loading) return;
+    setHasUserInteracted(true);
     setIsPressed(true);
     triggerHapticFeedback(15); // Light touch feedback
     onTouchStart?.(event);

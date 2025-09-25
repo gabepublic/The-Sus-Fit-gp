@@ -477,15 +477,6 @@ export const UploadAngleContainer = React.memo<UploadAngleProps>(function Upload
   const showNextButton = containerState.currentStep === 'preview' && containerState.canProceed;
   const showProgressIndicator = isUploading || isProcessing || isTransitioning;
 
-  // Debug logging for NextButton visibility
-  console.log('UploadAngleContainer Debug:', {
-    'containerState.status': containerState.status,
-    'containerState.currentStep': containerState.currentStep,
-    'containerState.canProceed': containerState.canProceed,
-    'showNextButton': showNextButton,
-    'STATUS.SUCCESS': STATUS.SUCCESS,
-    'onNext provided': !!onNext
-  });
 
   // Animation variants
   const containerVariants = {
