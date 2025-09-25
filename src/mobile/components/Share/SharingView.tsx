@@ -6,9 +6,9 @@
 
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { PhotoFrame } from '@/mobile/components/shared/PhotoFrame/PhotoFrame';
-import { ShareButton } from './ShareButton';
+import { Button } from '@/mobile/components/shared/Button';
 import type { SharePlatform } from './ShareButton.types';
 
 /**
@@ -66,20 +66,19 @@ export interface SharingViewProps {
  *
  * Features:
  * - Central PhotoFrame display with sharing view configuration
- * - 4 ShareButton components positioned around the frame
+ * - Single Share button positioned at bottom center of frame
  * - Yellow background (#faba01) matching Upload Your Angle view
- * - Responsive CSS Grid layout for proper spacing
+ * - Responsive layout for proper spacing
  * - Brutalist design consistency
  * - Accessibility features and keyboard navigation
  *
  * Layout:
  * ```
  * ┌─────────────────────────┐
- * │ [BlueSky]    [Pinterest]│
  * │                         │
  * │     [PhotoFrame]        │
+ * │         [Share]         │
  * │                         │
- * │[Instagram]     [Device] │
  * └─────────────────────────┘
  * ```
  *
@@ -101,6 +100,47 @@ export const SharingView = React.memo<SharingViewProps>(function SharingView({
   onShareComplete,
   onShareError
 }) {
+  /**
+   * Handle share button click - uses Web Share API
+   */
+  const handleShareClick = useCallback(async () => {
+    if (!imageUrl) {
+      onShareError?.('device', 'No image to share');
+      return;
+    }
+
+    onShareStart?.('device');
+
+    try {
+      // Convert image URL to blob for sharing
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'tryon-result.png', { type: 'image/png' });
+
+      if (navigator.share) {
+        await navigator.share({
+          title: shareData?.title || 'My Virtual Try-On Result',
+          text: shareData?.description || 'Check out my virtual try-on!',
+          files: [file]
+        });
+        onShareComplete?.('device', true);
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.write([
+          new ClipboardItem({ [blob.type]: blob })
+        ]);
+        onShareComplete?.('device', true);
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled sharing - this is normal behavior
+        console.debug('User cancelled sharing');
+      } else {
+        const errorMessage = error instanceof Error ? error.message : 'Share failed';
+        onShareError?.('device', errorMessage);
+      }
+    }
+  }, [imageUrl, shareData, onShareStart, onShareComplete, onShareError]);
   return (
     <div
       className={`sharing-view mobile-upload-fit-page ${className}`}
@@ -133,92 +173,25 @@ export const SharingView = React.memo<SharingViewProps>(function SharingView({
               testId={`${testId}-photo`}
             />
 
-            {/* BlueSky Share Button - Top Left, with adjusted spacing */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '80px',    // Less vertical space (was 60px)
-                left: '40px',   // More horizontal space (was 60px)
-                zIndex: 20,
-                transform: 'scale(1.5)' // 50% bigger
-              }}
-              data-testid={`${testId}-bluesky-button`}
-            >
-              <ShareButton
-                platform="bluesky"
-                imageUrl={imageUrl || undefined}
-                shareData={shareData}
-                onShareStart={onShareStart}
-                onShareComplete={(result) => onShareComplete?.(result.platform, result.success)}
-                onShareError={(platform, errorMsg) => onShareError?.(platform, errorMsg)}
-                testId={`${testId}-share-bluesky`}
-              />
-            </div>
-
-            {/* Pinterest Share Button - Top Right, with adjusted spacing */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '80px',    // Less vertical space (was 60px)
-                right: '40px',  // More horizontal space (was 60px)
-                zIndex: 20,
-                transform: 'scale(1.5)' // 50% bigger
-              }}
-              data-testid={`${testId}-pinterest-button`}
-            >
-              <ShareButton
-                platform="pinterest"
-                imageUrl={imageUrl || undefined}
-                shareData={shareData}
-                onShareStart={onShareStart}
-                onShareComplete={(result) => onShareComplete?.(result.platform, result.success)}
-                onShareError={(platform, errorMsg) => onShareError?.(platform, errorMsg)}
-                testId={`${testId}-share-pinterest`}
-              />
-            </div>
-
-            {/* Instagram Share Button - Bottom Left, with adjusted spacing */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '80px',  // Less vertical space (was 60px)
-                left: '40px',    // More horizontal space (was 60px)
-                zIndex: 20,
-                transform: 'scale(1.5)' // 50% bigger
-              }}
-              data-testid={`${testId}-instagram-button`}
-            >
-              <ShareButton
-                platform="instagram"
-                imageUrl={imageUrl || undefined}
-                shareData={shareData}
-                onShareStart={onShareStart}
-                onShareComplete={(result) => onShareComplete?.(result.platform, result.success)}
-                onShareError={(platform, errorMsg) => onShareError?.(platform, errorMsg)}
-                testId={`${testId}-share-instagram`}
-              />
-            </div>
-
-            {/* Device Share Button - Bottom Right, with adjusted spacing */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '80px',  // Less vertical space (was 60px)
-                right: '40px',   // More horizontal space (was 60px)
-                zIndex: 20,
-                transform: 'scale(1.5)' // 50% bigger
-              }}
-              data-testid={`${testId}-device-button`}
-            >
-              <ShareButton
-                platform="device"
-                imageUrl={imageUrl || undefined}
-                shareData={shareData}
-                onShareStart={onShareStart}
-                onShareComplete={(result) => onShareComplete?.(result.platform, result.success)}
-                onShareError={(platform, errorMsg) => onShareError?.(platform, errorMsg)}
-                testId={`${testId}-share-device`}
-              />
+            {/* Share Button - positioned at bottom center, overlapping frame edge */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-25px', // Overlapping the bottom edge of PhotoFrame
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 20
+            }}>
+              <Button
+                variant="primary"
+                size="large"
+                onClick={handleShareClick}
+                disabled={loading || !imageUrl}
+                testId={`${testId}-share-button`}
+                viewType="fit"
+                ariaLabel="Share your try-on result"
+              >
+                Share
+              </Button>
             </div>
           </div>
         </div>
