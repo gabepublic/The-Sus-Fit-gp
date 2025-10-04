@@ -350,6 +350,10 @@ export default function SusFitPage() {
             //     setIsCapturing(false)
             //     return
             // }
+            setIsCapturing(false)
+            setIsGenerating(false)
+            setGeneratedImage(null)
+
             
             // Handle AbortError (timeout)
             if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('AbortError'))) {
@@ -411,7 +415,7 @@ export default function SusFitPage() {
                                 },
                                 size: 'md',
                                 className: 'hover:shadow-red-500/50',
-                                disabled: isCapturing || !leftCardImageB64 || !rightCardImageB64
+                                disabled: isCapturing || isGenerating || (generatedImage != null) || !leftCardImageB64 || !rightCardImageB64
                             }}
                         />
                     </div>

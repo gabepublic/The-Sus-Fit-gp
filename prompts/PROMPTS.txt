@@ -2,34 +2,62 @@
 
 ## GOOGLE GEMINI
 
+### PROMPT Scoreboard
+
+| Rank | PROMPT VERSION | Date      |
+| ---- | -------------- | --------- |
+| 1    | PROMPT_07      | 10/3/2025 |
+| 2    | PROMPT_05      | 10/3/2025
+
 ### model = gemini-2.5-flash-image-preview
 
-const PROMPT_02 = 'Use the base image (first image) provided as the background. ' +
-'Accurately replace only the garment area with the garment shown in the second image, ' +
-'maintaining correct scale, orientation, and ' +
-'lighting consistency with the original image. ' +
-'Ensure the resulting image keeps all areas of the base image unchanged — including skin tone, ' +
-'background, shadows, and body posture. ' +
-'Do not alter anything outside the garment area. ';
+const PROMPT_02 = `Use the base image (first image) provided as the background. 
+Accurately replace only the garment area with the garment shown in the second image, maintaining correct scale, orientation, and lighting consistency with the original image. 
+Ensure the resulting image keeps all areas of the base image unchanged — including skin tone, background, shadows, and body posture.
+Do not alter anything outside the garment area.`
 
-const PROMPT_03 = 'Use the **base image (first image)** as the person and scene reference. ' +
-'Replace the entire garment in the base image with the **garment from the second image**, ' +
-'fully adopting its **design, shape, silhouette, style, and texture**. ' +
-'Fit the garment naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective.' +
-'Do **not extrapolate or extend** beyond what is shown in the base image and garment image. ' +
-'Match the garment’s visible length to the base image’s crop, or vice versa. ' + 
-'Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. ' +
-'Do not alter or obscure anything outside the garment area. ';
+const PROMPT_03 = `Use the **base image (first image)** as the person and scene reference. Replace the entire garment in the base image with the **garment from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Fit the garment naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not extrapolate or extend** beyond what is shown in the base image and garment image. Match the garment’s visible length to the base image’s crop, or vice versa. Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. Do not alter or obscure anything outside the garment area. `;
 
 # Replace the word "garment" with "outfit" a coordinated set of garments worn together. 
-const PROMPT_04 = 'Use the **base image (first image)** as the person and scene reference. ' +
-'Replace the entire outfit in the base image with the **outfit from the second image**, ' +
+const PROMPT_04 = `Use the **base image (first image)** as the person and scene reference. Replace the entire outfit in the base image with the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Fit the outfit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not extrapolate or extend** beyond what is shown in the base image and outfit image. Match the outfit’s visible length to the base image’s crop, or vice versa. Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. Do not alter or obscure anything outside the outfit area.`;
+
+# Change to: First remove the outfit completely before adding the new outfit
+# Prompt_05 works quite well; Second BEST 10/3/2025
+const PROMPT_05 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image and then render a realistic, high-quality replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not extrapolate or extend** beyond what is shown in the base image and second image. Match the outfit’s visible length to the base image’s crop, or vice versa. Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. Do not alter or obscure anything outside the outfit area.`;
+
+# Revise to: enhance and add outfit definition
+const PROMPT_06 = 'Use the **base image (first image)** as the person and scene reference. ' +
+'Carefully remove the outfit from the person in the base image, and then render a realistic, ' +
+'high-quality replacement using the **outfit from the second image** onto the person in the base image, ' +
 'fully adopting its **design, shape, silhouette, style, and texture**. ' +
-'Fit the outfit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective.' +
-'Do **not extrapolate or extend** beyond what is shown in the base image and outfit image. ' +
+'Make sure the outfit fits naturally to the person’s body posture, realistic draping, ' +
+'maintaining correct scale, orientation, lighting, and perspective. ' +
+'Do **not extrapolate or extend** beyond what is shown in the base image and second image. ' +
 'Match the outfit’s visible length to the base image’s crop, or vice versa. ' + 
 'Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. ' +
-'Do not alter or obscure anything outside the outfit area. ';
+'Do not alter or obscure anything outside the outfit area. ' +
+' ' +
+'The **outfit** refers to all visible clothing, garments, and accessories worn by the person. ' +
+'This includes: ' +
+'- Upper Garments: Any shirts, blouses, jackets, coats, sweaters, or tops. ' +
+'- Lower Garments: Any pants, trousers, skirts, shorts, or dresses. ' +
+'- Footwear: All shoes, boots, or sandals. ' +
+'- Accessories: Any hats, scarves, jewelry (necklaces, earrings, bracelets, rings), belts, gloves, handbags, or glasses.';
+
+# Revise to: BRIEF; re-arrange outfit and overall prompt
+const PROMPT_07 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image, and then render a realistic, high quality outfit replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not invent or extrapolate** beyond what is shown in the base image. Keep all other elements of the base image intact, including the person’s pose, skin, hair, environment, and shadows. Do not modify anything outside the outfit area.
+
+**Outfit definition:** All visible clothing and accessories (upper and lower garments, footwear, and accessories such as hats, jewelry, belts, handbags, and glasses).`;
+
+- Verbose version; haven't been tested!!
+const PROMPT_07 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image, and then render a realistic, high quality outfit replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not invent or extrapolate** beyond what is shown in the base image. Keep all other elements of the base image intact, including the person’s pose, skin, hair, environment, and shadows. Do not modify anything outside the outfit area.
+
+**Outfit definition:**
+- **Upper garments:** shirts, blouses, jackets, coats, sweaters, tops
+- **Lower garments:** pants, trousers, skirts, shorts, dresses
+- **Footwear:** shoes, boots, sandals
+- **Accessories:** hats, scarves, jewelry (necklaces, earrings, bracelets, rings), belts, gloves, handbags, glasses';
+
 
 
 ## OPENAI
