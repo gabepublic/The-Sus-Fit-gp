@@ -33,11 +33,11 @@ export const generateTryOn = async ({ modelImage, apparelImages }: TryOnParams):
 
         //const PROMPT_05 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image and then render a realistic, high-quality replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not extrapolate or extend** beyond what is shown in the base image and second image. Match the outfit’s visible length to the base image’s crop, or vice versa. Preserve all other elements of the base image exactly — including the person’s skin, hair, environment, shadows, and pose. Do not alter or obscure anything outside the outfit area.`;
 
-        const PROMPT_07 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image, and then render a realistic, high quality outfit replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not invent or extrapolate** beyond what is shown in the base image. Keep all other elements of the base image intact, including the person’s pose, skin, hair, environment, and shadows. Do not modify anything outside the outfit area.
+        const PROMPT_07 = `Use the **base image (first image)** as the person and scene reference. Completely remove the outfit in the base image, and then render a realistic, high quality outfit replacement using the **outfit from the second image**, fully adopting its **design, shape, silhouette, style, and texture**. Make sure the outfit fit naturally to the person’s body posture, maintaining correct scale, orientation, lighting, and perspective. Do **not invent or extrapolate** beyond what is shown in the base and second images. Keep all other elements of the base image exactly, including the person’s pose, skin, hair, environment, and shadows. Do not modify or obscure anything outside the outfit area.
 
 **Outfit definition:** All visible clothing and accessories (upper and lower garments, footwear, and accessories such as hats, jewelry, belts, handbags, and glasses).`;
 
-        console.log('PROMPT:\n', PROMPT_07);
+        //console.log('PROMPT:\n', PROMPT_07);
         // Create content array for Google Gemini API
         const contents = [
             {

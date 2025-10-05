@@ -41,6 +41,7 @@ export function HeroImageWithButton({
         lg: 'w-10 h-10'
     }
 
+    // NEED to Refactor this!!
     const calculateButtonPositionAndSize = useCallback(() => {
         if (!overlayButton) return
 
@@ -50,21 +51,32 @@ export function HeroImageWithButton({
         if (containerRef.current && imageRef.current) {
             const image = imageRef.current
             const renderedImageHeight = image.clientHeight
+            const renderedImageWidth = image.clientWidth
 
+            console.log('renderedImageWidth : renderedImageHeight', renderedImageWidth, ':', renderedImageHeight)
             if (renderedImageHeight > 0) {
                 let positionAdjustment = 0
                 let scale = 1
 
-                if (renderedImageHeight < 500) {
+                if (renderedImageHeight < 401) {    // // 0-399px
+                    console.log('renderedImageHeight < 401')
+                    positionAdjustment = -3.0   // Move button RIGHT
+                    scale = 0.6               // Scale button DOWN
+                } else if (renderedImageHeight < 512) {     //400-511pxpx 
                     // Small camera image (laptop - 471px)
-                    positionAdjustment = 3.4   // Move button RIGHT
-                    scale = 0.67               // Scale button DOWN
-                } else if (renderedImageHeight < 600) {
+                    //positionAdjustment = 3.4   // Move button RIGHT
+                    //scale = 0.67
+                    console.log('renderedImageHeight < 512')
+                    positionAdjustment = -3.0   // Move button RIGHT
+                    scale = 0.6               // Scale button DOWN
+                } else if (renderedImageHeight < 600) {    // 512-600px`
                     // Medium camera image (desktop - between 500-600px)
-                    positionAdjustment = 1.0  // Move button LEFT (negative)
-                    scale = 0.8                // Scale down slightly
-                } else {
+                    console.log('renderedImageHeight < 600')
+                    positionAdjustment = 0  // Move button LEFT (negative)
+                    scale = 1.0                // Scale down slightly
+                } else {  // 600px+
                     // Large camera image (27" monitor - 634px+)
+                    console.log('renderedImageHeight > 600')
                     positionAdjustment = 0     // Keep current position (perfect)
                     scale = 1.0                // Keep full scale
                 }
@@ -90,6 +102,7 @@ export function HeroImageWithButton({
         // Fallback: screen width
         if (typeof window !== 'undefined') {
             const screenWidth = window.innerWidth
+            console.log('screenWidth', screenWidth)
             let positionAdjustment = 0
             let scale = 1
 

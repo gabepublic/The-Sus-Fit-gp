@@ -382,13 +382,13 @@ export default function SusFitPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[var(--color-susfit-yellow-500)]">
+        <div className="min-h-screen bg-[var(--color-susfit-yellow-500)] overflow-x-hidden">
             {/* Header */}
-            <header className="px-8 py-6">
+            <header className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="title">The Sus Fit</h1>
-                    <p className="text-lg text-[#000000] mb-4">we be doin&apos; the most</p>
-                    <p className="text-sm text-[#000000]">
+                    <p className="text-sm sm:text-base lg:text-lg text-[#000000] mb-2 sm:mb-4">we be doin&apos; the most</p>
+                    <p className="text-xs sm:text-sm text-[#000000]">
                         a <b>Those People production</b>
                     </p>
                 </div>
@@ -398,33 +398,64 @@ export default function SusFitPage() {
             <SaucyTicker />
 
             {/* Main Content */}
-            <main className="max-w-8xl mx-auto px-8 py-12 relative min-h-[140vh]">
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative min-h-[120vh] sm:min-h-[140vh]">
                 <div className="flex flex-col justify-center items-center relative space-y-8 lg:space-y-0">
 
-                    {/* Hero Image as background */}
-                    <div id="hero-image-container" className="absolute top-[-1rem] left-0 right-0 flex justify-center items-center overflow-hidden z-100">
-                        <HeroImageWithButton
-                            src="/images/PolaroidCamera.png"
-                            alt="Hero Image"
-                            className="w-[210%] max-w-none object-contain transform-gpu scale-150 pl-4"
-                            overlayButton={{
-                                onClick: handleCameraButtonClick,
-                                position: {
-                                    leftPercent: '41.65%',
-                                    topPercent: '52%'
-                                },
-                                size: 'md',
-                                className: 'hover:shadow-red-500/50',
-                                disabled: isCapturing || isGenerating || (generatedImage != null) || !leftCardImageB64 || !rightCardImageB64
-                            }}
-                        />
+                    <div id="content-container" className="flex flex-col relative z-10 w-full max-w-6xl mx-auto gap-1 lg:gap-0">
+
+                        {/* SIDE CARDS CONTAINER */}
+                        <div className="order-1 lg:order-1 flex flex-col lg:flex-row w-full justify-center lg:justify-between items-center relative space-y-8 lg:space-y-0 lg:space-x-8 mt-[2vh] sm:mt-[2vh] pt-8 sm:pt-16 lg:pt-96 px-4 sm:px-0">
+                            {/* Left Photo Frame */}
+                            <div className="relative lg:-rotate-16 flex-shrink-0" ref={leftCardRef} tabIndex={-1}>
+                                 <BrutalismCard
+                                    className="w-64 sm:w-72 lg:w-80 h-96 sm:h-108 lg:h-120 p-3 sm:p-4 relative"
+                                    title="Upload Your Angle"
+                                    onImageUpload={handleLeftCardImageUpload}
+                                    onFileUpload={handleUserFileUpload}
+                                 />
+                            </div>
+
+                            {/* Right Upload Frame */}
+                             <div className="relative lg:rotate-16 flex-shrink-0" ref={rightCardRef} tabIndex={-1}>
+                                 <BrutalismCard
+                                    className="w-64 sm:w-72 lg:w-80 h-96 sm:h-108 lg:h-120 p-3 sm:p-4 relative"
+                                    buttonPosition="right"
+                                    backgroundImage="/images/ScoredGarment.jpg"
+                                    title="Select your Fit"
+                                    shadowRotation="rotate-0"
+                                    onImageUpload={handleRightCardImageUpload}
+                                    onFileUpload={handleApparelFileUpload}
+                                 />
+                             </div>
+                        </div>
+
+                        {/* Hero Image - positioned below side cards on small screens, above on large screens */}
+                        <div id="hero-image-container" className="order-2 lg:order-2 lg:absolute lg:top-[-1rem] lg:left-0 lg:right-0 lg:flex lg:justify-center lg:items-center lg:overflow-hidden lg:z-100 mt-1 lg:mt-0 w-full flex-shrink-0">
+                            <div className="w-full max-w-4xl mx-auto overflow-hidden">
+                                <HeroImageWithButton
+                                    src="/images/PolaroidCamera.png"
+                                    alt="Hero Image"
+                                    className="w-full max-w-none object-contain transform-gpu scale-100 sm:scale-110 lg:scale-125"
+                                    overlayButton={{
+                                        onClick: handleCameraButtonClick,
+                                        position: {
+                                            leftPercent: '41.65%',
+                                            topPercent: '52%'
+                                        },
+                                        size: 'sm',
+                                        className: 'hover:shadow-red-500/50',
+                                        disabled: isCapturing || isGenerating || (generatedImage != null) || !leftCardImageB64 || !rightCardImageB64
+                                    }}
+                                />
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div id="content-container" className="flex flex-col relative z-10 w-[100%] h-[75%] max-w-6xl">
-
-                        {/* POLAROID PHOTO GENERATOR - POSITIONED ABOVE SIDE CARDS */}
-                        {showPolaroid && (
-                            <div className="absolute left-1/2 top-[75%] transform -translate-x-1/2 z-50">
+                    {/* POLAROID PHOTO GENERATOR - POSITIONED OUTSIDE CONTENT CONTAINER */}
+                    {showPolaroid && (
+                        <div className="flex justify-center items-center w-full px-4 sm:px-0 mt-8 lg:absolute lg:top-[70vh] lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:z-[60] lg:mt-0">
+                            <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg">
                                 <PolaroidPhotoGenerator
                                     isGenerating={isGenerating}
                                     onGenerationStart={handleGenerationStart}
@@ -437,76 +468,56 @@ export default function SusFitPage() {
                                     hasError={hasError}
                                 />
                             </div>
-                        )}
-
-                        {/* SIDE CARDS CONTAINER */}
-                        <div className="flex w-[100%] justify-between items-center relative space-y-0 mt-[25vh] pt-16">
-                            {/* Left Photo Frame */}
-                            <div className="relative -rotate-2 lg:-rotate-16" ref={leftCardRef} tabIndex={-1}>
-                                 <BrutalismCard
-                                    className="w-80 h-120 p-4 relative"
-                                    title="Upload Your Angle"
-                                    onImageUpload={handleLeftCardImageUpload}
-                                    onFileUpload={handleUserFileUpload}
-                                 />
-                            </div>
-
-                            {/* Right Upload Frame */}
-                             <div className="relative rotate-2 lg:rotate-16" ref={rightCardRef} tabIndex={-1}>
-                                 <BrutalismCard
-                                    className="w-80 h-120 p-4 relative"
-                                    buttonPosition="right"
-                                    backgroundImage="/images/ScoredGarment.jpg"
-                                    title="Select your Fit"
-                                    shadowRotation="rotate-0"
-                                    onImageUpload={handleRightCardImageUpload}
-                                    onFileUpload={handleApparelFileUpload}
-                                 />
-                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </main>
 
             {/* Social Media Footer */}
-            <footer className="flex justify-center py-8 mt-20">
-                <div className="flex space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-6 py-3">
+            <footer className="flex justify-center py-6 sm:py-8 mt-16 sm:mt-20 px-4">
+                <div className="flex space-x-3 sm:space-x-4 bg-[#f9f8f8] border-1 border-[#000000] rounded-full px-4 sm:px-6 py-2 sm:py-3">
                     <a
                         href="#"
-                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                        className="w-10 h-10 sm:w-12 sm:h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
                     >
-                        <span className="text-white font-bold text-lg">t</span>
+                        <span className="text-white font-bold text-base sm:text-lg">t</span>
                     </a>
                     <a
                         href="#"
-                        className="w-12 h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                        className="w-10 h-10 sm:w-12 sm:h-12 bg-[#f9f8f8] border-1 border-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
                     >
-                        <div className="w-6 h-6 border-1 border-[#000000] rounded-full"></div>
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-1 border-[#000000] rounded-full"></div>
                     </a>
                     <a
                         href="#"
-                        className="w-12 h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
+                        className="w-10 h-10 sm:w-12 sm:h-12 bg-[#000000] rounded-lg flex items-center justify-center hover:scale-110 transition-transform"
                     >
-                        <span className="text-white font-bold text-lg">P</span>
+                        <span className="text-white font-bold text-base sm:text-lg">P</span>
                     </a>
                 </div>
             </footer>
 
-                         {/* Bottom Copyright */}
-             <div className="text-center pb-8">
-                 <p className="text-sm text-[#000000]">THE PRODUCT GROUP</p>
-             </div>
+            {/* Bottom Copyright */}
+            <div className="text-center pb-6 sm:pb-8 px-4">
+                <p className="text-xs sm:text-sm text-[#000000]">THE PRODUCT GROUP</p>
+            </div>
 
-                         {/* DEBUG INFO */}
-              {process.env.NODE_ENV === 'development' && (
-                                     <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded text-xs font-mono z-[9999]">
-                       <div>Left Image: {leftCardImage ? '✅' : '❌'}</div>
-                       <div>Right Image: {rightCardImage ? '✅' : '❌'}</div>
-                       <div>Show Polaroid: {showPolaroid ? '✅' : '❌'}</div>
-                       <div>Capturing: {isCapturing ? '✅' : '❌'}</div>
-                       <div>Generated Image: {generatedImage ? '✅' : '❌'}</div>
-                   </div>
-              )} 
+            {/* DEBUG INFO */}
+            {process.env.NODE_ENV === 'development' && (
+                <div className="fixed bottom-2 right-2 sm:bottom-4 sm:right-4 bg-black/80 text-white p-2 sm:p-3 rounded text-xs font-mono z-[9999] max-w-[calc(100vw-2rem)] sm:max-w-xs overflow-hidden">
+                    <div className="hidden sm:block">Left Image: {leftCardImage ? '✅' : '❌'}</div>
+                    <div className="hidden sm:block">Right Image: {rightCardImage ? '✅' : '❌'}</div>
+                    <div className="hidden sm:block">Show Polaroid: {showPolaroid ? '✅' : '❌'}</div>
+                    <div className="hidden sm:block">Capturing: {isCapturing ? '✅' : '❌'}</div>
+                    <div className="hidden sm:block">Generated Image: {generatedImage ? '✅' : '❌'}</div>
+                    {/* Mobile compact view */}
+                    <div className="sm:hidden text-xs">
+                        <div>L:{leftCardImage ? '✅' : '❌'} R:{rightCardImage ? '✅' : '❌'}</div>
+                        <div>P:{showPolaroid ? '✅' : '❌'} C:{isCapturing ? '✅' : '❌'}</div>
+                        <div>G:{generatedImage ? '✅' : '❌'}</div>
+                    </div>
+                </div>
+            )} 
         </div>
     )
 }

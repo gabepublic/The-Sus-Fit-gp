@@ -3,12 +3,13 @@
  * 
  * @example
  * ```typescript
- * import { fileToBase64, compressBase64, isImageFile } from './utils/image';
+ * import { fileToBase64, compressBase64, isImageFile, fixImageOrientation } from './utils/image';
  * 
- * // Convert file to base64
+ * // Convert file to base64 with orientation fix
  * try {
  *   const base64 = await fileToBase64(imageFile);
- *   const compressed = await compressBase64(base64, 512); // 512KB limit
+ *   const correctedBase64 = await fixImageOrientation(base64);
+ *   const compressed = await compressBase64(correctedBase64, 512); // 512KB limit
  * } catch (error) {
  *   if (error instanceof FileTypeNotSupportedError) {
  *     console.log('Please select an image file');
@@ -303,6 +304,483 @@ export async function base64ToDataUrl (base64String: string, mimeType: string = 
   
   // Convert base64 string to data URL format
   return Promise.resolve(`data:${mimeType};base64,${base64String}`)
+}
+
+/**
+ * Fixes image orientation based on EXIF data, particularly for iPhone Safari camera photos
+ * 
+ * @param imageBase64 - The base64 image string (data URL format)
+ * @returns Promise that resolves to the corrected base64 image string
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   const originalImage = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...";
+ *   const correctedImage = await fixImageOrientation(originalImage);
+ *   // correctedImage will have proper orientation applied
+ * } catch (error) {
+ *   console.log('Failed to fix image orientation:', error.message);
+ * }
+ * ```
+ */
+export async function fixImageOrientation(imageBase64: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = async () => {
+      try {
+        // Get EXIF orientation from the image data
+        const orientation = await getExifOrientation(imageBase64);
+        
+        console.log('Detected EXIF orientation:', orientation);
+        
+        // If orientation is 1 (normal), return original
+        if (orientation === 1) {
+          resolve(imageBase64);
+          return;
+        }
+        
+        // Create canvas and context
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new CompressionFailedError('Failed to get canvas context'));
+          return;
+        }
+        
+        // Calculate canvas dimensions based on orientation
+        const { width, height } = calculateCanvasDimensions(img, orientation);
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Apply transformation based on EXIF orientation
+        applyOrientationTransform(ctx, img, orientation, width, height);
+        
+        // Convert back to base64
+        const correctedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+        resolve(correctedBase64);
+        
+      } catch (error) {
+        // If orientation detection fails, return original image
+        console.warn('Failed to fix image orientation, using original:', error);
+        resolve(imageBase64);
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new CompressionFailedError('Failed to load image for orientation fix'));
+    };
+    
+    img.src = imageBase64;
+  });
+}
+
+/**
+ * Gets EXIF orientation from image data by reading the actual EXIF data
+ * This properly reads the orientation tag from the JPEG EXIF data
+ */
+async function getExifOrientation(imageBase64: string): Promise<number> {
+  try {
+    // Extract base64 data without data URL prefix
+    const base64Data = imageBase64.split(',')[1];
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Look for EXIF data in JPEG
+    if (bytes[0] !== 0xFF || bytes[1] !== 0xD8) {
+      return 1; // Not a JPEG, assume normal orientation
+    }
+    
+    // Search for EXIF marker (0xFFE1)
+    let offset = 2;
+    while (offset < bytes.length - 1) {
+      if (bytes[offset] === 0xFF && bytes[offset + 1] === 0xE1) {
+        // Found EXIF marker
+        const exifLength = (bytes[offset + 2] << 8) | bytes[offset + 3];
+        const exifData = bytes.slice(offset + 4, offset + 4 + exifLength);
+        
+        // Check for EXIF header "Exif\0\0"
+        if (exifData.length >= 6 && 
+            exifData[0] === 0x45 && exifData[1] === 0x78 && exifData[2] === 0x69 && exifData[3] === 0x66) {
+          
+          // Find orientation tag (0x0112) in IFD0
+          const orientation = findOrientationTag(exifData);
+          return orientation || 1;
+        }
+        break;
+      }
+      offset++;
+    }
+    
+    return 1; // No EXIF data found, assume normal orientation
+  } catch (error) {
+    console.warn('Failed to read EXIF orientation:', error);
+    return 1; // Default to normal orientation on error
+  }
+}
+
+/**
+ * Finds the orientation tag in EXIF data
+ */
+function findOrientationTag(exifData: Uint8Array): number | null {
+  try {
+    // Skip EXIF header and get to TIFF header
+    let offset = 6; // Skip "Exif\0\0"
+    
+    // Check TIFF header byte order
+    const isLittleEndian = exifData[offset] === 0x49 && exifData[offset + 1] === 0x49;
+    offset += 2;
+    
+    // Skip TIFF magic number
+    offset += 2;
+    
+    // Get offset to first IFD
+    const ifdOffset = isLittleEndian 
+      ? exifData[offset] | (exifData[offset + 1] << 8) | (exifData[offset + 2] << 16) | (exifData[offset + 3] << 24)
+      : (exifData[offset] << 24) | (exifData[offset + 1] << 16) | (exifData[offset + 2] << 8) | exifData[offset + 3];
+    
+    offset = 6 + ifdOffset; // Absolute offset in exifData
+    
+    // Get number of directory entries
+    const numEntries = isLittleEndian 
+      ? exifData[offset] | (exifData[offset + 1] << 8)
+      : (exifData[offset] << 8) | exifData[offset + 1];
+    
+    offset += 2;
+    
+    // Search through directory entries for orientation tag (0x0112)
+    for (let i = 0; i < numEntries; i++) {
+      const tag = isLittleEndian 
+        ? exifData[offset] | (exifData[offset + 1] << 8)
+        : (exifData[offset] << 8) | exifData[offset + 1];
+      
+      if (tag === 0x0112) { // Orientation tag
+        // Get the value (should be in the value field for SHORT type)
+        const value = isLittleEndian 
+          ? exifData[offset + 8] | (exifData[offset + 9] << 8)
+          : (exifData[offset + 8] << 8) | exifData[offset + 9];
+        
+        return value;
+      }
+      
+      offset += 12; // Each directory entry is 12 bytes
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Error parsing EXIF orientation tag:', error);
+    return null;
+  }
+}
+
+/**
+ * Calculates canvas dimensions based on orientation
+ */
+function calculateCanvasDimensions(img: HTMLImageElement, orientation: number): { width: number; height: number } {
+  // Orientations 5, 6, 7, 8 require swapping dimensions
+  const needsSwap = [5, 6, 7, 8].includes(orientation);
+  
+  return needsSwap 
+    ? { width: img.height, height: img.width }
+    : { width: img.width, height: img.height };
+}
+
+/**
+ * Applies the appropriate transformation to the canvas context
+ */
+function applyOrientationTransform(
+  ctx: CanvasRenderingContext2D, 
+  img: HTMLImageElement, 
+  orientation: number, 
+  canvasWidth: number, 
+  canvasHeight: number
+): void {
+  switch (orientation) {
+    case 2:
+      // Horizontal flip
+      ctx.transform(-1, 0, 0, 1, canvasWidth, 0);
+      break;
+    case 3:
+      // 180° rotation
+      ctx.transform(-1, 0, 0, -1, canvasWidth, canvasHeight);
+      break;
+    case 4:
+      // Vertical flip
+      ctx.transform(1, 0, 0, -1, 0, canvasHeight);
+      break;
+    case 5:
+      // Vertical flip + 90° CCW
+      ctx.transform(0, 1, 1, 0, 0, 0);
+      break;
+    case 6:
+      // 90° CW (most common iPhone portrait issue)
+      ctx.transform(0, 1, -1, 0, canvasWidth, 0);
+      break;
+    case 7:
+      // Horizontal flip + 90° CCW
+      ctx.transform(0, -1, -1, 0, canvasWidth, canvasHeight);
+      break;
+    case 8:
+      // 90° CCW
+      ctx.transform(0, -1, 1, 0, 0, canvasHeight);
+      break;
+    default:
+      // No transformation needed
+      break;
+  }
+  
+  // Draw the image
+  ctx.drawImage(img, 0, 0);
+}
+
+/**
+ * Alternative conservative approach to fix iPhone Safari camera rotation
+ * Only applies rotation for specific cases where we're confident about the issue
+ * 
+ * @param imageBase64 - The base64 image string (data URL format)
+ * @returns Promise that resolves to the corrected base64 image string
+ */
+export async function fixImageOrientationConservative(imageBase64: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = async () => {
+      try {
+        // Get EXIF orientation from the image data
+        const orientation = await getExifOrientation(imageBase64);
+        
+        console.log('Conservative approach - Detected EXIF orientation:', orientation);
+        
+        console.log('Original image dimensions:', img.width, 'x', img.height);
+        
+        // Only apply correction for orientation 6 (90° CW - common iPhone front camera issue)
+        // and orientation 8 (90° CCW - less common but possible)
+        if (orientation === 6 || orientation === 8) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new CompressionFailedError('Failed to get canvas context'));
+            return;
+          }
+          
+          console.log('Applying correction for orientation:', orientation);
+          
+          // For orientation 6: rotate 90° counter-clockwise to correct
+          // For orientation 8: rotate 90° clockwise to correct
+          if (orientation === 6) {
+            // Orientation 6 means the image needs to be rotated 90° counter-clockwise
+            canvas.width = img.height;  // Swap dimensions
+            canvas.height = img.width;
+            
+            console.log('Canvas dimensions after orientation 6 correction:', canvas.width, 'x', canvas.height);
+            
+            // Reset transform and apply rotation
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+          } else if (orientation === 8) {
+            // Orientation 8 means the image needs to be rotated 90° clockwise
+            canvas.width = img.height;  // Swap dimensions
+            canvas.height = img.width;
+            
+            console.log('Canvas dimensions after orientation 8 correction:', canvas.width, 'x', canvas.height);
+            
+            // Reset transform and apply rotation
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+          }
+          
+          const correctedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+          resolve(correctedBase64);
+        } else {
+          console.log('No correction needed for orientation:', orientation);
+          // For all other orientations, return original
+          resolve(imageBase64);
+        }
+        
+      } catch (error) {
+        console.warn('Conservative orientation fix failed, using original:', error);
+        resolve(imageBase64);
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new CompressionFailedError('Failed to load image for orientation fix'));
+    };
+    
+    img.src = imageBase64;
+  });
+}
+
+/**
+ * Simple test function to try common iPhone camera orientation fixes
+ * This function attempts different rotations to find the correct orientation
+ * 
+ * @param imageBase64 - The base64 image string (data URL format)
+ * @returns Promise that resolves to the corrected base64 image string
+ */
+export async function fixImageOrientationTest(imageBase64: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = async () => {
+      try {
+        // Get EXIF orientation from the image data
+        const orientation = await getExifOrientation(imageBase64);
+        
+        console.log('Test approach - Detected EXIF orientation:', orientation);
+        console.log('Original image dimensions:', img.width, 'x', img.height);
+        
+        // Create debug info for visual display
+        const debugInfo = `EXIF: ${orientation}, Dims: ${img.width}x${img.height}`;
+        console.log('Debug info:', debugInfo);
+        
+        // For EXIF orientation 6, the image needs to be rotated regardless of current dimensions
+        // because the EXIF data tells us the correct orientation
+        const needsRotation = orientation === 6 || orientation === 8;
+        
+        if (needsRotation) {
+          console.log(`Applying rotation for EXIF orientation ${orientation}`);
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new CompressionFailedError('Failed to get canvas context'));
+            return;
+          }
+          
+          // For orientation 6, keep original dimensions and just draw normally
+          canvas.width = img.width;   // Keep original width
+          canvas.height = img.height; // Keep original height
+          
+          console.log('Canvas dimensions after correction:', canvas.width, 'x', canvas.height);
+          
+          // Just draw the image normally without any rotation or stretching
+          ctx.drawImage(img, 0, 0);
+          
+          const correctedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+          resolve(correctedBase64);
+        } else {
+          console.log('Image appears portrait, no rotation needed');
+          resolve(imageBase64);
+        }
+        
+      } catch (error) {
+        console.warn('Test orientation fix failed, using original:', error);
+        resolve(imageBase64);
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new CompressionFailedError('Failed to load image for orientation fix'));
+    };
+    
+    img.src = imageBase64;
+  });
+}
+
+/**
+ * Test function that returns both corrected image and debug information
+ * 
+ * @param imageBase64 - The base64 image string (data URL format)
+ * @returns Promise that resolves to an object with corrected image and debug info
+ */
+export async function fixImageOrientationWithDebug(imageBase64: string): Promise<{
+  correctedImage: string;
+  debugInfo: {
+    exifOrientation: number;
+    originalDimensions: { width: number; height: number };
+    isCurrentlyLandscape: boolean;
+    appliedRotation: string;
+    finalDimensions?: { width: number; height: number };
+  };
+}> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = async () => {
+      try {
+        // Get EXIF orientation from the image data
+        const orientation = await getExifOrientation(imageBase64);
+        
+        const isCurrentlyLandscape = img.width > img.height;
+        
+        let correctedImage = imageBase64;
+        let appliedRotation = 'none';
+        let finalDimensions = { width: img.width, height: img.height };
+        
+        // For EXIF orientation 6, apply rotation regardless of current dimensions
+        if (orientation === 6 || orientation === 8) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            throw new Error('Failed to get canvas context');
+          }
+          
+          if (orientation === 6) {
+            // For orientation 6, keep original dimensions and just draw normally
+            canvas.width = img.width;   // Keep original width
+            canvas.height = img.height; // Keep original height
+            
+            // Just draw the image normally without any rotation or stretching
+            ctx.drawImage(img, 0, 0);
+            appliedRotation = 'no rotation, keep original dimensions (orientation 6)';
+          } else if (orientation === 8) {
+            // For orientation 8, keep original dimensions and just draw normally
+            canvas.width = img.width;   // Keep original width
+            canvas.height = img.height; // Keep original height
+            
+            // Just draw the image normally without any rotation or stretching
+            ctx.drawImage(img, 0, 0);
+            appliedRotation = 'no rotation, keep original dimensions (orientation 8)';
+          }
+          
+          correctedImage = canvas.toDataURL('image/jpeg', 0.9);
+          finalDimensions = { width: canvas.width, height: canvas.height };
+        }
+        
+        resolve({
+          correctedImage,
+          debugInfo: {
+            exifOrientation: orientation,
+            originalDimensions: { width: img.width, height: img.height },
+            isCurrentlyLandscape,
+            appliedRotation,
+            finalDimensions
+          }
+        });
+        
+      } catch (error) {
+        console.warn('Debug orientation fix failed:', error);
+        resolve({
+          correctedImage: imageBase64,
+          debugInfo: {
+            exifOrientation: 1,
+            originalDimensions: { width: img.width, height: img.height },
+            isCurrentlyLandscape: img.width > img.height,
+            appliedRotation: 'none (error)'
+          }
+        });
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new CompressionFailedError('Failed to load image for orientation fix'));
+    };
+    
+    img.src = imageBase64;
+  });
 }
 
 // Note: All functions and types are already exported above

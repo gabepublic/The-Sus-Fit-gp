@@ -3,15 +3,6 @@ import { ResizeOptions, ImagesMetadata } from '@/lib/imageResizingService';
 // Re-export ResizeOptions for external use
 export type { ResizeOptions };
 
-
-// export interface ResizeOptions {
-//     width?: number;
-//     height?: number;
-//     fit?: 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
-//     format?: 'jpeg' | 'png' | 'webp' | 'tiff';
-//     quality?: number;
-//     withoutEnlargement?: boolean;
-// }
     
 export interface ResizeResponse {
     success: boolean;
@@ -34,8 +25,8 @@ export class ResizeService {
         options: ResizeOptions
     ): Promise<ResizeResponse> {
         try {
-            console.log('resizeService - imageB64', imageB64.substring(0, 50) + '...');
-            console.log('resizeService - options', options);
+            //console.log('resizeService - imageB64', imageB64.substring(0, 50) + '...');
+            //console.log('resizeService - options', options);
             const response = await fetch('/api/resize', {
                 method: 'POST',
                 headers: {
@@ -48,7 +39,7 @@ export class ResizeService {
             });
 
             const data = await response.json();
-            console.log('resizeService -result:', data);
+            //console.log('resizeService -result:', data);
 
             if (!response.ok) {
                 return {

@@ -56,8 +56,8 @@ export class ImageProcessingService {
       // Create Sharp instance with processing options from buffer
       let sharpInstance = sharp(imageBuffer);
 
-      console.log('ImageProcessingService - options', options);
-      console.log('ImageProcessingService - original metadata:', originalMetadata);
+      //console.log('ImageProcessingService - options', options);
+      //console.log('ImageProcessingService - original metadata:', originalMetadata);
       
       // Handle 4-channel conversion FIRST (before format conversion)
       if (options.ensureFourChannel || options.forceFourChannel) {
@@ -94,15 +94,16 @@ export class ImageProcessingService {
               .toFormat(options.format, { quality: options.quality || 80 });
           }
           
-          console.log(`Applied 4-channel conversion with format: ${options.format}`);
-        } else {
-          console.log('Image already has 4 channels, no conversion needed');
-        }
+          //console.log(`Applied 4-channel conversion with format: ${options.format}`);
+        } 
+        //else {
+          //console.log('Image already has 4 channels, no conversion needed');
+        //}
       }
 
       // Apply resizing if dimensions are provided
       if (options.width || options.height) {
-          console.log('resize with fit', options.fit);
+          //console.log('resize with fit', options.fit);
           sharpInstance = sharpInstance.resize({
             width: options.width,
             height: options.height,
@@ -116,7 +117,7 @@ export class ImageProcessingService {
 
       // Get processed image metadata
       const processedMetadata = await sharp(processedBuffer).metadata();
-      console.log('ImageProcessingService: processed metadata', processedMetadata);
+      //console.log('ImageProcessingService: processed metadata', processedMetadata);
 
       // Convert processed buffer back to base64
       const processedB64 = processedBuffer.toString('base64');

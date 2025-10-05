@@ -6,8 +6,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { imageB64, options } = body;
 
-    console.log('route: imageB64', imageB64.substring(0, 50) + '...');
-    console.log('route: options', options);
+    //console.log('route: imageB64', imageB64.substring(0, 50) + '...');
+    //console.log('route: options', options);
     let result;
 
     if (options) {

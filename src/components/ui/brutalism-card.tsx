@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { useState, useId } from "react"
+import { fixImageOrientationTest } from "@/utils/image"
 
 interface BrutalismCardProps {
   className?: string
@@ -50,16 +51,35 @@ export function BrutalismCard({
       reader.onload = async (e) => {
         const imageDataUrl = e.target?.result as string
         
-        if (onImageUpload) {
-          try {
-            const processedImageUrl = await onImageUpload(imageDataUrl)
-            setUploadedImage(processedImageUrl)
-          } catch (error) {
-            console.error('Error processing image:', error)
-            setUploadedImage(imageDataUrl) // Fallback to original
+        try {
+          // Fix image orientation first (especially important for iPhone Safari camera photos)
+          const correctedImageUrl = await fixImageOrientationTest(imageDataUrl)
+          
+          if (onImageUpload) {
+            try {
+              const processedImageUrl = await onImageUpload(correctedImageUrl)
+              setUploadedImage(processedImageUrl)
+            } catch (error) {
+              console.error('Error processing image:', error)
+              setUploadedImage(correctedImageUrl) // Fallback to corrected image
+            }
+          } else {
+            setUploadedImage(correctedImageUrl)
           }
-        } else {
-          setUploadedImage(imageDataUrl)
+        } catch (orientationError) {
+          console.error('Error fixing image orientation:', orientationError)
+          // Fallback to original image if orientation fix fails
+          if (onImageUpload) {
+            try {
+              const processedImageUrl = await onImageUpload(imageDataUrl)
+              setUploadedImage(processedImageUrl)
+            } catch (error) {
+              console.error('Error processing image:', error)
+              setUploadedImage(imageDataUrl) // Fallback to original
+            }
+          } else {
+            setUploadedImage(imageDataUrl)
+          }
         }
       }
       reader.readAsDataURL(file)
@@ -186,6 +206,7 @@ export function BrutalismCard({
           </div>
         </div>
       </div>
+      
     </div>
   )
 }
